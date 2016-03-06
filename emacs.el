@@ -16,17 +16,11 @@
  )
 
 (require 'package)
-;; (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(setf package-archives '())
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (package-initialize)
 
-(add-to-list 'load-path "~/.emacs.d/elisp")
-
-;; (require 'adaptive-wrap)
-;; Use by M-x adaptive-adaptive-wrap-prefix-mode
-
+;; Disable annoying things
 (blink-cursor-mode 0)
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
@@ -36,35 +30,29 @@
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
 (menu-bar-mode 0)
-;; (set-default-font "Terminus 10")
-;; (set-default-font "7x13")
+
+;; Visual set up
 (set-default-font "Menlo 11")
-(setq mouse-autoselect-window t)
-(windmove-default-keybindings)
-(global-auto-revert-mode t)
-;; (load-theme 'leuven)
-(load-theme 'solarized-dark)
-;; (load-theme 'solarized-light)
-;; (load-theme 'autumn-light)
-;; (global-hl-line-mode 0)
-(show-paren-mode t)
-(ido-mode)
-(setq-default indent-tabs-mode nil)
-(cua-mode)
-(global-linum-mode)
+(load-theme 'solarized-light)
 (setq linum-format "%4d")
-;; (setq-default mode-line-format nil)
 (setq-default mode-line-format (list ">>> %m; %b; %f"))
 (setq show-help-function nil)
 
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-;; (setq-default 'haskell-indent-offset 2)
+;; No tabs!!
+(setq-default indent-tabs-mode nil)
 
-(add-hook 'buffer-menu-mode-hook 'pm)
+(ido-mode)
+(cua-mode)
+
+(setq mouse-autoselect-window t)
+(windmove-default-keybindings)
+
+;; Haskell
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+
+(add-hook 'buffer-menu-mode-hook (lambda () (hl-line-mode)))
 
 (global-set-key (kbd "C-`") 'buffer-menu)
-(global-set-key (kbd "M-r") 'replace-regexp)
-(global-set-key (kbd "M-l") 'recenter-top-bottom)
 
 (defun smart-beginning-of-line ()
   (interactive)
@@ -74,22 +62,12 @@
          (beginning-of-line))))
 (global-set-key (kbd "C-a") 'smart-beginning-of-line)
 
-(global-set-key (kbd "C-n") 'highlight-symbol-next)
-(global-set-key (kbd "C-S-n") 'highlight-symbol-prev)
-
-;; Select current line
-;; (global-set-key (kbd "C-l")
-;;                 (lambda ()
-;;                   (interactive)
-;;                   (move-beginning-of-line nil)
-;;                   (cua-set-mark)
-;;                   (move-end-of-line nil)))
-
 (global-set-key (kbd "M-s") 'exchange-point-and-mark)
 
 ;; Multi cursor bindings
-(global-set-key (kbd "M-a") 'mc/edit-ends-of-lines)
-(global-set-key (kbd "M-i") 'mc/edit-beginnings-of-lines)
+(require 'multiple-cursors)
+(global-set-key (kbd "M-e") 'mc/edit-ends-of-lines)
+(global-set-key (kbd "M-a") 'mc/edit-beginnings-of-lines)
 (global-set-key (kbd "M-m") 'mc/edit-lines)
 (global-set-key (kbd "M-n") 'mc/mark-next-like-this)
 (global-set-key (kbd "M-p") 'mc/unmark-next-like-this)
@@ -97,37 +75,11 @@
 (require 'expand-region)
 (global-set-key (kbd "<M-up>") 'er/expand-region)
 
-(setq lazy-highlight-cleanup nil)
-
 ;; Try and get the escape key doing more C-g like stuff.
 (define-key isearch-mode-map [escape] 'isearch-abort)
 (define-key isearch-mode-map "\e" 'isearch-abort)
 (define-key Buffer-menu-mode-map [escape] 'quit-window)
 (global-set-key [escape] 'keyboard-escape-quit)
-
-;; (defun backward-whitespace () (interactive) (forward-whitespace -1))
-;; (global-set-key (kbd "C-<right>") 'forward-whitespace)
-;; (global-set-key (kbd "C-<left>") 'backward-whitespace)
-
-;; Set up for writing words
-(defun wm ()
-  (interactive)
-  (font-lock-mode 0)
-  (visual-line-mode t)
-  (linum-mode 0)
-  (hl-line-mode 0))
-
-;; Set up for writing code
-(defun pm ()
-  (interactive)
-  (font-lock-mode t)
-  (visual-line-mode 0)
-  (toggle-truncate-lines t)
-  (linum-mode t)
-  (hl-line-mode t))
-
-(set-face-attribute 'mode-line          nil :box nil :underline nil :overline nil)
-(set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil)
 
 (global-set-key (kbd "C-o") 'ffap)
 
@@ -139,4 +91,3 @@
 ;; Inserting random chars
 ;;        C-q C-[ escape
 
-(setq inferior-lisp-program "/usr/local/bin/sbcl")
