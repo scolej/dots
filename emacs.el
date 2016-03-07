@@ -1,5 +1,3 @@
-;; https://www.emacswiki.org/emacs/SiteMap
-
 (custom-set-variables
  '(custom-safe-themes
    (quote
@@ -15,7 +13,7 @@
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
-(setq mouse-wheel-scroll-amount '(4 ((shift) . 4)))
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
 (setq mouse-wheel-progressive-speed nil)
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
@@ -26,6 +24,18 @@
 (setq-default mode-line-format (list ">>> %m; %b; %f"))
 (setq show-help-function nil)
 (show-paren-mode)
+
+;; From https://www.emacswiki.org/emacs/SetFonts
+(defun font-candidate (&rest fonts)
+     "Return existing font which first match."
+     (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
+
+(set-frame-font (font-candidate "Menlo 11" "Courier New 11"))
+
+(or (ignore-errors (load-theme 'white-sand) t)
+    (ignore-errors (load-theme 'solarized-light) t))
+
+(set-cursor-color "#ff0000")
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -71,12 +81,10 @@
 
 (global-set-key (kbd "C-c C-o") 'ffap)
 
-(load "lib/dired-details+.el")
-(setf dired-details-propagate-flag t)
-(setf dired-details-hidden-string "")
-(add-hook 'dired-mode (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file))
-
-(set-cursor-color "#ff0000")
+(when (require 'dired-details+ nil :noerror)
+  (setf dired-details-propagate-flag t)
+  (setf dired-details-hidden-string "")
+  (add-hook 'dired-mode (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)))
 
 ;; Reminders to try later
 ;; delete-trailing-whitespace
@@ -85,5 +93,6 @@
 ;; M-x unhighlight-regexp
 ;; Inserting random chars
 ;;        C-q C-[ escape
+;; M-x find-named-dired
 
 (server-start)
