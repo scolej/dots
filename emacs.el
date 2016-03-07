@@ -81,6 +81,9 @@
 
 (global-set-key (kbd "C-c C-o") 'ffap)
 
+;; (global-unset-key (kbd "C-z"))
+(global-set-key (kbd "C-z") 'undo)
+
 (when (require 'dired-details+ nil :noerror)
   (setf dired-details-propagate-flag t)
   (setf dired-details-hidden-string "")
