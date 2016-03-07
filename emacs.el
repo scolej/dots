@@ -11,7 +11,7 @@
   (package-initialize))
 
 ;; Disable annoying things
-(blink-cursor-mode 0)
+;; (blink-cursor-mode t)
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
@@ -71,6 +71,13 @@
 
 (global-set-key (kbd "C-c C-o") 'ffap)
 
+(load "lib/dired-details+.el")
+(setf dired-details-propagate-flag t)
+(setf dired-details-hidden-string "")
+(add-hook 'dired-mode (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file))
+
+(set-cursor-color "#ff0000")
+
 ;; Reminders to try later
 ;; delete-trailing-whitespace
 ;; C-x C-o remove double blank lines (delete-blank-lines)
@@ -78,3 +85,5 @@
 ;; M-x unhighlight-regexp
 ;; Inserting random chars
 ;;        C-q C-[ escape
+
+(server-start)
