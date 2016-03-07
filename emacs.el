@@ -26,6 +26,7 @@
 (show-paren-mode)
 
 ;; From https://www.emacswiki.org/emacs/SetFonts
+(require 'cl)
 (defun font-candidate (&rest fonts)
      "Return existing font which first match."
      (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
