@@ -9,7 +9,6 @@
   (package-initialize))
 
 ;; Disable annoying things
-;; (blink-cursor-mode t)
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
@@ -31,7 +30,9 @@
      "Return existing font which first match."
      (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
 
-(set-default-font (font-candidate "Menlo 11" "Consolas 11" "Courier New 11"))
+(let ((f (font-candidate "Menlo 11" "Consolas 11" "Courier New 11")))
+  (set-default-font f)
+  (add-to-list 'default-frame-alist `(font . ,f)))
 
 (or (ignore-errors (load-theme 'white-sand) t)
     (ignore-errors (load-theme 'solarized-light) t))
@@ -78,8 +79,6 @@
 (define-key isearch-mode-map [escape] 'isearch-abort)
 (define-key isearch-mode-map "\e" 'isearch-abort)
 (define-key Buffer-menu-mode-map [escape] 'quit-window)
-;; (global-unset-key [escape])
-;; (global-set-key [escape] 'keyboard-escape-quit)
 
 (global-set-key (kbd "C-c C-o") 'ffap)
 
@@ -119,10 +118,15 @@
 
 (global-set-key (kbd "C-c C-c") (kbd "C-a <C-SPC> C-e M-w"))
 
-(let ((dir "C:/JHMI/everything/temp-files"))
-  (setq backup-directory-alist
-        `((".*" . , dir)))
-  (setq auto-save-file-name-transforms
-        `((".*" , dir t))))
+(if (boundp '*my-backup-dir*)
+    (let ((dir *my-backup-dir*))
+      (setq backup-directory-alist
+            `((".*" . , dir)))
+      (setq auto-save-file-name-transforms
+            `((".*" , dir t))))
+  (message "Don't forget to specify a backup directory!"))
+
+;; Delete trailing whitespace on save
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (server-start)
