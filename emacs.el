@@ -31,7 +31,7 @@
      "Return existing font which first match."
      (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
 
-(set-frame-font (font-candidate "Menlo 11" "Courier New 11"))
+(set-default-font (font-candidate "Menlo 11" "Consolas 11" "Courier New 11"))
 
 (or (ignore-errors (load-theme 'white-sand) t)
     (ignore-errors (load-theme 'solarized-light) t))
@@ -78,7 +78,8 @@
 (define-key isearch-mode-map [escape] 'isearch-abort)
 (define-key isearch-mode-map "\e" 'isearch-abort)
 (define-key Buffer-menu-mode-map [escape] 'quit-window)
-(global-set-key [escape] 'keyboard-escape-quit)
+;; (global-unset-key [escape])
+;; (global-set-key [escape] 'keyboard-escape-quit)
 
 (global-set-key (kbd "C-c C-o") 'ffap)
 
@@ -117,5 +118,11 @@
 ;;                   (line-beginning-position 1)))
 
 (global-set-key (kbd "C-c C-c") (kbd "C-a <C-SPC> C-e M-w"))
+
+(let ((dir "C:/JHMI/everything/temp-files"))
+  (setq backup-directory-alist
+        `((".*" . , dir)))
+  (setq auto-save-file-name-transforms
+        `((".*" , dir t))))
 
 (server-start)
