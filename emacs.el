@@ -50,9 +50,17 @@
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 
+(defun switch-to-buffer-menu ()
+  (interactive)
+  (let ((b (get-buffer "*Buffer List*")))
+    (if b (progn
+            (switch-to-buffer b)
+            (revert-buffer))
+      (buffer-menu))))
+(global-set-key (kbd "C-`") 'switch-to-buffer-menu)
 (add-hook 'buffer-menu-mode-hook (lambda () (hl-line-mode)))
 
-(global-set-key (kbd "C-`") 'buffer-menu)
+(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 
 (defun smart-beginning-of-line ()
   (interactive)
@@ -118,6 +126,18 @@
 
 (global-set-key (kbd "C-c C-c") (kbd "C-a <C-SPC> C-e M-w"))
 
+(global-set-key (kbd "<M-up>") 'move-lines-up)
+(global-set-key (kbd "<M-down>") 'move-lines-down)
+
+(global-set-key (kbd "<C-return>") 'cua-rectangle-mark-mode)
+
+(global-set-key (kbd "C-v") 'yank)
+
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+(delete-selection-mode 1)
+
 (if (boundp '*my-backup-dir*)
     (let ((dir *my-backup-dir*))
       (setq backup-directory-alist
@@ -128,5 +148,13 @@
 
 ;; Delete trailing whitespace on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(defun ttl ()
+  (interactive)
+  (toggle-truncate-lines))
+
+(defun vlm ()
+  (interactive)
+  (visual-line-mode))
 
 (server-start)
