@@ -25,8 +25,12 @@
              (add-to-list 'default-frame-alist `(font . ,f)))
     nil))
 
+
+;; Don't forget, for OSX:
+;; defaults write org.gnu.Emacs AppleAntiAliasingThreshold 999
+;; to turn of anti-aliasing.
+
 (or
- (load-font "Terminus 13")
  (load-font "Menlo 11")
  (load-font "Consolas 11"))
 
@@ -109,9 +113,10 @@
 ;; Copy line. Not working very well at the moment.
 (global-set-key (kbd "C-c C-c") (kbd "C-a <C-SPC> C-e M-w"))
 
-(global-set-key (kbd "<M-up>") 'move-lines-up)
-(global-set-key (kbd "<M-down>") 'move-lines-down)
-(global-set-key (kbd "<C-return>") 'cua-rectangle-qmark-mode)
+(when (require 'drag-stuff nil :noerror)
+  (drag-stuff-global-mode))
+
+(global-set-key (kbd "<C-return>") 'cua-rectangle-mark-mode)
 (global-set-key (kbd "C-v") 'yank)
 
 (put 'upcase-region 'disabled nil)
