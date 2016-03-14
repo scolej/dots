@@ -1,8 +1,3 @@
-(custom-set-variables
- '(custom-safe-themes
-   (quote
-    ("a25c42c5e2a6a7a3b0331cad124c83406a71bc7e099b60c31dc28a1ff84e8c04" "4f81886421185048bd186fbccc98d95fca9c8b6a401771b7457d81f749f5df75" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "3b24f986084001ae46aa29ca791d2bc7f005c5c939646d2b800143526ab4d323" "55d31108a7dc4a268a1432cd60a7558824223684afecefa6fae327212c40f8d3" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default))))
-
 (when (require 'package nil :noerror)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
@@ -24,20 +19,22 @@
 (setq show-help-function nil)
 (show-paren-mode)
 
-;; From https://www.emacswiki.org/emacs/SetFonts
-(require 'cl)
-(defun font-candidate (&rest fonts)
-     "Return existing font which first match."
-     (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
+(defun load-font (f)
+  (if (find-font (font-spec :name f))
+      (progn (set-default-font f)
+             (add-to-list 'default-frame-alist `(font . ,f)))
+    nil))
 
-(let ((f (font-candidate "Menlo 11" "Consolas 11" "Courier New 11")))
-  (set-default-font f)
-  (add-to-list 'default-frame-alist `(font . ,f)))
+(or
+ (load-font "Terminus 13")
+ (load-font "Menlo 11")
+ (load-font "Consolas 11"))
 
-(or (ignore-errors (load-theme 'white-sand) t)
-    (ignore-errors (load-theme 'solarized-light) t))
+(or
+ (ignore-errors (load-theme 'white-sand) t)
+ (ignore-errors (load-theme 'solarized-light) t))
 
-(set-cursor-color "#ff0000")
+(set-face-attribute 'cursor nil :background "#ff0000")
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -90,22 +87,12 @@
 
 (global-set-key (kbd "C-c C-o") 'ffap)
 
-;; (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") 'undo)
 
 (when (require 'dired-details+ nil :noerror)
   (setf dired-details-propagate-flag t)
   (setf dired-details-hidden-string "")
   (add-hook 'dired-mode (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)))
-
-;; Reminders to try later
-;; delete-trailing-whitespace
-;; C-x C-o remove double blank lines (delete-blank-lines)
-;; M-x highlight-regexp
-;; M-x unhighlight-regexp
-;; Inserting random chars
-;;        C-q C-[ escape
-;; M-x find-named-dired
 
 (defun duplicate-line ()
   (interactive)
@@ -119,18 +106,12 @@
 
 (setq ido-auto-merge-work-directories-length 5)
 
-;; (defun copy-line ()
-;;   (interactive)
-;;   (kill-ring-save (line-beginning-position)
-;;                   (line-beginning-position 1)))
-
+;; Copy line. Not working very well at the moment.
 (global-set-key (kbd "C-c C-c") (kbd "C-a <C-SPC> C-e M-w"))
 
 (global-set-key (kbd "<M-up>") 'move-lines-up)
 (global-set-key (kbd "<M-down>") 'move-lines-down)
-
-(global-set-key (kbd "<C-return>") 'cua-rectangle-mark-mode)
-
+(global-set-key (kbd "<C-return>") 'cua-rectangle-qmark-mode)
 (global-set-key (kbd "C-v") 'yank)
 
 (put 'upcase-region 'disabled nil)
@@ -138,6 +119,7 @@
 
 (delete-selection-mode 1)
 
+;; Stop polluting the entire filesystem with backup files
 (if (boundp '*my-backup-dir*)
     (let ((dir *my-backup-dir*))
       (setq backup-directory-alist
