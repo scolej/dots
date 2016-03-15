@@ -58,8 +58,15 @@
             (switch-to-buffer b)
             (revert-buffer))
       (buffer-menu))))
+
 (global-set-key (kbd "C-`") 'switch-to-buffer-menu)
-(add-hook 'buffer-menu-mode-hook (lambda () (hl-line-mode)))
+
+;; TODO fix this
+(add-hook 'buffer-menu-mode-hook
+          (lambda ()
+            (hl-line-mode)
+            ;; (set-window-dedicated-p (get-buffer-window) t)
+            ))
 
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 
@@ -135,6 +142,9 @@
 
 ;; Delete trailing whitespace on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; TODO fix this
+;; (add-hook 'dired-mode-hook (lambda () (set-window-dedicated-p (get-buffer-window) t)))
 
 (defun ttl ()
   (interactive)
