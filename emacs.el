@@ -82,11 +82,11 @@
 
 ;; Multi cursor bindings
 (when (require 'multiple-cursors nil :noerror)
-  (global-set-key (kbd "C-c C-e") 'mc/edit-ends-of-lines)
-  (global-set-key (kbd "C-c C-a") 'mc/edit-beginnings-of-lines)
-  (global-set-key (kbd "C-c C-m") 'mc/edit-lines)
-  (global-set-key (kbd "C-c C-n") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C-c C-p") 'mc/unmark-next-like-this))
+  (global-set-key (kbd "C-c e") 'mc/edit-ends-of-lines)
+  (global-set-key (kbd "C-c a") 'mc/edit-beginnings-of-lines)
+  (global-set-key (kbd "C-c m") 'mc/edit-lines)
+  (global-set-key (kbd "C-c n") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-c p") 'mc/unmark-next-like-this))
 
 (when (require 'expand-region nil :noerror)
   (global-set-key (kbd "M-u") 'er/expand-region))
@@ -96,7 +96,7 @@
 (define-key isearch-mode-map "\e" 'isearch-abort)
 (define-key Buffer-menu-mode-map [escape] 'quit-window)
 
-(global-set-key (kbd "C-c C-o") 'ffap)
+(global-set-key (kbd "C-c o") 'ffap)
 
 (global-set-key (kbd "C-z") 'undo)
 
