@@ -68,6 +68,10 @@
             ;; (set-window-dedicated-p (get-buffer-window) t)
             ))
 
+(defun perm ()
+  (interactive)
+  (set-window-dedicated-p (get-buffer-window) t))
+
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 
 (defun smart-beginning-of-line ()
@@ -96,7 +100,21 @@
 (define-key isearch-mode-map "\e" 'isearch-abort)
 (define-key Buffer-menu-mode-map [escape] 'quit-window)
 
-(global-set-key (kbd "C-c C-o") 'ffap)
+;; http://stackoverflow.com/questions/3139970/open-a-file-at-line-with-filenameline-syntax
+(defun find-file-at-point-with-line()
+  "if file has an attached line num goto that line, ie boom.rb:12"
+  (interactive)
+  (setq line-num 0)
+  (save-excursion
+    (search-forward-regexp "[^ ]:" (point-max) t)
+    (if (looking-at "[0-9]+")
+        (setq line-num (string-to-number (buffer-substring (match-beginning 0) (match-end 0))))))
+  (find-file-at-point)
+  ;; (find-file (ffap-guesser))
+  (if (not (equal line-num 0))
+      (goto-line line-num)))
+
+(global-set-key (kbd "C-c C-o") 'find-file-at-point-with-line)
 
 (global-set-key (kbd "C-z") 'undo)
 
@@ -145,6 +163,8 @@
 
 ;; TODO fix this
 ;; (add-hook 'dired-mode-hook (lambda () (set-window-dedicated-p (get-buffer-window) t)))
+
+(set-default 'truncate-lines t)
 
 (defun ttl ()
   (interactive)
