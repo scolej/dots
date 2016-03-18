@@ -32,6 +32,7 @@
 
 (or
  (load-font "Menlo 11")
+ (load-font "Courier New:pixelsize=15:antialias=none")
  (load-font "Consolas 11"))
 
 (or
@@ -72,7 +73,8 @@
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
 
-(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+;; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "M-`") 'ido-switch-buffer)
 
 (defun smart-beginning-of-line ()
   (interactive)
@@ -173,5 +175,35 @@
 (defun vlm ()
   (interactive)
   (visual-line-mode))
+
+(defun arm ()
+  (interactive)
+  (auto-revert-mode))
+
+
+;; TODO case-sensitivity?
+(add-hook 'isearch-mode-hook
+          (lambda ()
+            (if (use-region-p)
+                (progn (setq isearch-string (buffer-substring-no-properties (point) (mark)))
+                       (deactivate-mark)))))
+
+;; https://www.masteringemacs.org/article/searching-buffers-occur-mode
+
+(defun get-buffers-matching-mode (mode)
+  "Returns a list of buffers where their major-mode is equal to MODE"
+  (let ((buffer-mode-matches '()))
+   (dolist (buf (buffer-list))
+     (with-current-buffer buf
+       (if (eq mode major-mode)
+           (add-to-list 'buffer-mode-matches buf))))
+   buffer-mode-matches))
+
+(defun multi-occur-in-this-mode ()
+  "Show all lines matching REGEXP in buffers with this major mode."
+  (interactive)
+  (multi-occur
+   (get-buffers-matching-mode major-mode)
+   (car (occur-read-primary-args))))
 
 (server-start)
