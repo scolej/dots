@@ -1,3 +1,6 @@
+;; TODO Figure out how to make cua-rectangle-mark-mode not use org-table backspace function
+;; TODO Figure out what's going on with isearch mode variables, why when I set isearch-string, the highlighting doesn't match the searching.
+
 (when (require 'package nil :noerror)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
@@ -18,6 +21,7 @@
 (setq-default mode-line-format (list ">>> %m; %b; %f"))
 (setq show-help-function nil)
 (show-paren-mode)
+(global-hl-line-mode)
 
 (defun load-font (f)
   (if (find-font (font-spec :name f))
@@ -45,36 +49,22 @@
 (setq-default indent-tabs-mode nil)
 
 (ido-mode)
-
 (setq mouse-autoselect-window t)
 (windmove-default-keybindings)
 
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 
-(defun switch-to-buffer-menu ()
-  (interactive)
-  (let ((b (get-buffer "*Buffer List*")))
-    (if b (progn
-            (switch-to-buffer b)
-            (revert-buffer))
-      (buffer-menu))))
-
 (global-set-key (kbd "C-`") 'buffer-menu)
-
-;; TODO fix this
-(add-hook 'buffer-menu-mode-hook
-          (lambda ()
-            (hl-line-mode)
-            ;; (set-window-dedicated-p (get-buffer-window) t)
-            ))
 
 (defun perm ()
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
 
 ;; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
-(global-set-key (kbd "M-`") 'ido-switch-buffer)
+;; (global-set-key (kbd "M-`") 'ido-switch-buffer)
+(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "C-x f") 'helm-find-files)
 
 (defun smart-beginning-of-line ()
   (interactive)
@@ -84,7 +74,7 @@
          (beginning-of-line))))
 (global-set-key (kbd "C-a") 'smart-beginning-of-line)
 
-(global-set-key (kbd "M-s") 'exchange-point-and-mark)
+;; (global-set-key (kbd "M-s") 'exchange-point-and-mark)
 
 ;; Multi cursor bindings
 (when (require 'multiple-cursors nil :noerror)
@@ -98,9 +88,9 @@
   (global-set-key (kbd "M-u") 'er/expand-region))
 
 ;; Try and get the escape key doing more C-g like stuff.
-(define-key isearch-mode-map [escape] 'isearch-abort)
-(define-key isearch-mode-map "\e" 'isearch-abort)
-(define-key Buffer-menu-mode-map [escape] 'quit-window)
+;; (define-key isearch-mode-map [escape] 'isearch-abort)
+;; (define-key isearch-mode-map "\e" 'isearch-abort)
+;; (define-key Buffer-menu-mode-map [escape] 'quit-window)
 
 ;; http://stackoverflow.com/questions/3139970/open-a-file-at-line-with-filenameline-syntax
 (defun find-file-at-point-with-line()
@@ -115,7 +105,6 @@
   ;; (find-file (ffap-guesser))
   (if (not (equal line-num 0))
       (goto-line line-num)))
-
 (global-set-key (kbd "C-c o") 'find-file-at-point-with-line)
 
 (global-set-key (kbd "C-z") 'undo)
@@ -135,10 +124,26 @@
   (yank))
 (global-set-key (kbd "C-d") 'duplicate-line)
 
-(setq ido-auto-merge-work-directories-length 5)
+;; If there is no active selection, I want the copy and cut commands to operate on the whole line
 
-;; Copy line. Not working very well at the moment.
-(global-set-key (kbd "C-c C-c") (kbd "C-a <C-SPC> C-e M-w"))
+(global-set-key (kbd "M-w")
+                (lambda ()
+                  (interactive)
+                  (if (use-region-p)
+                      (kill-ring-save (mark) (point))
+                    (kill-ring-save (point-at-bol) (point-at-eol)))))
+
+(global-set-key (kbd "C-w")
+                (lambda ()
+                  (interactive)
+                  (if (use-region-p)
+                      (kill-region (mark) (point))
+                    (kill-whole-line))))
+
+;; (setq cua-rectangle-mark-mode-hook nil)
+;; (add-hook 'cua-rectangle-mark-mode-hook
+;;           (lambda ()
+;;             (set-key
 
 (when (require 'drag-stuff nil :noerror)
   (drag-stuff-global-mode))
@@ -163,11 +168,8 @@
 ;; Delete trailing whitespace on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-;; TODO fix this
-;; (add-hook 'dired-mode-hook (lambda () (set-window-dedicated-p (get-buffer-window) t)))
-
 (set-default 'truncate-lines t)
-
+Defun
 (defun ttl ()
   (interactive)
   (toggle-truncate-lines))
@@ -180,14 +182,16 @@
   (interactive)
   (auto-revert-mode))
 
-
-;; TODO case-sensitivity?
 (add-hook 'isearch-mode-hook
           (lambda ()
             (if (use-region-p)
-                (progn (setq isearch-string (buffer-substring-no-properties (point) (mark)))
-                       (deactivate-mark)))))
+                (let ((str (buffer-substring-no-properties (point) (mark))))
+                           (progn (setq isearch-string str)
+                                  (setq isearch-message str)
+                                  (deactivate-mark))))))
 
+
+;; ----------
 ;; https://www.masteringemacs.org/article/searching-buffers-occur-mode
 
 (defun get-buffers-matching-mode (mode)
@@ -205,5 +209,6 @@
   (multi-occur
    (get-buffers-matching-mode major-mode)
    (car (occur-read-primary-args))))
+;; ----------
 
 (server-start)
