@@ -60,7 +60,7 @@
             (revert-buffer))
       (buffer-menu))))
 
-(global-set-key (kbd "C-`") 'switch-to-buffer-menu)
+(global-set-key (kbd "C-`") 'buffer-menu)
 
 ;; TODO fix this
 (add-hook 'buffer-menu-mode-hook
