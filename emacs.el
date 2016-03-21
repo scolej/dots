@@ -22,6 +22,8 @@
 (setq show-help-function nil)
 (show-paren-mode)
 (global-hl-line-mode)
+(set-default 'truncate-lines t)
+(set-face-attribute 'mode-line-inactive nil :box t) ;; Get rid of gross 3d styling
 
 (defun load-font (f)
   (if (find-font (font-spec :name f))
@@ -176,8 +178,6 @@
 ;; Delete trailing whitespace on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-(set-default 'truncate-lines t)
-Defun
 (defun ttl ()
   (interactive)
   (toggle-truncate-lines))
@@ -190,16 +190,20 @@ Defun
   (interactive)
   (auto-revert-mode))
 
+;; TODO this is awful.
+(setf isearch-mode-hook nil)
 (add-hook 'isearch-mode-hook
           (lambda ()
             (if (use-region-p)
                 (let ((str (buffer-substring-no-properties (point) (mark))))
-                           (progn (setq isearch-string str)
-                                  (setq isearch-message str)
-                                  (deactivate-mark))))))
-
+                  (progn (setf isearch-string str)
+                         (setf isearch-message str)
+                         (setf isearch-case-fold-search t)
+                         (setf search-upper-case nil)
+                         (deactivate-mark))))))
 
 ;; ----------
+
 ;; https://www.masteringemacs.org/article/searching-buffers-occur-mode
 
 (defun get-buffers-matching-mode (mode)
@@ -217,6 +221,7 @@ Defun
   (multi-occur
    (get-buffers-matching-mode major-mode)
    (car (occur-read-primary-args))))
+
 ;; ----------
 
 (server-start)
