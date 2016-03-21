@@ -1,5 +1,6 @@
 ;; TODO Figure out how to make cua-rectangle-mark-mode not use org-table backspace function
 ;; TODO Figure out what's going on with isearch mode variables, why when I set isearch-string, the highlighting doesn't match the searching.
+;; TODO If char before point is whitespace, C-s should do hungry-delete-backward
 
 (when (require 'package nil :noerror)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
@@ -61,10 +62,11 @@
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
 
-;; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x b") 'ido-switch-buffer)
 ;; (global-set-key (kbd "M-`") 'ido-switch-buffer)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x f") 'helm-find-files)
+;; (global-set-key (kbd "C-x b") 'helm-mini)
+;; (global-set-key (kbd "C-x f") 'helm-find-files)
 
 (defun smart-beginning-of-line ()
   (interactive)
@@ -97,6 +99,7 @@
   "if file has an attached line num goto that line, ie boom.rb:12"
   (interactive)
   (setq line-num 0)
+
   (save-excursion
     (search-forward-regexp "[^ ]:" (point-max) t)
     (if (looking-at "[0-9]+")
@@ -169,7 +172,7 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (set-default 'truncate-lines t)
-Defun
+
 (defun ttl ()
   (interactive)
   (toggle-truncate-lines))
@@ -190,6 +193,8 @@ Defun
                                   (setq isearch-message str)
                                   (deactivate-mark))))))
 
+;; (global-set-key (kbd "<C-backspace>") 'hungry-delete-backward)
+;; (global-set-key (kbd "<C-delete>") 'hungry-delete-forward)
 
 ;; ----------
 ;; https://www.masteringemacs.org/article/searching-buffers-occur-mode
