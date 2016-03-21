@@ -1,5 +1,6 @@
 ;; TODO Figure out how to make cua-rectangle-mark-mode not use org-table backspace function
 ;; TODO Figure out what's going on with isearch mode variables, why when I set isearch-string, the highlighting doesn't match the searching.
+;; TODO If char before point is whitespace, C-s should do hungry-delete-backward
 
 (when (require 'package nil :noerror)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
@@ -57,24 +58,17 @@
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 
-;; (defun switch-to-buffer-menu ()
-;;   (interactive)
-;;   (let ((b (get-buffer "*Buffer List*")))
-;;     (if b (progn
-;;             (switch-to-buffer b)
-;;             (revert-buffer))
-;;       (buffer-menu))))
-
-;; (global-set-key (kbd "C-`") 'switch-to-buffer-menu)
+(global-set-key (kbd "C-`") 'buffer-menu)
 
 (defun perm ()
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
 
-;; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x b") 'ido-switch-buffer)
 ;; (global-set-key (kbd "M-`") 'ido-switch-buffer)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x f") 'helm-find-files)
+;; (global-set-key (kbd "C-x b") 'helm-mini)
+;; (global-set-key (kbd "C-x f") 'helm-find-files)
 
 (defun smart-beginning-of-line ()
   (interactive)
@@ -107,6 +101,7 @@
   "if file has an attached line num goto that line, ie boom.rb:12"
   (interactive)
   (setq line-num 0)
+
   (save-excursion
     (search-forward-regexp "[^ ]:" (point-max) t)
     (if (looking-at "[0-9]+")
@@ -178,6 +173,8 @@
 ;; Delete trailing whitespace on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+(set-default 'truncate-lines t)
+
 (defun ttl ()
   (interactive)
   (toggle-truncate-lines))
@@ -196,11 +193,9 @@
           (lambda ()
             (if (use-region-p)
                 (let ((str (buffer-substring-no-properties (point) (mark))))
-                  (progn (setf isearch-string str)
-                         (setf isearch-message str)
-                         (setf isearch-case-fold-search t)
-                         (setf search-upper-case nil)
-                         (deactivate-mark))))))
+                           (progn (setq isearch-string str)
+                                  (setq isearch-message str)
+                                  (deactivate-mark))))))
 
 ;; ----------
 
