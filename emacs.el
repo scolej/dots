@@ -7,6 +7,8 @@
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
   (package-initialize))
 
+(require 'org-table)
+
 ;; Disable annoying things
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
