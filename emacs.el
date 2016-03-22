@@ -11,7 +11,7 @@
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-scroll-amount '(4 ((shift) . 4)))
 (setq mouse-wheel-progressive-speed nil)
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
@@ -39,12 +39,12 @@
 
 (or
  (load-font "Menlo 11")
- (load-font "Courier New:pixelsize=15:antialias=none")
+ (load-font "Courier New:pixelsize=13:antialias=none")
  (load-font "Consolas 11"))
 
-(or
- (ignore-errors (load-theme 'white-sand) t)
- (ignore-errors (load-theme 'solarized-light) t))
+;; (or
+;;  (ignore-errors (load-theme 'white-sand) t)
+;;  (ignore-errors (load-theme 'solarized-light) t))
 
 (set-face-attribute 'cursor nil :background "#ff0000")
 
@@ -63,6 +63,9 @@
 (defun perm ()
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
+
+(global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
+(global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
 
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-x b") 'ido-switch-buffer)
