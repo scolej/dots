@@ -24,14 +24,15 @@
 (show-paren-mode)
 (global-hl-line-mode)
 (set-default 'truncate-lines t)
-(set-face-attribute 'mode-line-inactive nil :box t) ;; Get rid of gross 3d styling
+ ;; Get rid of gross 3d styling
+(set-face-attribute 'mode-line-inactive nil :box t)
+(set-face-attribute 'mode-line nil :box t)
 
 (defun load-font (f)
   (if (find-font (font-spec :name f))
       (progn (set-default-font f)
              (add-to-list 'default-frame-alist `(font . ,f)))
     nil))
-
 
 ;; Don't forget, for OSX:
 ;; defaults write org.gnu.Emacs AppleAntiAliasingThreshold 999
@@ -58,7 +59,16 @@
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 
-(global-set-key (kbd "C-`") 'buffer-menu)
+(defun switch-to-buffer-menu ()
+  (interactive)
+  (let ((b (get-buffer "*Buffer List*")))
+    (if b (progn
+            (switch-to-buffer b)
+            (revert-buffer))
+      (buffer-menu))))
+
+(global-set-key (kbd "C-`") 'switch-to-buffer-menu)
+
 
 (defun perm ()
   (interactive)
@@ -66,6 +76,16 @@
 
 (global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
 (global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
+
+;; If there is a block of whitespace before point, then C-backspace should delete only the whitespace and nothing more.
+(global-set-key (kbd "<C-backspace>")
+                (lambda ()
+                  (interactive)
+                  (if (or (equal (char-before) ?\s)
+                          (equal (char-before) ?\n)
+                          (equal (char-before) ?\r))
+                      (hungry-delete-backward 1)
+                    (backward-kill-word 1))))
 
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-x b") 'ido-switch-buffer)
