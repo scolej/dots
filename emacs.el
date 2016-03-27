@@ -40,14 +40,16 @@
 ;; defaults write org.gnu.Emacs AppleAntiAliasingThreshold 999
 ;; to turn of anti-aliasing.
 
-(or
- (load-font "Menlo 11")
- (load-font "Courier New:pixelsize=13:antialias=none")
- (load-font "Consolas 11"))
+(when (display-graphic-p)
+  (or
+   (load-font "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-2")
+   (load-font "Menlo 11")
+   (load-font "Courier New:pixelsize=13:antialias=none")
+   (load-font "Consolas 11")))
 
-;; (or
-;;  (ignore-errors (load-theme 'white-sand) t)
-;;  (ignore-errors (load-theme 'solarized-light) t))
+(or
+ (ignore-errors (load-theme 'white-sand) t)
+ (ignore-errors (load-theme 'solarized-light) t))
 
 (set-face-attribute 'cursor nil :background "#ff0000")
 
@@ -71,23 +73,22 @@
 
 (global-set-key (kbd "C-`") 'switch-to-buffer-menu)
 
-
 (defun perm ()
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
 
-(global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
-(global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
+;; (global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
+;; (global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
 
-;; If there is a block of whitespace before point, then C-backspace should delete only the whitespace and nothing more.
-(global-set-key (kbd "<C-backspace>")
-                (lambda ()
-                  (interactive)
-                  (if (or (equal (char-before) ?\s)
-                          (equal (char-before) ?\n)
-                          (equal (char-before) ?\r))
-                      (hungry-delete-backward 1)
-                    (backward-kill-word 1))))
+;; ;; If there is a block of whitespace before point, then C-backspace should delete only the whitespace and nothing more.
+;; (global-set-key (kbd "<C-backspace>")
+;;                 (lambda ()
+;;                   (interactive)
+;;                   (if (or (equal (char-before) ?\s)
+;;                           (equal (char-before) ?\n)
+;;                           (equal (char-before) ?\r))
+;;                       (hungry-delete-backward 1)
+;;                     (backward-kill-word 1))))
 
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-x b") 'ido-switch-buffer)
