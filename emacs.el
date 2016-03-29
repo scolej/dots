@@ -21,7 +21,7 @@
 
 ;; Visual set up
 (setq linum-format "%4d")
-(setq-default mode-line-format (list ">>> %m; %b; %f"))
+(setq-default mode-line-format (list "%6l %2c >>> %m; %b; %f; %P"))
 (setq show-help-function nil)
 (show-paren-mode)
 (global-hl-line-mode)
@@ -45,9 +45,9 @@
  (load-font "Courier New:pixelsize=13:antialias=none")
  (load-font "Consolas 11"))
 
-;; (or
-;;  (ignore-errors (load-theme 'white-sand) t)
-;;  (ignore-errors (load-theme 'solarized-light) t))
+(or
+ (ignore-errors (load-theme 'white-sand) t)
+ (ignore-errors (load-theme 'solarized-light) t))
 
 (set-face-attribute 'cursor nil :background "#ff0000")
 
@@ -152,7 +152,7 @@
   (open-line 1)
   (next-line 1)
   (yank))
-(global-set-key (kbd "C-d") 'duplicate-line)
+(global-set-key (kbd "C-c d") 'duplicate-line)
 
 ;; If there is no active selection, I want the copy and cut commands to operate on the whole line
 
@@ -223,6 +223,20 @@
                                   (deactivate-mark))))))
 
 ;; ----------
+
+(global-set-key (kbd "C-c h")
+                (lambda ()
+                  (interactive)
+                  (if (not (= (point) (mark)))
+                      (highlight-regexp (buffer-substring-no-properties (point) (mark))))))
+
+
+(global-set-key (kbd "C-c u")
+                (lambda ()
+                  (interactive)
+                  (if (not (= (point) (mark)))
+                      (unhighlight-regexp (buffer-substring-no-properties (point) (mark))))))
+
 
 ;; https://www.masteringemacs.org/article/searching-buffers-occur-mode
 
