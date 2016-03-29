@@ -213,6 +213,10 @@
   (interactive)
   (auto-revert-mode))
 
+(defun rev ()
+  (interactive)
+  (revert-buffer t t))
+
 ;; TODO this is awful.
 (setf isearch-mode-hook nil)
 (add-hook 'isearch-mode-hook
