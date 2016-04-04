@@ -44,12 +44,12 @@
   (or
    (load-font "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-2")
    (load-font "Menlo 11")
-   (load-font "Courier New:pixelsize=13:antialias=none")
+   (load-font "Courier New:pixelsize=12:antialias=none")
    (load-font "Consolas 11")))
 
 (or
- (ignore-errors (load-theme 'white-sand) t)
- (ignore-errors (load-theme 'solarized-light) t))
+ (ignore-errors (load-theme 'solarized-light) t)
+ (ignore-errors (load-theme 'white-sand) t))
 
 (set-face-attribute 'cursor nil :background "#ff0000")
 
@@ -57,7 +57,7 @@
 (setq-default indent-tabs-mode nil)
 
 (ido-mode)
-(setq mouse-autoselect-window t)
+;; (setq mouse-autoselect-window nil)
 (windmove-default-keybindings)
 
 ;; Haskell
@@ -76,9 +76,10 @@
 (defun perm ()
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
+  ;;(setq window-size-fixed t))
 
-;; (global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
-;; (global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
+(global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
+(global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
 
 ;; ;; If there is a block of whitespace before point, then C-backspace should delete only the whitespace and nothing more.
 ;; (global-set-key (kbd "<C-backspace>")
@@ -90,8 +91,9 @@
 ;;                       (hungry-delete-backward 1)
 ;;                     (backward-kill-word 1))))
 
-(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
-(global-set-key (kbd "C-x b") 'ido-switch-buffer)
+;; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+;; (global-set-key (kbd "C-x b") 'ido-switch-buffer)
+(global-set-key (kbd "<M-SPC>") 'ido-switch-buffer)
 ;; (global-set-key (kbd "M-`") 'ido-switch-buffer)
 ;; (global-set-key (kbd "C-x b") 'helm-mini)
 ;; (global-set-key (kbd "C-x f") 'helm-find-files)
@@ -154,6 +156,13 @@
   (next-line 1)
   (yank))
 (global-set-key (kbd "C-c d") 'duplicate-line)
+
+(global-set-key (kbd "C-c l")
+                (lambda ()
+                  (interactive)
+                  (move-beginning-of-line 1)
+                  (set-mark (point))
+                  (move-beginning-of-line 2)))
 
 ;; If there is no active selection, I want the copy and cut commands to operate on the whole line
 
@@ -227,6 +236,11 @@
                                   (setq isearch-message str)
                                   (deactivate-mark))))))
 
+(defun switch-to-previous-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+(global-set-key (kbd "<C-tab>") 'switch-to-previous-buffer)
+
 ;; ----------
 
 (global-set-key (kbd "C-c h")
@@ -234,7 +248,6 @@
                   (interactive)
                   (if (not (= (point) (mark)))
                       (highlight-regexp (buffer-substring-no-properties (point) (mark))))))
-
 
 (global-set-key (kbd "C-c u")
                 (lambda ()
@@ -262,5 +275,15 @@
    (car (occur-read-primary-args))))
 
 ;; ----------
+
+(defun generate-buffer ()
+  (interactive)
+  (switch-to-buffer (make-temp-name "scratch")))
+
+;; (require 'shackle)
+;; (setq shackle-default-rule '(:same t))
+
+(setq split-height-threshold 1200)
+(setq split-width-threshold 2000)
 
 (server-start)
