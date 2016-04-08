@@ -42,6 +42,7 @@
 
 (when (display-graphic-p)
   (or
+   (load-font "Mono 11")
    (load-font "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-2")
    (load-font "Menlo 11")
    (load-font "Courier New:pixelsize=13:antialias=none")
@@ -214,6 +215,7 @@
   (auto-revert-mode))
 
 ;; TODO this is awful.
+;; Want to automatically search for the selected string if we C-s with a live selection
 (setf isearch-mode-hook nil)
 (add-hook 'isearch-mode-hook
           (lambda ()
@@ -244,5 +246,9 @@
    (car (occur-read-primary-args))))
 
 ;; ----------
+
+(autoload 'ghc-init "ghc" nil t)
+(autoload 'ghc-debug "ghc" nil t)
+(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
 (server-start)
