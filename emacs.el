@@ -4,6 +4,9 @@
 ;; TODO highlight current line - set fg colour so you can always see it
 ;; TODO select whole lines like Vim shift-v
 
+;; TODO this --> http://stackoverflow.com/questions/21761971/prevent-emacs-commands-from-showing-new-buffers-in-other-windows
+;; use (window-list) and (frame-list)
+
 (when (require 'package nil :noerror)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
@@ -298,5 +301,11 @@
  (lambda (face)
    (set-face-attribute face nil :weight 'normal :underline nil))
  (face-list))
+
+(setq-default truncate-partial-width-windows 0)
+
+(setq buffer-menu-sort-column 4)
+
+(setq speedbar-directory-unshown-regexp "^$")
 
 (server-start)
