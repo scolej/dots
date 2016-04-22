@@ -1,6 +1,9 @@
 ;; TODO Figure out how to make cua-rectangle-mark-mode not use org-table backspace function
 ;; TODO Figure out what's going on with isearch mode variables, why when I set isearch-string, the highlighting doesn't match the searching.
 ;; TODO If char before point is whitespace, C-s should do hungry-delete-backward
+;; TODO highlight current line - set fg colour so you can always see it
+;; TODO select whole lines like Vim shift-v
+;; TODO dired file heat-map highlighting
 
 (when (require 'package nil :noerror)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
@@ -21,10 +24,10 @@
 
 ;; Visual set up
 (setq linum-format "%4d")
-(setq-default mode-line-format (list ">>> %m; %b; %f"))
+(setq-default mode-line-format (list "%Z %6l %2c >>> %m; %b; %f; %P"))
 (setq show-help-function nil)
 (show-paren-mode)
-(global-hl-line-mode)
+(global-hl-line-mode -1)
 (set-default 'truncate-lines t)
  ;; Get rid of gross 3d styling
 (set-face-attribute 'mode-line-inactive nil :box t)
@@ -36,21 +39,17 @@
              (add-to-list 'default-frame-alist `(font . ,f)))
     nil))
 
-;; Don't forget, for OSX:
-;; defaults write org.gnu.Emacs AppleAntiAliasingThreshold 999
-;; to turn of anti-aliasing.
-
 (when (display-graphic-p)
   (or
-   (load-font "Mono 11")
+   (load-font "Mono 9")
    (load-font "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-2")
-   (load-font "Menlo 11")
-   (load-font "Courier New:pixelsize=13:antialias=none")
-   (load-font "Consolas 11")))
+   (load-font "Consolas 12")
+   (load-font "Courier New:pixelsize=15:antialias=none")))
 
 (or
- (ignore-errors (load-theme 'white-sand) t)
- (ignore-errors (load-theme 'solarized-light) t))
+ (ignore-errors (load-theme 'solarized-light) t)
+ (ignore-errors (load-theme 'solarized-dark) t)
+ (ignore-errors (load-theme 'white-sand) t))
 
 (set-face-attribute 'cursor nil :background "#ff0000")
 
@@ -58,7 +57,7 @@
 (setq-default indent-tabs-mode nil)
 
 (ido-mode)
-(setq mouse-autoselect-window t)
+;; (setq mouse-autoselect-window nil)
 (windmove-default-keybindings)
 
 ;; Haskell
@@ -77,9 +76,10 @@
 (defun perm ()
   (interactive)
   (set-window-dedicated-p (get-buffer-window) t))
+  ;;(setq window-size-fixed t))
 
-;; (global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
-;; (global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
+(global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
+(global-set-key (kbd "<C-S-right>") (lambda () (interactive) (forward-whitespace 1)))
 
 ;; ;; If there is a block of whitespace before point, then C-backspace should delete only the whitespace and nothing more.
 ;; (global-set-key (kbd "<C-backspace>")
@@ -93,6 +93,7 @@
 
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-x b") 'ido-switch-buffer)
+;; (global-set-key (kbd "<M-SPC>") 'ido-switch-buffer)
 ;; (global-set-key (kbd "M-`") 'ido-switch-buffer)
 ;; (global-set-key (kbd "C-x b") 'helm-mini)
 ;; (global-set-key (kbd "C-x f") 'helm-find-files)
@@ -154,7 +155,15 @@
   (open-line 1)
   (next-line 1)
   (yank))
-(global-set-key (kbd "C-d") 'duplicate-line)
+(global-set-key (kbd "C-c d") 'duplicate-line)
+
+;; (global-set-key (kbd "C-c l")
+(global-set-key (kbd "<M-SPC>")
+                (lambda ()
+                  (interactive)
+                  (move-beginning-of-line 1)
+                  (set-mark (point))
+                  (move-beginning-of-line 2)))
 
 ;; If there is no active selection, I want the copy and cut commands to operate on the whole line
 
@@ -172,16 +181,14 @@
                       (kill-region (mark) (point))
                     (kill-whole-line))))
 
-;; (setq cua-rectangle-mark-mode-hook nil)
-;; (add-hook 'cua-rectangle-mark-mode-hook
-;;           (lambda ()
-;;             (set-key
-
 (when (require 'drag-stuff nil :noerror)
   (drag-stuff-global-mode))
 
 (global-set-key (kbd "<C-return>") 'cua-rectangle-mark-mode)
 (global-set-key (kbd "C-v") 'yank)
+
+(global-set-key (kbd "C-c -") 'text-scale-decrease)
+(global-set-key (kbd "C-c +") 'text-scale-increase)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -202,6 +209,10 @@
 
 (set-default 'truncate-lines t)
 
+(add-to-list 'auto-mode-alist
+             '("\\.txt\\'" . (lambda ()
+                               (visual-line-mode))))
+
 (defun ttl ()
   (interactive)
   (toggle-truncate-lines))
@@ -214,6 +225,10 @@
   (interactive)
   (auto-revert-mode))
 
+(defun rev ()
+  (interactive)
+  (revert-buffer t t))
+
 ;; TODO this is awful.
 ;; Want to automatically search for the selected string if we C-s with a live selection
 (setf isearch-mode-hook nil)
@@ -225,7 +240,25 @@
                                   (setq isearch-message str)
                                   (deactivate-mark))))))
 
+(defun switch-to-previous-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+(global-set-key (kbd "<C-tab>") 'switch-to-previous-buffer)
+
 ;; ----------
+
+(global-set-key (kbd "C-c h")
+                (lambda ()
+                  (interactive)
+                  (if (not (= (point) (mark)))
+                      (highlight-regexp (buffer-substring-no-properties (point) (mark))))))
+
+(global-set-key (kbd "C-c u")
+                (lambda ()
+                  (interactive)
+                  (if (not (= (point) (mark)))
+                      (unhighlight-regexp (buffer-substring-no-properties (point) (mark))))))
+
 
 ;; https://www.masteringemacs.org/article/searching-buffers-occur-mode
 
@@ -247,8 +280,17 @@
 
 ;; ----------
 
-(autoload 'ghc-init "ghc" nil t)
-(autoload 'ghc-debug "ghc" nil t)
-(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
+(defun generate-buffer ()
+  (interactive)
+  (switch-to-buffer (make-temp-name "scratch")))
+
+(setq split-height-threshold 1200)
+(setq split-width-threshold 2000)
+
+;; Stop using bold fonts
+(mapc
+ (lambda (face)
+   (set-face-attribute face nil :weight 'normal :underline nil))
+ (face-list))
 
 (server-start)
