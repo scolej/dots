@@ -49,7 +49,7 @@
   (or
    (load-font "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-2")
    (load-font "Menlo 11")
-   (load-font "Consolas 12")
+   (load-font "Consolas 11")
    (load-font "Courier New:pixelsize=15:antialias=none")))
 
 (or
@@ -253,6 +253,8 @@
 
 ;; ----------
 
+(global-set-key (kbd "C-c /") 'replace-string)
+
 (global-set-key (kbd "C-c h")
                 (lambda ()
                   (interactive)
@@ -302,10 +304,35 @@
    (set-face-attribute face nil :weight 'normal :underline nil))
  (face-list))
 
+(defun hi-log ()
+  (interactive)
+  (unhighlight-regexp t)
+  (highlight-regexp "^INFO" 'hi-blue)
+  (highlight-regexp "^WARNING" 'hi-yellow)
+  (highlight-regexp "^SEVERE" 'hi-red-b))
+
 (setq-default truncate-partial-width-windows 0)
 
 (setq buffer-menu-sort-column 4)
 
 (setq speedbar-directory-unshown-regexp "^$")
+
+;; (require 'hideshow)
+;; (require 'sgml-mode)
+;; (require 'nxml-mode)
+
+;; (add-to-list 'hs-special-modes-alist
+;;              '(nxml-mode
+;;                "<!--\\|<[^/>]*[^/]>"
+;;                "-->\\|</[^/>]*[^/]>"
+
+;;                "<!--"
+;;                sgml-skip-tag-forward
+;;                nil))
+
+;; (add-hook 'nxml-mode-hook 'hs-minor-mode)
+
+;; ;; optional key bindings, easier than hs defaults
+;; (define-key nxml-mode-map (kbd "C-c f") 'hs-toggle-hiding)
 
 (server-start)
