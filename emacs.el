@@ -1,9 +1,12 @@
+(require 'package)
 (package-initialize)
+
+(require 'drag-stuff)
+(require 'duplicate-thing)
+(require 'highlight-symbol)
+
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-
-(require 'highlight-symbol)
-(require 'package)
 
 ;; Disable annoying things
 (setq inhibit-startup-message t)
@@ -33,17 +36,13 @@
 
 (when (display-graphic-p)
   (set-default-font "8"))
-
 (setf text-scale-mode-step 1.05)
-
 (load-theme 'solarized-light)
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
-
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
-
 (delete-selection-mode 1)
 
 ;; Stop polluting the entire filesystem with backup files
@@ -57,22 +56,24 @@
   (toggle-truncate-lines)
   (visual-line-mode))
 
-;; TODO Does this even work?
-(setf arm 'auto-revert-mode)
+(defun arm ()
+  (interactive)
+  (auto-revert-mode))
 
 (defun gen-buffer ()
   (interactive)
   (switch-to-buffer (make-temp-name "scratch")))
 
 (windmove-default-keybindings)
+(drag-stuff-global-mode)
 (ido-mode)
 (cua-mode)
-  
+
 (defvar my-keys-minor-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-a") 'beginning)
-    (define-key map (kbd "C-e") 'ending)
+    (define-key map (kbd "C-b") 'ido-switch-buffer)
     (define-key map (kbd "C-d") 'kill-whole-line)
+    (define-key map (kbd "M-d") 'duplicate-thing)
     (define-key map (kbd "C-/") 'mc/edit-lines)
     (define-key map (kbd "C-n") 'mc/mark-next-like-this)
     (define-key map (kbd "C-p") 'mc/unmark-next-like-this)
@@ -91,14 +92,14 @@
 
 (my-keys-minor-mode 1)
 
-(add-hook 'after-load-functions 'my-keys-have-priority)
-
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
   (unless (eq (caar minor-mode-map-alist) 'my-keys-minor-mode)
     (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
       (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
       (add-to-list 'minor-mode-map-alist mykeys))))
+
+(add-hook 'after-load-functions 'my-keys-have-priority)
 
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
