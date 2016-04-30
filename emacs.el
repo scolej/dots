@@ -35,7 +35,11 @@
 (set-face-attribute 'mode-line nil :box t)
 
 (when (display-graphic-p)
-  (set-default-font "8"))
+  (set-face-attribute 'default nil :font "Mono 8" )
+  (set-frame-font "Mono 8" nil t))
+
+(add-to-list 'default-frame-alist '(cursor-color . "red"))
+
 (setf text-scale-mode-step 1.05)
 (load-theme 'solarized-light)
 
