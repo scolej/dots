@@ -70,7 +70,7 @@
 (windmove-default-keybindings)
 (drag-stuff-global-mode)
 (ido-mode)
-(cua-mode)
+;; (cua-mode)
 
 (defvar my-keys-minor-mode-map
   (let ((map (make-sparse-keymap)))
@@ -86,6 +86,7 @@
     (define-key map (kbd "C--") 'text-scale-decrease)
     (define-key map (kbd "C-=") 'text-scale-increase)
     (define-key map (kbd "C-c o") 'ffap)
+    (define-key map (kbd "C-v") 'yank)
     map)
   "")
 
