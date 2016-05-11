@@ -87,6 +87,7 @@
     (define-key map (kbd "C-=") 'text-scale-increase)
     (define-key map (kbd "C-c o") 'ffap)
     (define-key map (kbd "C-v") 'yank)
+    (define-key map (kbd "C-`") 'ibuffer)
     map)
   "")
 
@@ -95,7 +96,7 @@
   :init-value t
   :lighter " my-keys")
 
-(my-keys-minor-mode 1)
+(my-keys-minor-mode t)
 
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
