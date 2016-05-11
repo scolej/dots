@@ -85,6 +85,7 @@
     (define-key map (kbd "C-,") 'highlight-symbol-prev)
     (define-key map (kbd "C--") 'text-scale-decrease)
     (define-key map (kbd "C-=") 'text-scale-increase)
+    (define-key map (kbd "C-c o") 'ffap)
     map)
   "")
 
@@ -106,6 +107,3 @@
 
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-
-(server-start)
-
