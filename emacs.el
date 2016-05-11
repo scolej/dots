@@ -1,10 +1,14 @@
 (require 'package)
 (package-initialize)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+;; (setf package-archives '())
+
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+;; (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 (require 'drag-stuff)
-(require 'duplicate-thing)
+;; (require 'duplicate-thing)
 (require 'highlight-symbol)
 
 ;; Disable annoying things
@@ -33,9 +37,9 @@
 (set-face-attribute 'mode-line-inactive nil :box t)
 (set-face-attribute 'mode-line nil :box t)
 
-(when (display-graphic-p)
-  (set-face-attribute 'default nil :font "Mono 8" )
-  (set-frame-font "Mono 8" nil t))
+;; (when (display-graphic-p)
+;;   (set-face-attribute 'default nil :font "Mono 8" )
+;;   (set-frame-font "Mono 8" nil t))
 
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 
@@ -70,7 +74,7 @@
 (windmove-default-keybindings)
 (drag-stuff-global-mode)
 (ido-mode)
-(cua-mode)
+;; (cua-mode)
 
 (defvar my-keys-minor-mode-map
   (let ((map (make-sparse-keymap)))
@@ -85,6 +89,7 @@
     (define-key map (kbd "C-,") 'highlight-symbol-prev)
     (define-key map (kbd "C--") 'text-scale-decrease)
     (define-key map (kbd "C-=") 'text-scale-increase)
+    (define-key map (kbd "C-z") 'undo)
     map)
   "")
 
