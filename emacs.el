@@ -84,12 +84,17 @@
     (define-key map (kbd "C-/") 'mc/edit-lines)
     (define-key map (kbd "C-n") 'mc/mark-next-like-this)
     (define-key map (kbd "C-p") 'mc/unmark-next-like-this)
+    (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
+    (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
     (define-key map (kbd "C-f") 'highlight-symbol-at-point)
     (define-key map (kbd "C-.") 'highlight-symbol-next)
     (define-key map (kbd "C-,") 'highlight-symbol-prev)
     (define-key map (kbd "C--") 'text-scale-decrease)
     (define-key map (kbd "C-=") 'text-scale-increase)
     (define-key map (kbd "C-z") 'undo)
+    (define-key map (kbd "C-c o") 'ffap)
+    (define-key map (kbd "C-v") 'yank)
+    (define-key map (kbd "C-`") 'ibuffer)
     map)
   "")
 
@@ -98,7 +103,7 @@
   :init-value t
   :lighter " my-keys")
 
-(my-keys-minor-mode 1)
+(my-keys-minor-mode t)
 
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
@@ -111,6 +116,3 @@
 
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-
-(server-start)
-
