@@ -76,34 +76,33 @@
 (ido-mode)
 ;; (cua-mode)
 
-(defvar my-keys-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-b") 'ido-switch-buffer)
-    (define-key map (kbd "C-d") 'kill-whole-line)
-    (define-key map (kbd "M-d") 'duplicate-thing)
-    (define-key map (kbd "C-/") 'mc/edit-lines)
-    (define-key map (kbd "C-n") 'mc/mark-next-like-this)
-    (define-key map (kbd "C-p") 'mc/unmark-next-like-this)
-    (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-    (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
-    (define-key map (kbd "C-f") 'highlight-symbol-at-point)
-    (define-key map (kbd "C-.") 'highlight-symbol-next)
-    (define-key map (kbd "C-,") 'highlight-symbol-prev)
-    (define-key map (kbd "C--") 'text-scale-decrease)
-    (define-key map (kbd "C-=") 'text-scale-increase)
-    (define-key map (kbd "C-z") 'undo)
-    (define-key map (kbd "C-c o") 'ffap)
-    (define-key map (kbd "C-v") 'yank)
-    (define-key map (kbd "C-`") 'ibuffer)
-    map)
-  "")
-
 (define-minor-mode my-keys-minor-mode
   "Minor mode for my keys."
   :init-value t
-  :lighter " my-keys")
+  :lighter " my-keys"
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-b") 'ido-switch-buffer)
+            (define-key map (kbd "C-d") 'kill-whole-line)
+            (define-key map (kbd "M-d") 'duplicate-thing)
+            (define-key map (kbd "C-/") 'mc/edit-lines)
+            (define-key map (kbd "C-n") 'mc/mark-next-like-this)
+            (define-key map (kbd "C-p") 'mc/unmark-next-like-this)
+            (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
+            (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
+            (define-key map (kbd "C-f") 'highlight-symbol-at-point)
+            (define-key map (kbd "C-.") 'highlight-symbol-next)
+            (define-key map (kbd "C-,") 'highlight-symbol-prev)
+            (define-key map (kbd "C--") 'text-scale-decrease)
+            (define-key map (kbd "C-=") 'text-scale-increase)
+            (define-key map (kbd "C-z") 'undo)
+            (define-key map (kbd "C-c o") 'ffap)
+            (define-key map (kbd "C-v") 'yank)
+            (define-key map (kbd "C-`") 'ibuffer)
+            (define-key map (kbd "C-c c") 'comment-region)
+            (define-key map (kbd "C-c u") 'uncomment-region)
+            map))
 
-(my-keys-minor-mode t)
+(my-keys-minor-mode nil)
 
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
@@ -112,6 +111,7 @@
       (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
       (add-to-list 'minor-mode-map-alist mykeys))))
 
+(remove-hook 'after-load-functions 'my-keys-have-priority)
 (add-hook 'after-load-functions 'my-keys-have-priority)
 
 ;; Haskell
