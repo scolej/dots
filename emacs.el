@@ -2,7 +2,6 @@
 (package-initialize)
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-;; (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 (require 'drag-stuff)
@@ -69,32 +68,29 @@
 (drag-stuff-global-mode)
 (ido-mode)
 
-(defvar my-keys-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-,") 'highlight-symbol-prev)
-    (define-key map (kbd "C--") 'text-scale-decrease)
-    (define-key map (kbd "C-.") 'highlight-symbol-next)
-    (define-key map (kbd "C-/") 'mc/edit-lines)
-    (define-key map (kbd "C-=") 'text-scale-increase)
-    (define-key map (kbd "C-`") 'ibuffer)
-    (define-key map (kbd "C-b") 'ido-switch-buffer)
-    (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-    (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
-    (define-key map (kbd "C-c f") 'highlight-symbol-at-point)
-    (define-key map (kbd "C-c o") 'ffap)
-    (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
-    (define-key map (kbd "C-d") 'kill-whole-line)
-    (define-key map (kbd "C-n") 'mc/mark-next-like-this)
-    (define-key map (kbd "C-v") 'yank)
-    (define-key map (kbd "C-z") 'undo)
-    (define-key map (kbd "M-d") 'duplicate-thing)
-    map)
-  "")
-
 (define-minor-mode my-keys-minor-mode
   "Minor mode for my keys."
   :init-value t
-  :lighter " my-keys")
+  :lighter " my-keys"
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-,") 'highlight-symbol-prev)
+            (define-key map (kbd "C--") 'text-scale-decrease)
+            (define-key map (kbd "C-.") 'highlight-symbol-next)
+            (define-key map (kbd "C-/") 'mc/edit-lines)
+            (define-key map (kbd "C-=") 'text-scale-increase)
+            (define-key map (kbd "C-`") 'ibuffer)
+            (define-key map (kbd "C-b") 'ido-switch-buffer)
+            (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
+            (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
+            (define-key map (kbd "C-c f") 'highlight-symbol-at-point)
+            (define-key map (kbd "C-c n") 'mc/mark-next-like-this)
+            (define-key map (kbd "C-c o") 'ffap)
+            (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
+            (define-key map (kbd "C-d") 'kill-whole-line)
+            (define-key map (kbd "C-v") 'yank)
+            (define-key map (kbd "C-z") 'undo)
+            (define-key map (kbd "M-d") 'duplicate-thing)
+            map))
 
 (my-keys-minor-mode t)
 
