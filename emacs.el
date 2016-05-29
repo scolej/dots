@@ -1,15 +1,19 @@
 (require 'package)
 (package-initialize)
 
-;; (setf package-archives '())
-
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-;; (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 (require 'drag-stuff)
-;; (require 'duplicate-thing)
+(require 'duplicate-thing)
+(require 'expand-region)
+(require 'helm)
 (require 'highlight-symbol)
+(require 'hungry-delete)
+(require 'mwim)
+(require 'neotree)
+(require 'back-button)
+(require 'auto-complete)
 
 ;; Disable annoying things
 (setq inhibit-startup-message t)
@@ -21,30 +25,31 @@
 (tool-bar-mode 0)
 (menu-bar-mode 0)
 (setq linum-format "%4d")
-(setq-default mode-line-format (list "%Z %6l %2c >>> %m; %b; %f; %P"))
+(setq-default mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P"))
 (setq show-help-function nil)
 (show-paren-mode)
 (setq show-paren-style 'expression)
 (set-default 'truncate-lines t)
-
-;; Stop using bold fonts
-(mapc
- (lambda (face)
-   (set-face-attribute face nil :weight 'normal :underline nil))
- (face-list))
+(blink-cursor-mode -1)
 
  ;; Get rid of disgusting 3D styling
 (set-face-attribute 'mode-line-inactive nil :box t)
 (set-face-attribute 'mode-line nil :box t)
 
-;; (when (display-graphic-p)
-;;   (set-face-attribute 'default nil :font "Mono 8" )
-;;   (set-frame-font "Mono 8" nil t))
+(setq neo-theme 'ascii)
+(add-to-list 'neo-hidden-regexp-list "\\.hi$")
+(add-to-list 'neo-hidden-regexp-list "\\.o$")
 
-(add-to-list 'default-frame-alist '(cursor-color . "red"))
-
-(setf text-scale-mode-step 1.05)
 (load-theme 'solarized-light)
+(add-to-list 'default-frame-alist '(cursor-color . "red"))
+(global-hl-line-mode)
+
+(back-button-mode t)
+(ac-config-default)
+(transient-mark-mode t)
+(global-hungry-delete-mode)
+;; (setq lazy-highlight-cleanup nil)
+(setf text-scale-mode-step 1.05)
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -81,28 +86,32 @@
   :init-value t
   :lighter " my-keys"
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-b") 'ido-switch-buffer)
-            (define-key map (kbd "C-d") 'kill-whole-line)
-            (define-key map (kbd "M-d") 'duplicate-thing)
-            (define-key map (kbd "C-/") 'mc/edit-lines)
-            (define-key map (kbd "C-n") 'mc/mark-next-like-this)
-            (define-key map (kbd "C-p") 'mc/unmark-next-like-this)
-            (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-            (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
-            (define-key map (kbd "C-f") 'highlight-symbol-at-point)
-            (define-key map (kbd "C-.") 'highlight-symbol-next)
             (define-key map (kbd "C-,") 'highlight-symbol-prev)
             (define-key map (kbd "C--") 'text-scale-decrease)
+            (define-key map (kbd "C-.") 'highlight-symbol-next)
+            (define-key map (kbd "C-/") 'mc/edit-lines)
             (define-key map (kbd "C-=") 'text-scale-increase)
-            (define-key map (kbd "C-z") 'undo)
-            (define-key map (kbd "C-c o") 'ffap)
-            (define-key map (kbd "C-v") 'yank)
             (define-key map (kbd "C-`") 'ibuffer)
+            (define-key map (kbd "C-a") 'mwim-beginning-of-line-or-code)
+            (define-key map (kbd "C-b") 'helm-buffers-list)
+            (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
             (define-key map (kbd "C-c c") 'comment-region)
+            (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
+            (define-key map (kbd "C-c f") 'highlight-symbol-at-point)
+            (define-key map (kbd "C-c n") 'mc/mark-next-like-this)
+            (define-key map (kbd "C-c o") 'ffap)
+            (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
             (define-key map (kbd "C-c u") 'uncomment-region)
+            (define-key map (kbd "C-d") 'kill-whole-line)
+            (define-key map (kbd "C-v") 'yank)
+            (define-key map (kbd "C-x C-f") 'helm-find-files)
+            (define-key map (kbd "C-z") 'undo)
+            (define-key map (kbd "M-d") 'duplicate-thing)
+            (define-key map (kbd "M-u") 'er/expand-region)
+            (define-key map (kbd "M-x") 'helm-M-x)
             map))
 
-(my-keys-minor-mode nil)
+(my-keys-minor-mode t)
 
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
