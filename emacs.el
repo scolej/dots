@@ -7,12 +7,14 @@
 (require 'drag-stuff)
 (require 'duplicate-thing)
 (require 'expand-region)
-(require 'helm)
-(require 'highlight-symbol)
+;; (require 'helm-config)
 (require 'hungry-delete)
 (require 'mwim)
 (require 'neotree)
 (require 'back-button)
+(require 'swiper)
+(require 'highlight-thing)
+(require 'fixme-mode)
 
 ;; Disable annoying things
 (setq inhibit-startup-message t)
@@ -39,16 +41,24 @@
 (add-to-list 'neo-hidden-regexp-list "\\.hi$")
 (add-to-list 'neo-hidden-regexp-list "\\.o$")
 
-(load-theme 'solarized-dark)
+(load-theme 'solarized-light)
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
+
 (global-hl-line-mode)
+(global-highlight-thing-mode)
 
 (back-button-mode t)
 (ac-config-default)
 (transient-mark-mode t)
 (global-hungry-delete-mode)
-;; (setq lazy-highlight-cleanup nil)
 (setf text-scale-mode-step 1.05)
+(windmove-default-keybindings)
+(drag-stuff-global-mode)
+(fixme-mode)
+;; (ido-mode)
+
+(ivy-mode)
+(setq projectile-completion-system 'ivy)
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -71,42 +81,35 @@
   (interactive)
   (auto-revert-mode))
 
-(defun gen-buffer ()
-  (interactive)
-  (switch-to-buffer (make-temp-name "scratch")))
-
-(windmove-default-keybindings)
-(drag-stuff-global-mode)
-(ido-mode)
-
 (define-minor-mode my-keys-minor-mode
   "Minor mode for my keys."
   :init-value t
   :lighter " my-keys"
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-,") 'highlight-symbol-prev)
             (define-key map (kbd "C--") 'text-scale-decrease)
-            (define-key map (kbd "C-.") 'highlight-symbol-next)
             (define-key map (kbd "C-/") 'mc/edit-lines)
             (define-key map (kbd "C-=") 'text-scale-increase)
             (define-key map (kbd "C-`") 'ibuffer)
             (define-key map (kbd "C-a") 'mwim-beginning-of-line-or-code)
-            (define-key map (kbd "C-b") 'helm-buffers-list)
+            (define-key map (kbd "C-b") 'ivy-switch-buffer)
             (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
             (define-key map (kbd "C-c c") 'comment-region)
             (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
-            (define-key map (kbd "C-c f") 'highlight-symbol-at-point)
             (define-key map (kbd "C-c n") 'mc/mark-next-like-this)
             (define-key map (kbd "C-c o") 'ffap)
             (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
             (define-key map (kbd "C-c u") 'uncomment-region)
             (define-key map (kbd "C-d") 'kill-whole-line)
+            (define-key map (kbd "C-p") 'projectile-find-file)
+            (define-key map (kbd "C-s") 'swiper)
+            (define-key map (kbd "C-r") 'swiper)
             (define-key map (kbd "C-v") 'yank)
-            (define-key map (kbd "C-x C-f") 'helm-find-files)
             (define-key map (kbd "C-z") 'undo)
             (define-key map (kbd "M-d") 'duplicate-thing)
             (define-key map (kbd "M-u") 'er/expand-region)
-            (define-key map (kbd "M-x") 'helm-M-x)
+            ;; (define-key map (kbd "C-b") 'helm-mini)
+            ;; (define-key map (kbd "C-x C-f") 'helm-find-files)
+            ;; (define-key map (kbd "M-x") 'helm-M-x)
             map))
 
 (my-keys-minor-mode t)
