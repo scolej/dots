@@ -59,7 +59,9 @@
 ;; (ido-mode)
 
 (ivy-mode)
+(setq ivy-use-virtual-buffers t)
 (setq projectile-completion-system 'ivy)
+
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -82,48 +84,69 @@
   (interactive)
   (auto-revert-mode))
 
-(define-minor-mode my-keys-minor-mode
-  "Minor mode for my keys."
-  :init-value t
-  :lighter " my-keys"
-  :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C--") 'text-scale-decrease)
-            (define-key map (kbd "C-/") 'mc/edit-lines)
-            (define-key map (kbd "C-=") 'text-scale-increase)
-            (define-key map (kbd "C-`") 'ibuffer)
-            (define-key map (kbd "C-a") 'mwim-beginning-of-line-or-code)
-            (define-key map (kbd "C-b") 'ivy-switch-buffer)
-            (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-            (define-key map (kbd "C-c c") 'comment-region)
-            (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
-            (define-key map (kbd "C-c n") 'mc/mark-next-like-this)
-            (define-key map (kbd "C-c o") 'ffap)
-            (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
-            (define-key map (kbd "C-c u") 'uncomment-region)
-            (define-key map (kbd "C-d") 'kill-whole-line)
-            (define-key map (kbd "C-p") 'projectile-find-file)
-            (define-key map (kbd "C-s") 'swiper)
-            (define-key map (kbd "C-r") 'swiper)
-            (define-key map (kbd "C-v") 'yank)
-            (define-key map (kbd "C-z") 'undo)
-            (define-key map (kbd "M-d") 'duplicate-thing)
-            (define-key map (kbd "M-u") 'er/expand-region)
-            ;; (define-key map (kbd "C-b") 'helm-mini)
-            ;; (define-key map (kbd "C-x C-f") 'helm-find-files)
-            ;; (define-key map (kbd "M-x") 'helm-M-x)
-            map))
+;; Can't define these in the minor mode because it screws up in the minibuffer.
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-/") 'mc/edit-lines)
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C-`") 'ibuffer)
+(global-set-key (kbd "C-a") 'mwim-beginning-of-line-or-code)
+(global-set-key (kbd "C-b") 'ivy-switch-buffer)
+(global-set-key (kbd "C-c a") 'mc/edit-beginnings-of-lines)
+(global-set-key (kbd "C-c c") 'comment-region)
+(global-set-key (kbd "C-c e") 'mc/edit-ends-of-lines)
+(global-set-key (kbd "C-c n") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-c o") 'ffap)
+(global-set-key (kbd "C-c p") 'mc/unmark-next-like-this)
+(global-set-key (kbd "C-c u") 'uncomment-region)
+(global-set-key (kbd "C-d") 'kill-whole-line)
+(global-set-key (kbd "C-p") 'projectile-find-file)
+(global-set-key (kbd "C-r") 'swiper)
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-v") 'yank)
+(global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "M-d") 'duplicate-thing)
+(global-set-key (kbd "M-u") 'er/expand-region)
 
-(my-keys-minor-mode t)
+;; (define-minor-mode my-keys-minor-mode
+;;   "Minor mode for my keys."
+;;   :init-value t
+;;   :lighter " my-keys"
+;;   :keymap (let ((map (make-sparse-keymap)))
+;;             (define-key map (kbd "C--") 'text-scale-decrease)
+;;             (define-key map (kbd "C-/") 'mc/edit-lines)
+;;             (define-key map (kbd "C-=") 'text-scale-increase)
+;;             (define-key map (kbd "C-`") 'ibuffer)
+;;             (define-key map (kbd "C-a") 'mwim-beginning-of-line-or-code)
+;;             (define-key map (kbd "C-b") 'ivy-switch-buffer)
+;;             (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
+;;             (define-key map (kbd "C-c c") 'comment-region)
+;;             (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
+;;             (define-key map (kbd "C-c n") 'mc/mark-next-like-this)
+;;             (define-key map (kbd "C-c o") 'ffap)
+;;             (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
+;;             (define-key map (kbd "C-c u") 'uncomment-region)
+;;             (define-key map (kbd "C-d") 'kill-whole-line)
+;;             (define-key map (kbd "C-p") 'projectile-find-file)
+;;             (define-key map (kbd "C-v") 'yank)
+;;             (define-key map (kbd "C-z") 'undo)
+;;             (define-key map (kbd "M-d") 'duplicate-thing)
+;;             (define-key map (kbd "M-u") 'er/expand-region)
+;;             ;; (define-key map (kbd "C-b") 'helm-mini)
+;;             ;; (define-key map (kbd "C-x C-f") 'helm-find-files)
+;;             ;; (define-key map (kbd "M-x") 'helm-M-x)
+;;             map))
 
-(defun my-keys-have-priority (_file)
-  "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
-  (unless (eq (caar minor-mode-map-alist) 'my-keys-minor-mode)
-    (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
-      (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
-      (add-to-list 'minor-mode-map-alist mykeys))))
+;; (my-keys-minor-mode t)
 
-(remove-hook 'after-load-functions 'my-keys-have-priority)
-(add-hook 'after-load-functions 'my-keys-have-priority)
+;; (defun my-keys-have-priority (_file)
+;;   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
+;;   (unless (eq (caar minor-mode-map-alist) 'my-keys-minor-mode)
+;;     (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
+;;       (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
+;;       (add-to-list 'minor-mode-map-alist mykeys))))
+
+;; (remove-hook 'after-load-functions 'my-keys-have-priority)
+;; (add-hook 'after-load-functions 'my-keys-have-priority)
 
 ;; Haskell
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
