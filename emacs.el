@@ -15,6 +15,7 @@
 (require 'swiper)
 (require 'highlight-thing)
 (require 'fixme-mode)
+(require 'auto-complete)
 
 ;; Disable annoying things
 (setq inhibit-startup-message t)
@@ -121,6 +122,7 @@
       (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
       (add-to-list 'minor-mode-map-alist mykeys))))
 
+(remove-hook 'after-load-functions 'my-keys-have-priority)
 (add-hook 'after-load-functions 'my-keys-have-priority)
 
 ;; Haskell
