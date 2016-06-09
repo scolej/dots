@@ -4,18 +4,19 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
+(require 'auto-complete)
+(require 'back-button)
+(require 'counsel)
 (require 'drag-stuff)
 (require 'duplicate-thing)
 (require 'expand-region)
-;; (require 'helm-config)
+(require 'fixme-mode)
+(require 'highlight-thing)
 (require 'hungry-delete)
 (require 'mwim)
-(require 'neotree)
-(require 'back-button)
-(require 'swiper)
-(require 'highlight-thing)
-(require 'fixme-mode)
-(require 'auto-complete)
+;; (require 'flx)
+;; (require 'neotree)
+;; (require 'swiper)
 
 ;; Disable annoying things
 (setq inhibit-startup-message t)
@@ -35,16 +36,13 @@
 (blink-cursor-mode -1)
 
  ;; Get rid of disgusting 3D styling
-(set-face-attribute 'mode-line-inactive nil :box t)
-(set-face-attribute 'mode-line nil :box t)
-
-(setq neo-theme 'ascii)
-(add-to-list 'neo-hidden-regexp-list "\\.hi$")
-(add-to-list 'neo-hidden-regexp-list "\\.o$")
-
+(set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil)
+(set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)
+;; (setq neo-theme 'ascii)
+;; (add-to-list 'neo-hidden-regexp-list "\\.hi$")
+;; (add-to-list 'neo-hidden-regexp-list "\\.o$")
 (load-theme 'solarized-light)
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
-
 (global-hl-line-mode)
 (global-highlight-thing-mode)
 
@@ -57,11 +55,13 @@
 (drag-stuff-global-mode)
 (fixme-mode)
 ;; (ido-mode)
-
+(recentf-mode)
 (ivy-mode)
 (setq ivy-use-virtual-buffers t)
 (setq projectile-completion-system 'ivy)
-
+(setq ivy-re-builders-alist
+      '((t . ivy--regex-ignore-order)))
+(setq ivy-use-virtual-buffers t)
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -86,22 +86,23 @@
 
 ;; Can't define these in the minor mode because it screws up in the minibuffer.
 (global-set-key (kbd "C--") 'text-scale-decrease)
-(global-set-key (kbd "C-/") 'mc/edit-lines)
 (global-set-key (kbd "C-=") 'text-scale-increase)
+
 (global-set-key (kbd "C-`") 'ibuffer)
 (global-set-key (kbd "C-a") 'mwim-beginning-of-line-or-code)
+(global-set-key (kbd "C-c o") 'ffap)
+(global-set-key (kbd "C-p") 'projectile-find-file)
+
 (global-set-key (kbd "C-b") 'ivy-switch-buffer)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+
+(global-set-key (kbd "C-/") 'mc/edit-lines)
 (global-set-key (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-(global-set-key (kbd "C-c c") 'comment-region)
 (global-set-key (kbd "C-c e") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "C-c n") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-c o") 'ffap)
 (global-set-key (kbd "C-c p") 'mc/unmark-next-like-this)
-(global-set-key (kbd "C-c u") 'uncomment-region)
+
 (global-set-key (kbd "C-d") 'kill-whole-line)
-(global-set-key (kbd "C-p") 'projectile-find-file)
-(global-set-key (kbd "C-r") 'swiper)
-(global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "M-d") 'duplicate-thing)
