@@ -1,22 +1,20 @@
 (require 'package)
 (package-initialize)
 
+;; (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 (require 'auto-complete)
 (require 'back-button)
-(require 'counsel)
 (require 'drag-stuff)
 (require 'duplicate-thing)
 (require 'expand-region)
-(require 'fixme-mode)
+;; (require 'fixme-mode)
 (require 'highlight-thing)
 (require 'hungry-delete)
 (require 'mwim)
-;; (require 'flx)
-;; (require 'neotree)
-;; (require 'swiper)
+(require 'projectile)
 
 ;; Disable annoying things
 (setq inhibit-startup-message t)
@@ -53,9 +51,10 @@
 (setf text-scale-mode-step 1.05)
 (windmove-default-keybindings)
 (drag-stuff-global-mode)
-(fixme-mode)
+;; (fixme-mode)
 ;; (ido-mode)
 (recentf-mode)
+(projectile-global-mode)
 (ivy-mode)
 (setq ivy-use-virtual-buffers t)
 (setq projectile-completion-system 'ivy)
@@ -94,7 +93,6 @@
 (global-set-key (kbd "C-p") 'projectile-find-file)
 
 (global-set-key (kbd "C-b") 'ivy-switch-buffer)
-(global-set-key (kbd "M-x") 'counsel-M-x)
 
 (global-set-key (kbd "C-/") 'mc/edit-lines)
 (global-set-key (kbd "C-c a") 'mc/edit-beginnings-of-lines)
