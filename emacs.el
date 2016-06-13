@@ -4,16 +4,17 @@
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
-;; Available in stable
+;; Available in stable.
 (require 'auto-complete)
 (require 'back-button)
 (require 'drag-stuff)
 (require 'expand-region)
 (require 'helm-config)
 (require 'helm-projectile)
+(require 'multiple-cursors)
 (require 'mwim)
 
-;; Not available in stable
+;; Not available in stable.
 (require 'hungry-delete)
 (require 'duplicate-thing)
 (require 'highlight-thing)
@@ -41,15 +42,14 @@
 (set-default 'truncate-lines t)
 (blink-cursor-mode -1)
 
-(load-theme 'solarized-light)
+;; (load-theme 'solarized-dark)
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 ;; Get rid of disgusting 3D styling and make mode-line smaller.
-(let ((mode-line-font "9"))
-  (set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil :font mode-line-font)
-  (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :font mode-line-font))
+(set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil :height 0.7)
+(set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :height 0.7)
 
-(global-hl-line-mode)
-(global-highlight-thing-mode)
+;; (global-hl-line-mode)
+;; (global-highlight-thing-mode)
 
 ;; (setq neo-theme 'ascii)
 ;; (add-to-list 'neo-hidden-regexp-list "\\.hi$")
