@@ -1,22 +1,39 @@
 (require 'package)
 (package-initialize)
 
-;; (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
-(require 'auto-complete)
+;; Available in stable.
+;; (require 'auto-complete)
+(require 'company)
 (require 'back-button)
 (require 'drag-stuff)
-(require 'duplicate-thing)
 (require 'expand-region)
-;; (require 'fixme-mode)
-(require 'highlight-thing)
-(require 'hungry-delete)
-(require 'mwim)
 (require 'projectile)
+(require 'helm-config)
+(require 'multiple-cursors)
+(require 'mwim)
+(require 'jump-char)
 
-;; Disable annoying things
+;; Not available in stable.
+(require 'helm-projectile)
+(require 'hungry-delete)
+(require 'duplicate-thing)
+(require 'highlight-thing)
+
+(setq revert-without-query '(".*"))
+(fset 'yes-or-no-p 'y-or-n-p)
+(setq-default dired-listing-switches "-alh")
+(setq-default truncate-partial-width-windows nil)
+(setq-default sr-speedbar-auto-refresh nil)
+;; (add-to-list 'warning-suppress-types '(undo discard-info))
+(setq-default comint-scroll-show-maximum-output nil)
+(setq-default company-minimum-prefix-length 2)
+(global-set-key (kbd "M-z") 'jump-char-forward)
+(define-key shell-mode-map (kbd "TAB") #'company-manual-begin)
+
+;; Disable annoying things.
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
@@ -32,35 +49,33 @@
 (setq show-paren-style 'expression)
 (set-default 'truncate-lines t)
 (blink-cursor-mode -1)
+(setq-default hi-lock-auto-select-face t)
 
- ;; Get rid of disgusting 3D styling
-(set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil)
-(set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)
+(load-theme 'solarized-light)
+(add-to-list 'default-frame-alist '(cursor-color . "red"))
+;; Get rid of disgusting 3D styling and make mode-line smaller.
+(set-face-attribute 'mode-line-inactive nil :box t :underline nil :overline nil :height 0.7)
+(set-face-attribute 'mode-line nil :box t :underline nil :overline nil :height 0.7)
+
+;; (global-hl-line-mode)
+;; (global-highlight-thing-mode)
+
 ;; (setq neo-theme 'ascii)
 ;; (add-to-list 'neo-hidden-regexp-list "\\.hi$")
 ;; (add-to-list 'neo-hidden-regexp-list "\\.o$")
-(load-theme 'solarized-light)
-(add-to-list 'default-frame-alist '(cursor-color . "red"))
-(global-hl-line-mode)
-(global-highlight-thing-mode)
 
 (back-button-mode t)
-(ac-config-default)
+;; (ac-config-default)
+(global-company-mode)
+(global-auto-complete-mode t)
 (transient-mark-mode t)
 (global-hungry-delete-mode)
 (setf text-scale-mode-step 1.05)
 (windmove-default-keybindings)
-(drag-stuff-global-mode)
-;; (fixme-mode)
-;; (ido-mode)
 (recentf-mode)
 (projectile-global-mode)
-(ivy-mode)
-(setq ivy-use-virtual-buffers t)
-(setq projectile-completion-system 'ivy)
-(setq ivy-re-builders-alist
-      '((t . ivy--regex-ignore-order)))
-(setq ivy-use-virtual-buffers t)
+(recentf-mode)
+(helm-mode)
 
 ;; No tabs!!
 (setq-default indent-tabs-mode nil)
@@ -68,7 +83,7 @@
 (put 'downcase-region 'disabled nil)
 (delete-selection-mode 1)
 
-;; Stop polluting the entire filesystem with backup files
+;; Stop polluting the entire filesystem with backup files.
 (if (boundp '*my-backup-dir*)
     (let ((dir *my-backup-dir*))
       (setq backup-directory-alist `((".*" . , dir)))
@@ -83,16 +98,34 @@
   (interactive)
   (auto-revert-mode))
 
-;; Can't define these in the minor mode because it screws up in the minibuffer.
+;; From magnars/.emacs.d
+(defun open-line-below ()
+  (interactive)
+  (end-of-line)
+  (newline)
+  (indent-for-tab-command))
+(defun open-line-above ()
+  (interactive)
+  (beginning-of-line)
+  (newline)
+  (forward-line -1)
+  (indent-for-tab-command))
+
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-=") 'text-scale-increase)
 
 (global-set-key (kbd "C-`") 'ibuffer)
 (global-set-key (kbd "C-a") 'mwim-beginning-of-line-or-code)
 (global-set-key (kbd "C-c o") 'ffap)
-(global-set-key (kbd "C-p") 'projectile-find-file)
+(global-set-key (kbd "C-c r") 'revert-buffer)
 
-(global-set-key (kbd "C-b") 'ivy-switch-buffer)
+(global-set-key (kbd "<C-return>") 'open-line-below)
+(global-set-key (kbd "<C-S-return>") 'open-line-above)
+
+(global-set-key (kbd "C-p") 'helm-projectile)
+(global-set-key (kbd "C-b") 'helm-mini)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
 
 (global-set-key (kbd "C-/") 'mc/edit-lines)
 (global-set-key (kbd "C-c a") 'mc/edit-beginnings-of-lines)
@@ -105,6 +138,13 @@
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "M-d") 'duplicate-thing)
 (global-set-key (kbd "M-u") 'er/expand-region)
+(global-set-key (kbd "M-s s") 'sort-lines)
+
+(global-set-key (kbd "<M-down>") 'drag-stuff-down)
+(global-set-key (kbd "<M-up>") 'drag-stuff-up)
+
+(global-set-key (kbd "<M-left>") 'back-button-local-backward)
+(global-set-key (kbd "<M-right>") 'back-button-local-forward)
 
 ;; (define-minor-mode my-keys-minor-mode
 ;;   "Minor mode for my keys."
