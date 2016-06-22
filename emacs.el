@@ -5,16 +5,17 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
 ;; Available in stable.
-;; (require 'auto-complete)
-(require 'company)
+(require 'auto-complete)
 (require 'back-button)
+(require 'company)
+(require 'company)
 (require 'drag-stuff)
 (require 'expand-region)
-(require 'projectile)
 (require 'helm-config)
+(require 'jump-char)
 (require 'multiple-cursors)
 (require 'mwim)
-(require 'jump-char)
+(require 'projectile)
 
 ;; Not available in stable.
 (require 'helm-projectile)
@@ -31,63 +32,56 @@
 (setq-default comint-scroll-show-maximum-output nil)
 (setq-default company-minimum-prefix-length 2)
 (global-set-key (kbd "M-z") 'jump-char-forward)
-(define-key shell-mode-map (kbd "TAB") #'company-manual-begin)
-
-;; Disable annoying things.
-(setq inhibit-startup-message t)
-(setq visible-bell nil)
-(setq ring-bell-function 'ignore)
-(setq mouse-wheel-scroll-amount '(4 ((shift) . 4)))
-(setq mouse-wheel-progressive-speed nil)
-(scroll-bar-mode 0)
-(tool-bar-mode 0)
-(menu-bar-mode 0)
-(setq linum-format "%4d")
-(setq-default mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P"))
-(setq show-help-function nil)
-(show-paren-mode)
-(setq show-paren-style 'expression)
-(set-default 'truncate-lines t)
-(blink-cursor-mode -1)
-(setq-default hi-lock-auto-select-face t)
+;; (define-key shell-mode-map (kbd "TAB") #'company-manual-begin)
 
 (load-theme 'solarized-light)
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
-;; Get rid of disgusting 3D styling and make mode-line smaller.
 (set-face-attribute 'mode-line-inactive nil :box t :underline nil :overline nil :height 0.7)
 (set-face-attribute 'mode-line nil :box t :underline nil :overline nil :height 0.7)
 
-;; (global-hl-line-mode)
-;; (global-highlight-thing-mode)
+(setq-default inhibit-startup-message t
+              visible-bell nil
+              ring-bell-function 'ignore
+              mouse-wheel-scroll-amount '(4 ((shift) . 4))
+              mouse-wheel-progressive-speed nil
+              show-paren-style 'expression
+              truncate-lines t
+              show-help-function nil
+              hi-lock-auto-select-face t
+              indent-tabs-mode nil
+              linum-format "%4d"
+              isearch-allow-scroll t
+              save-interprogram-paste-before-kill t)
 
-;; (setq neo-theme 'ascii)
-;; (add-to-list 'neo-hidden-regexp-list "\\.hi$")
-;; (add-to-list 'neo-hidden-regexp-list "\\.o$")
+(setq-default mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P"))
 
-(back-button-mode t)
-;; (ac-config-default)
-(global-company-mode)
-(global-auto-complete-mode t)
-(transient-mark-mode t)
-(global-hungry-delete-mode)
-(setf text-scale-mode-step 1.05)
-(windmove-default-keybindings)
-(recentf-mode)
-(projectile-global-mode)
-(recentf-mode)
-(helm-mode)
-
-;; No tabs!!
-(setq-default indent-tabs-mode nil)
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
+(scroll-bar-mode 0)
+(tool-bar-mode 0)
+(menu-bar-mode 0)
+(show-paren-mode t)
+(blink-cursor-mode -1)
+(back-button-mode t)
+(global-company-mode)
+(global-auto-complete-mode t)
+(global-company-mode t)
+(transient-mark-mode t)
+(global-hungry-delete-mode t)
+(setf text-scale-mode-step 1.05)
+(windmove-default-keybindings)
+(projectile-global-mode)
+(recentf-mode t)
+(helm-mode t)
 (delete-selection-mode 1)
+(windmove-default-keybindings)
 
 ;; Stop polluting the entire filesystem with backup files.
 (if (boundp '*my-backup-dir*)
     (let ((dir *my-backup-dir*))
-      (setq backup-directory-alist `((".*" . , dir)))
-      (setq auto-save-file-name-transforms `((".*" , dir t)))))
+      (setq backup-directory-alist `((".*" . ,dir)))
+      (setq auto-save-file-name-transforms `((".*" ,dir t)))))
 
 (defun words-dammit ()
   (interactive)
@@ -132,6 +126,7 @@
 (global-set-key (kbd "C-c e") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "C-c n") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-c p") 'mc/unmark-next-like-this)
+(global-set-key (kbd "M-s s") 'sort-lines)
 
 (global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "C-v") 'yank)
@@ -145,6 +140,11 @@
 
 (global-set-key (kbd "<M-left>") 'back-button-local-backward)
 (global-set-key (kbd "<M-right>") 'back-button-local-forward)
+
+(global-set-key (kbd "<mouse-3>") 'kill-region)
+(global-set-key (kbd "<mouse-2>") 'mouse-yank-at-click)
+(setq-default select-active-regions nil)
+(setq-default mouse-drag-copy-region t)
 
 ;; (define-minor-mode my-keys-minor-mode
 ;;   "Minor mode for my keys."
