@@ -71,7 +71,8 @@
 (use-package emojify
   :config
   (global-emojify-mode)
-  (setq emojify-display-style 'image))
+  (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
+
 
 (use-package haskell-mode
   :config
