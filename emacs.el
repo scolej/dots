@@ -1,34 +1,90 @@
 (require 'package)
 (package-initialize)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(require 'use-package)
 
-;; Available in stable.
-(require 'back-button)
-(require 'company-mode)
-(require 'drag-stuff)
-(require 'expand-region)
-(require 'helm-config)
-(require 'helm-projectile)
-(require 'multiple-cursors)
-(require 'mwim)
+(setq use-package-always-ensure t)
 
-;; Not available in stable.
-(require 'hungry-delete)
-(require 'duplicate-thing)
-(require 'highlight-thing)
+(use-package shell)
 
-;; (require 'counsel)
-;; (require 'fixme-mode)
-;; (require 'flx)
-;; (require 'neotree)
-;; (require 'swiper)
+(use-package company
+  :config
+  (global-company-mode t)
+  :bind (:map shell-mode-map ("<tab>" . company-complete)))
 
-(load-theme 'solarized-light)
-(add-to-list 'default-frame-alist '(cursor-color . "red"))
-(set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil :height 0.7)
-(set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :height 0.7)
+(use-package company-emoji
+  :config
+  (company-emoji-init))
+
+(use-package drag-stuff
+  :pin melpa-stable
+  :bind (("<M-down>" . drag-stuff-down)
+         ("<M-up>" . drag-stuff-up)))
+
+(use-package expand-region
+  :pin melpa-stable
+  :bind (("M-u" . er/expand-region)))
+
+(use-package helm
+  :pin melpa-stable
+  :config
+  (helm-mode t))
+
+(use-package helm-projectile
+  :pin melpa-stable
+  :bind (("C-p" . helm-projectile)
+         ("C-b" . helm-mini)
+         ("M-x" . helm-M-x)
+         ("C-x C-f" . helm-find-files)))
+           
+(use-package multiple-cursors
+  :pin melpa-stable
+  :bind (("C-/" . mc/edit-lines)
+         ("C-c a" . mc/edit-beginnings-of-lines)
+         ("C-c e" . mc/edit-ends-of-lines)
+         ("C-c n" . mc/mark-next-like-this)
+         ("C-c p" . mc/unmark-next-like-this)
+         ("M-s s" . sort-lines)))
+
+(use-package mwim
+  :pin melpa-stable
+  :bind (("C-a" . mwim-beginning-of-line-or-code)))
+
+(use-package hungry-delete
+  :config
+  (global-hungry-delete-mode t))
+
+(use-package duplicate-thing
+  :bind (("M-d" . duplicate-thing)))
+
+(use-package highlight-thing)
+
+(use-package solarized-theme
+  :config
+  (load-theme 'solarized-light)
+  (set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil :height 0.7)
+  (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :height 0.7)
+  (add-to-list 'default-frame-alist '(cursor-color . "red")))
+
+(use-package emojify
+  :config
+  (global-emojify-mode)
+  (setq emojify-display-style 'image))
+
+(use-package haskell-mode
+  :config
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-indent))
+
+(use-package flycheck)
+
+;; (use-package yascroll
+;;   :config
+;;   (setq yascroll:delay-to-hide nil)
+;;   (global-yascroll-bar-mode))
+
+(use-package nyan-mode)
 
 (setq-default inhibit-startup-message t
               visible-bell nil
@@ -42,26 +98,24 @@
               indent-tabs-mode nil
               linum-format "%4d"
               isearch-allow-scroll t
-              save-interprogram-paste-before-kill t)
+              save-interprogram-paste-before-kill t
+              ;;mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P")
+              )
 
-(setq-default mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P"))
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
 (menu-bar-mode 0)
+(blink-cursor-mode 0)
 (show-paren-mode t)
-(blink-cursor-mode -1)
-(back-button-mode t)
-;; (ac-config-default)
-(global-company-mode t)
 (transient-mark-mode t)
-(global-hungry-delete-mode t)
-(setf text-scale-mode-step 1.05)
 (recentf-mode t)
-(helm-mode t)
-(delete-selection-mode 1)
-(windmove-default-keybindings)
+(delete-selection-mode t)
+(column-number-mode t)
+
+(setf text-scale-mode-step 1.05)
 
 ;; Stop polluting the entire filesystem with backup files.
 (if (boundp '*my-backup-dir*)
@@ -74,98 +128,13 @@
   (toggle-truncate-lines)
   (visual-line-mode))
 
-(defun arm ()
-  (interactive)
-  (auto-revert-mode))
-
-;; From magnars/.emacs.d
-(defun open-line-below ()
-  (interactive)
-  (end-of-line)
-  (newline)
-  (indent-for-tab-command))
-(defun open-line-above ()
-  (interactive)
-  (beginning-of-line)
-  (newline)
-  (forward-line -1)
-  (indent-for-tab-command))
-
+;; Keys
+(windmove-default-keybindings)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-=") 'text-scale-increase)
-
 (global-set-key (kbd "C-`") 'ibuffer)
-(global-set-key (kbd "C-a") 'mwim-beginning-of-line-or-code)
 (global-set-key (kbd "C-c o") 'ffap)
 (global-set-key (kbd "C-c r") 'revert-buffer)
-
-(global-set-key (kbd "<C-return>") 'open-line-below)
-(global-set-key (kbd "<C-S-return>") 'open-line-above)
-
-(global-set-key (kbd "C-p") 'helm-projectile)
-(global-set-key (kbd "C-b") 'helm-mini)
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-
-(global-set-key (kbd "C-/") 'mc/edit-lines)
-(global-set-key (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-(global-set-key (kbd "C-c e") 'mc/edit-ends-of-lines)
-(global-set-key (kbd "C-c n") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-c p") 'mc/unmark-next-like-this)
-(global-set-key (kbd "M-s s") 'sort-lines)
-
 (global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "M-d") 'duplicate-thing)
-(global-set-key (kbd "M-u") 'er/expand-region)
-
-(global-set-key (kbd "<M-down>") 'drag-stuff-down)
-(global-set-key (kbd "<M-up>") 'drag-stuff-up)
-
-(global-set-key (kbd "<M-left>") 'back-button-local-backward)
-(global-set-key (kbd "<M-right>") 'back-button-local-forward)
-
-;; (define-minor-mode my-keys-minor-mode
-;;   "Minor mode for my keys."
-;;   :init-value t
-;;   :lighter " my-keys"
-;;   :keymap (let ((map (make-sparse-keymap)))
-;;             (define-key map (kbd "C--") 'text-scale-decrease)
-;;             (define-key map (kbd "C-/") 'mc/edit-lines)
-;;             (define-key map (kbd "C-=") 'text-scale-increase)
-;;             (define-key map (kbd "C-`") 'ibuffer)
-;;             (define-key map (kbd "C-a") 'mwim-beginning-of-line-or-code)
-;;             (define-key map (kbd "C-b") 'ivy-switch-buffer)
-;;             (define-key map (kbd "C-c a") 'mc/edit-beginnings-of-lines)
-;;             (define-key map (kbd "C-c c") 'comment-region)
-;;             (define-key map (kbd "C-c e") 'mc/edit-ends-of-lines)
-;;             (define-key map (kbd "C-c n") 'mc/mark-next-like-this)
-;;             (define-key map (kbd "C-c o") 'ffap)
-;;             (define-key map (kbd "C-c p") 'mc/unmark-next-like-this)
-;;             (define-key map (kbd "C-c u") 'uncomment-region)
-;;             (define-key map (kbd "C-d") 'kill-whole-line)
-;;             (define-key map (kbd "C-p") 'projectile-find-file)
-;;             (define-key map (kbd "C-v") 'yank)
-;;             (define-key map (kbd "C-z") 'undo)
-;;             (define-key map (kbd "M-d") 'duplicate-thing)
-;;             (define-key map (kbd "M-u") 'er/expand-region)
-;;             ;; (define-key map (kbd "C-b") 'helm-mini)
-;;             ;; (define-key map (kbd "C-x C-f") 'helm-find-files)
-;;             ;; (define-key map (kbd "M-x") 'helm-M-x)
-;;             map))
-
-;; (my-keys-minor-mode t)
-
-;; (defun my-keys-have-priority (_file)
-;;   "Try to ensure that my keybindings retain priority over other minor modes. Called via the `after-load-functions' special hook."
-;;   (unless (eq (caar minor-mode-map-alist) 'my-keys-minor-mode)
-;;     (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
-;;       (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
-;;       (add-to-list 'minor-mode-map-alist mykeys))))
-
-;; (remove-hook 'after-load-functions 'my-keys-have-priority)
-;; (add-hook 'after-load-functions 'my-keys-have-priority)
-
-;; Haskell
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
