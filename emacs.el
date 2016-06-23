@@ -1,3 +1,5 @@
+(setq debug-on-error t)
+
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
@@ -5,9 +7,22 @@
 
 (require 'use-package)
 
+(prefer-coding-system 'utf-8)
+
 (setq use-package-always-ensure t)
 
-(use-package shell)
+(use-package ibuffer
+  :config
+  (setq ibuffer-default-sorting-mode '(filename/process)))
+
+(use-package shell
+  :config
+  (setq comint-scroll-show-maximum-output nil))
+
+(use-package sr-speedbar
+  :config
+  (setq sr-speedbar-auto-refresh nil)
+  (setq speedbar-show-unknown-files t))
 
 (use-package company
   :config
@@ -73,7 +88,6 @@
   (global-emojify-mode)
   (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
 
-
 (use-package haskell-mode
   :config
   (add-hook 'haskell-mode-hook 'turn-on-haskell-indent))
@@ -101,7 +115,11 @@
               isearch-allow-scroll t
               save-interprogram-paste-before-kill t
               ;;mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P")
-              )
+              revert-without-query '(".*")
+              dired-listing-switches "-alh"
+              truncate-partial-width-windows nil)
+
+(fset 'yes-or-no-p 'y-or-n-p)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
