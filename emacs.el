@@ -13,11 +13,11 @@
 
 (use-package ibuffer
   :config
-  (setq ibuffer-default-sorting-mode '(filename/process)))
+  (setq-default ibuffer-default-sorting-mode '(filename/process)))
 
 (use-package shell
   :config
-  (setq comint-scroll-show-maximum-output nil))
+  (setq-default comint-scroll-show-maximum-output nil))
 
 (use-package sr-speedbar
   :config
@@ -79,9 +79,14 @@
 (use-package solarized-theme
   :config
   (load-theme 'solarized-light)
-  (set-face-attribute 'mode-line-inactive nil :box nil :underline nil :overline nil :height 0.7)
-  (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :height 0.7)
-  (add-to-list 'default-frame-alist '(cursor-color . "red")))
+  (set-face-attribute 'mode-line-inactive nil :box t :underline nil :overline nil :height 0.7)
+  (set-face-attribute 'mode-line nil :box t :underline nil :overline nil :height 0.7)
+  (add-to-list 'default-frame-alist '(cursor-color . "red"))
+  ;; Disable bold fonts.
+  (mapc
+   (lambda (face)
+     (set-face-attribute face nil :weight 'normal :underline nil))
+   (face-list)))
 
 (use-package emojify
   :config
@@ -117,7 +122,9 @@
               ;;mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P")
               revert-without-query '(".*")
               dired-listing-switches "-alh"
-              truncate-partial-width-windows nil)
+              truncate-partial-width-windows nil
+              split-height-threshold 1200
+              split-width-threshold 2000)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
