@@ -11,6 +11,8 @@
 
 (setq use-package-always-ensure t)
 
+(use-package markdown-mode)
+
 (use-package ibuffer
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process)))
@@ -21,8 +23,13 @@
 
 (use-package sr-speedbar
   :config
-  (setq sr-speedbar-auto-refresh nil)
-  (setq speedbar-show-unknown-files t))
+  (setq-default sr-speedbar-auto-refresh nil
+                sr-speedbar-width 20
+                speedbar-show-unknown-files t
+                speedbar-use-images t
+                speedbar-vc-do-check nil)
+  (add-hook 'speedbar-mode-hook (lambda () (text-scale-set -7)))
+  :bind (("<f1>" . sr-speedbar-toggle)))
 
 (use-package company
   :config
@@ -53,7 +60,7 @@
          ("C-b" . helm-mini)
          ("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)))
-           
+
 (use-package multiple-cursors
   :pin melpa-stable
   :bind (("C-/" . mc/edit-lines)
@@ -79,8 +86,14 @@
 (use-package solarized-theme
   :config
   (load-theme 'solarized-light)
-  (set-face-attribute 'mode-line-inactive nil :box t :underline nil :overline nil :height 0.7)
-  (set-face-attribute 'mode-line nil :box t :underline nil :overline nil :height 0.7)
+  (set-face-attribute 'mode-line-inactive nil
+                      :underline nil
+                      :overline t
+                      :height 0.7)
+  (set-face-attribute 'mode-line nil
+                      :underline nil
+                      :overline t
+                      :height 0.7)
   (add-to-list 'default-frame-alist '(cursor-color . "red"))
   ;; Disable bold fonts.
   (mapc
@@ -99,12 +112,9 @@
 
 (use-package flycheck)
 
-;; (use-package yascroll
-;;   :config
-;;   (setq yascroll:delay-to-hide nil)
-;;   (global-yascroll-bar-mode))
-
 (use-package nyan-mode)
+
+(use-package magit)
 
 (setq-default inhibit-startup-message t
               visible-bell nil
@@ -119,7 +129,7 @@
               linum-format "%4d"
               isearch-allow-scroll t
               save-interprogram-paste-before-kill t
-              ;;mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P")
+              ;; mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P")
               revert-without-query '(".*")
               dired-listing-switches "-alh"
               truncate-partial-width-windows nil
@@ -138,6 +148,7 @@
 (show-paren-mode t)
 (transient-mark-mode t)
 (recentf-mode t)
+(savehist-mode t)
 (delete-selection-mode t)
 (column-number-mode t)
 
@@ -151,8 +162,8 @@
 
 (defun words-dammit ()
   (interactive)
-  (toggle-truncate-lines)
-  (visual-line-mode))
+  (toggle-truncate-lines 0)
+  (visual-line-mode t))
 
 ;; Keys
 (windmove-default-keybindings)
@@ -164,3 +175,6 @@
 (global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
+
+(add-hook 'text-mode-hook 'words-dammit)
