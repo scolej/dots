@@ -52,19 +52,19 @@
 (use-package helm
   :pin melpa-stable
   :config
-  (helm-mode t))
-
-(use-package helm-projectile
-  :pin melpa-stable
-  :bind (("C-p" . helm-projectile)
-         ("C-b" . helm-mini)
+  (helm-mode t)
+  :bind (("C-b" . helm-mini)
+         ("<escape>" . helm-mini)
          ("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)))
 
+(use-package helm-projectile
+  :pin melpa-stable
+  :bind (("C-p" . helm-projectile)))
+
 (use-package multiple-cursors
   :pin melpa-stable
-  :bind (("C-/" . mc/edit-lines)
-         ("C-c a" . mc/edit-beginnings-of-lines)
+  :bind (("C-c a" . mc/edit-beginnings-of-lines)
          ("C-c e" . mc/edit-ends-of-lines)
          ("C-c n" . mc/mark-next-like-this)
          ("C-c p" . mc/unmark-next-like-this)
@@ -165,6 +165,18 @@
   (toggle-truncate-lines 0)
   (visual-line-mode t))
 
+(defun open-line-below ()
+  (interactive)
+  (end-of-line)
+  (newline)
+  (indent-for-tab-command))
+
+(defun open-line-above ()
+  (interactive)
+  (beginning-of-line)
+  (newline)
+  (forward-line -1))
+
 ;; Keys
 (windmove-default-keybindings)
 (global-set-key (kbd "C--") 'text-scale-decrease)
@@ -175,6 +187,9 @@
 (global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "C-/") 'replace-string)
 (global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
+(global-set-key (kbd "<S-return>") 'open-line-below)
+(global-set-key (kbd "<C-S-return>") 'open-line-above)
 
 (add-hook 'text-mode-hook 'words-dammit)
