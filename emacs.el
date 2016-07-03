@@ -61,6 +61,7 @@
 (use-package helm-projectile
   :pin melpa-stable
   :bind (("C-p" . helm-projectile)))
+  (projectile-global-mode)
 
 (use-package multiple-cursors
   :pin melpa-stable
@@ -191,5 +192,7 @@
 (global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
 (global-set-key (kbd "<S-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
+(global-set-key [S-wheel-down] 'scroll-left)
+(global-set-key [S-wheel-up] 'scroll-right)
 
 (add-hook 'text-mode-hook 'words-dammit)
