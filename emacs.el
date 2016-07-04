@@ -60,8 +60,9 @@
 
 (use-package helm-projectile
   :pin melpa-stable
-  :bind (("C-p" . helm-projectile)))
-  (projectile-global-mode)
+  :bind (("C-p" . helm-projectile))
+  :config
+  (projectile-global-mode))
 
 (use-package multiple-cursors
   :pin melpa-stable
