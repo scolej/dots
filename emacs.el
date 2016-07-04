@@ -117,6 +117,11 @@
 
 (use-package magit)
 
+(use-package transpose-frame
+  :bind ("C-x t" . transpose-frame))
+
+(use-package git-gutter+)
+
 (setq-default inhibit-startup-message t
               visible-bell nil
               ring-bell-function 'ignore
@@ -192,6 +197,8 @@
 (global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
 (global-set-key (kbd "<S-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
+(global-set-key (kbd "C-c f") 'make-frame)
+(global-set-key (kbd "C-c q") 'delete-frame)
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
 
