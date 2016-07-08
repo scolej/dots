@@ -11,6 +11,8 @@
 
 (setq use-package-always-ensure t)
 
+(use-package cl)
+
 (use-package markdown-mode)
 
 (use-package ibuffer
@@ -49,6 +51,7 @@
   :pin melpa-stable
   :bind (("M-u" . er/expand-region)))
 
+;; TODO Fix these maps on load
 (use-package helm
   :pin melpa-stable
   :config
@@ -56,7 +59,12 @@
   :bind (("C-b" . helm-mini)
          ("<escape>" . helm-mini)
          ("M-x" . helm-M-x)
-         ("C-x C-f" . helm-find-files)))
+         ("C-x C-f" . helm-find-files)
+         ;;:map helm-buffer-map
+         ;;("<escape>" . helm-keyboard-quit)
+         ;;:map helm-M-x-map
+         ;;("<escape>" . helm-keyboard-quit)
+         ))
 
 (use-package helm-projectile
   :pin melpa-stable
@@ -74,11 +82,11 @@
 
 (use-package mwim
   :pin melpa-stable
-  :bind (("C-a" . mwim-beginning-of-line-or-code)))
+  :bind (("C-a" . mwim-beginning-of-code-or-line)))
 
-(use-package hungry-delete
-  :config
-  (global-hungry-delete-mode t))
+;; (use-package hungry-delete
+;;   :config
+;;   (global-hungry-delete-mode t))
 
 (use-package duplicate-thing
   :bind (("M-d" . duplicate-thing)))
@@ -123,11 +131,18 @@
 
 (use-package git-gutter+)
 
+(use-package visual-regexp)
+
+;; (use-package feature-mode
+;;   :bind (:map feature-mode-map
+;;               ("SPC" . self-insert-command)))
+  
 (setq-default inhibit-startup-message t
               visible-bell nil
               ring-bell-function 'ignore
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               mouse-wheel-progressive-speed nil
+              mouse-drag-copy-region t
               show-paren-style 'expression
               truncate-lines t
               show-help-function nil
@@ -198,9 +213,11 @@
 (global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
 (global-set-key (kbd "<S-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
-(global-set-key (kbd "C-c f") 'make-frame)
-(global-set-key (kbd "C-c q") 'delete-frame)
+(global-set-key (kbd "C-c f c") 'make-frame)
+(global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
+(global-set-key [mouse-3] 'kill-region)
+(global-set-key [mouse-2] 'mouse-yank-at-click)
 
 (add-hook 'text-mode-hook 'words-dammit)
