@@ -1,4 +1,4 @@
-(setq debug-on-error t)
+(setq debug-on-error nil)
 
 (require 'package)
 (package-initialize)
@@ -24,6 +24,7 @@
   (setq-default comint-scroll-show-maximum-output nil))
 
 (use-package sr-speedbar
+  :disabled
   :config
   (setq-default sr-speedbar-auto-refresh nil
                 sr-speedbar-width 20
@@ -51,8 +52,8 @@
   :pin melpa-stable
   :bind (("M-u" . er/expand-region)))
 
-;; TODO Fix these maps on load
 (use-package helm
+  :demand
   :pin melpa-stable
   :config
   (helm-mode t)
@@ -60,13 +61,11 @@
          ("<escape>" . helm-mini)
          ("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)
-         ;;:map helm-buffer-map
-         ;;("<escape>" . helm-keyboard-quit)
-         ;;:map helm-M-x-map
-         ;;("<escape>" . helm-keyboard-quit)
-         ))
+         :map helm-map
+         ("<escape>" . helm-keyboard-quit)))
 
 (use-package helm-projectile
+  :demand
   :pin melpa-stable
   :bind (("C-p" . helm-projectile))
   :config
@@ -84,10 +83,6 @@
   :pin melpa-stable
   :bind (("C-a" . mwim-beginning-of-code-or-line)))
 
-;; (use-package hungry-delete
-;;   :config
-;;   (global-hungry-delete-mode t))
-
 (use-package duplicate-thing
   :bind (("M-d" . duplicate-thing)))
 
@@ -96,20 +91,32 @@
 (use-package solarized-theme
   :config
   (load-theme 'solarized-light)
+  ;; Set consistent weight.
+  ;; (mapc
+  ;;  (lambda (face)
+  ;;    (set-face-attribute face nil :weight 'semi-bold :underline nil))
+  ;;  (face-list))
   (set-face-attribute 'mode-line-inactive nil
                       :underline nil
-                      :overline t
+                      :overline nil
+                      :box '(:line-width 2 :style released-button)
                       :height 0.7)
   (set-face-attribute 'mode-line nil
                       :underline nil
-                      :overline t
+                      :overline nil
+                      :box '(:line-width 2 :style released-button)
                       :height 0.7)
-  (add-to-list 'default-frame-alist '(cursor-color . "red"))
-  ;; Disable bold fonts.
-  (mapc
-   (lambda (face)
-     (set-face-attribute face nil :weight 'normal :underline nil))
-   (face-list)))
+  ;; Customizations for helm colours.
+  (set-face-attribute 'helm-selection nil
+                      :background "#FF6E64"
+                      :underline nil)
+  (set-face-attribute 'helm-source-header nil
+                      :background "#3F4D91")
+  ;; Make the cursor red.
+  (set-face-attribute 'cursor nil
+                      :background "red")
+  ;; Make the cursor red in future frames.
+  (add-to-list 'default-frame-alist '(cursor-color . "red")))
 
 (use-package emojify
   :config
@@ -133,10 +140,14 @@
 
 (use-package visual-regexp)
 
-;; (use-package feature-mode
-;;   :bind (:map feature-mode-map
-;;               ("SPC" . self-insert-command)))
-  
+(use-package feature-mode
+  :bind (:map feature-mode-map
+              ("SPC" . self-insert-command)))
+
+(use-package rainbow-mode
+  :config
+  (rainbow-mode t))
+
 (setq-default inhibit-startup-message t
               visible-bell nil
               ring-bell-function 'ignore
@@ -162,6 +173,7 @@
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
