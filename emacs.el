@@ -20,10 +20,13 @@
               truncate-partial-width-windows nil
               split-height-threshold 1200
               split-width-threshold 2000
-              cursor-type 'box)
+              cursor-type 'box
+              isearch-wrap-function '(lambda nil))
 
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
+;; Works if you don't call (set-face-attribute) for the cursor ??
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -76,7 +79,7 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C-c o") 'ffap)
 (global-set-key (kbd "C-c r") 'revert-buffer)
-(global-set-key (kbd "C-d") 'kill-whole-line)
+;; (global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-/") 'replace-string)
@@ -100,7 +103,7 @@
 
 (prefer-coding-system 'utf-8)
 
-(setq use-package-always-ensure t)
+;; (setq use-package-always-ensure t)
 
 (use-package cl
   :demand)
@@ -112,14 +115,22 @@
 ;;          ;; ("<escape>" . quit-window)
 ;;          ))
 
+(use-package neotree
+  :demand
+  :config
+  (setq-default neo-theme 'ascii)
+  (add-hook 'neotree-mode-hook (lambda () (text-scale-set -5))))
+
+(use-package dedicated)
+
 (use-package ibuffer
   :demand
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process))
-  (add-to-list 'ibuffer-mode-hook
-               (lambda ()
-                 (ibuffer-auto-mode t)
-                 (hl-line-mode t)))
+  ;; (add-to-list 'ibuffer-mode-hook
+  ;;              (lambda ()
+  ;;                (ibuffer-auto-mode t)
+  ;;                (hl-line-mode t)))
   :bind (("C-`" . ibuffer)
          ("<escape>" . ibuffer)
          ;; :map ibuffer-mode-map
@@ -131,21 +142,21 @@
   :config
   (setq-default comint-scroll-show-maximum-output nil))
 
-(use-package company
-  :demand
-  :config
-  (global-company-mode t)
-  (setq-default company-minimum-prefix-length 2)
-  :bind (("<M-tab>" . company-complete)
-         :map shell-mode-map
-         ("<tab>" . company-complete)))
+;; (use-package company
+;;   :demand
+;;   :config
+;;   (global-company-mode t)
+;;   (setq-default company-minimum-prefix-length 2)
+;;   :bind (("<M-tab>" . company-complete)
+;;          :map shell-mode-map
+;;          ("<tab>" . company-complete)))
 
-(use-package ivy
-  :demand
-  :config
-  (ivy-mode t)
-  (setq-default ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-  :bind (("C-b" . switch-to-buffer)))
+;; (use-package ivy
+;;   :demand
+;;   :config
+;;   (ivy-mode t)
+;;   (setq-default ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+;;   :bind (("C-b" . switch-to-buffer)))
 
 (use-package drag-stuff
   :demand
@@ -182,13 +193,13 @@
 ;;   :config
 ;;   (projectile-global-mode))
 
-(use-package multiple-cursors
-  :demand
-  :pin melpa-stable
-  :bind (("C-c C-a" . mc/edit-beginnings-of-lines)
-         ("C-c C-e" . mc/edit-ends-of-lines)
-         ("C-c C-n" . mc/mark-next-like-this)
-         ("C-c C-p" . mc/unmark-next-like-this)))
+;; (use-package multiple-cursors
+;;   :demand
+;;   :pin melpa-stable
+;;   :bind (("C-c C-a" . mc/edit-beginnings-of-lines)
+;;          ("C-c C-e" . mc/edit-ends-of-lines)
+;;          ("C-c C-n" . mc/mark-next-like-this)
+;;          ("C-c C-p" . mc/unmark-next-like-this)))
 
 (use-package mwim
   :demand
@@ -232,7 +243,21 @@
   ;; (set-face-attribute 'helm-source-header nil
   ;;                     :background "#3F4D91")
   ;; Make the cursor red.
-  (set-face-attribute 'cursor nil :background "red"))
+  ;; Doesn't work for future frames?
+  ;; (set-face-attribute 'cursor nil :background "red")
+  )
+
+(use-package bm
+  :demand
+  :bind (("M-." . bm-next)
+         ("M-," . bm-previous)
+         ("<M-SPC>" . bm-toggle))
+  :config
+  ;; Should perhaps go in solarized config?
+  (set-face-attribute 'bm-face nil
+                      :underline nil
+                      :overline nil
+                      :background "yellow"))
 
 (use-package emojify
   :demand
@@ -240,10 +265,10 @@
   (global-emojify-mode)
   (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
 
-(use-package company-emoji
-  :demand
-  :config
-  (company-emoji-init))
+;; (use-package company-emoji
+;;   :demand
+;;   :config
+;;   (company-emoji-init))
 
 (use-package flycheck)
 
