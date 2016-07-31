@@ -89,6 +89,7 @@
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "M-s s") 'sort-lines)
+(global-set-key (kbd "<C-tab>") 'mode-line-other-buffer)
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
 (global-set-key [mouse-3] 'kill-region)
@@ -107,6 +108,20 @@
 
 (use-package cl
   :demand)
+
+(use-package dired
+  :demand
+  :bind
+  (:map dired-mode-map ("<backspace>" . dired-up-directory)))
+
+(use-package dired-x)
+
+;; (use-package back-button
+;;   :config
+;;   (back-button-mode t)
+;;   :bind
+;;   (("<M-left>" . back-button-global-backward)
+;;    ("<M-right>" . back-button-global-forward)))
 
 ;; (use-package direx
 ;;   :demand
