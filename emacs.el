@@ -5,7 +5,7 @@
               ring-bell-function 'ignore
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               mouse-wheel-progressive-speed nil
-              mouse-drag-copy-region t
+              ;; mouse-drag-copy-region t
               show-paren-style 'expression
               truncate-lines t
               show-help-function nil
@@ -21,7 +21,14 @@
               split-height-threshold 1200
               split-width-threshold 2000
               cursor-type 'box
-              isearch-wrap-function '(lambda nil))
+              isearch-wrap-function '(lambda nil)
+              large-file-warning-threshold 20000000
+              c-basic-offset 4
+              lazy-highlight-cleanup nil
+              lazy-highlight-max-at-a-time nil
+              show-trailing-whitespace nil
+              scroll-conservatively 1000
+              scroll-margin 3)
 
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -54,6 +61,10 @@
       (setq backup-directory-alist `((".*" . ,dir)))
       (setq auto-save-file-name-transforms `((".*" ,dir t)))))
 
+(defun ttl ()
+  (interactive)
+  (toggle-truncate-lines))
+
 (defun words-dammit ()
   (interactive)
   (toggle-truncate-lines 0)
@@ -79,17 +90,21 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C-c o") 'ffap)
 (global-set-key (kbd "C-c r") 'revert-buffer)
-;; (global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-/") 'replace-string)
 (global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
 (global-set-key (kbd "<S-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
+(global-set-key (kbd "<C-S-right>") 'forward-whitespace)
+(global-set-key (kbd "<C-S-left>") (lambda () (interactive) (forward-whitespace -1)))
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
+(global-set-key (kbd "C-c f m") 'iconify-frame)
+(global-set-key (kbd "C-b") 'switch-to-buffer)
 (global-set-key (kbd "M-s s") 'sort-lines)
 (global-set-key (kbd "<C-tab>") 'mode-line-other-buffer)
+(global-set-key (kbd "C-x f") 'recentf-open-files)
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
 (global-set-key [mouse-3] 'kill-region)
@@ -133,7 +148,8 @@
 (use-package neotree
   :demand
   :config
-  (setq-default neo-theme 'ascii)
+  (setq-default neo-theme 'ascii
+                neo-window-width 45)
   (add-hook 'neotree-mode-hook (lambda () (text-scale-set -5))))
 
 (use-package dedicated)
@@ -235,6 +251,7 @@
 (use-package solarized-theme
   :demand
   :config
+  (setq-default solarized-use-less-bold t)
   (load-theme 'solarized-light)
   ;; Set consistent weight.
   ;; (mapc
