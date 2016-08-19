@@ -5,7 +5,6 @@
               ring-bell-function 'ignore
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               mouse-wheel-progressive-speed nil
-              ;; mouse-drag-copy-region t
               show-paren-style 'expression
               truncate-lines t
               show-help-function nil
@@ -28,9 +27,7 @@
               lazy-highlight-max-at-a-time nil
               show-trailing-whitespace nil
               scroll-conservatively 1000
-              scroll-margin 3)
-
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+              scroll-margin 20)
 
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
 ;; Works if you don't call (set-face-attribute) for the cursor ??
@@ -103,6 +100,7 @@
 (global-set-key (kbd "C-c f m") 'iconify-frame)
 (global-set-key (kbd "C-b") 'switch-to-buffer)
 (global-set-key (kbd "M-s s") 'sort-lines)
+(global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
 (global-set-key (kbd "<C-tab>") 'mode-line-other-buffer)
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 (global-set-key [S-wheel-down] 'scroll-left)
@@ -119,8 +117,6 @@
 
 (prefer-coding-system 'utf-8)
 
-;; (setq use-package-always-ensure t)
-
 (use-package cl
   :demand)
 
@@ -130,20 +126,6 @@
   (:map dired-mode-map ("<backspace>" . dired-up-directory)))
 
 (use-package dired-x)
-
-;; (use-package back-button
-;;   :config
-;;   (back-button-mode t)
-;;   :bind
-;;   (("<M-left>" . back-button-global-backward)
-;;    ("<M-right>" . back-button-global-forward)))
-
-;; (use-package direx
-;;   :demand
-;;   :bind (("<S-escape>" . direx:jump-to-directory)
-;;          :map direx:direx-mode-map
-;;          ;; ("<escape>" . quit-window)
-;;          ))
 
 (use-package neotree
   :demand
@@ -158,36 +140,13 @@
   :demand
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process))
-  ;; (add-to-list 'ibuffer-mode-hook
-  ;;              (lambda ()
-  ;;                (ibuffer-auto-mode t)
-  ;;                (hl-line-mode t)))
   :bind (("C-`" . ibuffer)
-         ("<escape>" . ibuffer)
-         ;; :map ibuffer-mode-map
-         ;; ("<escape>" . ibuffer-quit)
-         ))
+         ("<escape>" . ibuffer)))
 
 (use-package shell
   :demand
   :config
   (setq-default comint-scroll-show-maximum-output nil))
-
-;; (use-package company
-;;   :demand
-;;   :config
-;;   (global-company-mode t)
-;;   (setq-default company-minimum-prefix-length 2)
-;;   :bind (("<M-tab>" . company-complete)
-;;          :map shell-mode-map
-;;          ("<tab>" . company-complete)))
-
-;; (use-package ivy
-;;   :demand
-;;   :config
-;;   (ivy-mode t)
-;;   (setq-default ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-;;   :bind (("C-b" . switch-to-buffer)))
 
 (use-package drag-stuff
   :demand
@@ -202,35 +161,7 @@
 
 (use-package hungry-delete
   :demand
-  :config
-  (global-hungry-delete-mode t))
-
-;; (use-package helm
-;;   :demand
-;;   :pin melpa-stable
-;;   :config
-;;   (helm-mode t)
-;;   :bind (("C-b" . helm-mini)
-;;          ("<escape>" . helm-mini)
-;;          ("M-x" . helm-M-x)
-;;          ("C-x C-f" . helm-find-files)
-;;          :map helm-map
-;;          ("<escape>" . helm-keyboard-quit)))
-
-;; (use-package helm-projectile
-;;   :demand
-;;   :pin melpa-stable
-;;   :bind (("C-p" . helm-projectile))
-;;   :config
-;;   (projectile-global-mode))
-
-;; (use-package multiple-cursors
-;;   :demand
-;;   :pin melpa-stable
-;;   :bind (("C-c C-a" . mc/edit-beginnings-of-lines)
-;;          ("C-c C-e" . mc/edit-ends-of-lines)
-;;          ("C-c C-n" . mc/mark-next-like-this)
-;;          ("C-c C-p" . mc/unmark-next-like-this)))
+  :bind (("<S-backspace>" . hungry-delete-backward)))
 
 (use-package mwim
   :demand
@@ -253,31 +184,16 @@
   :config
   (setq-default solarized-use-less-bold t)
   (load-theme 'solarized-light)
-  ;; Set consistent weight.
-  ;; (mapc
-  ;;  (lambda (face)
-  ;;    (set-face-attribute face nil :weight 'semi-bold :underline nil))
-  ;;  (face-list))
   (set-face-attribute 'mode-line-inactive nil
                       :underline nil
                       :overline nil
                       :box '(:line-width 2 :style released-button)
-                      :height 0.7)
+                      :height 0.8)
   (set-face-attribute 'mode-line nil
                       :underline nil
                       :overline nil
                       :box '(:line-width 2 :style released-button)
-                      :height 0.7)
-  ;; Customizations for helm colours.
-  ;; (set-face-attribute 'helm-selection nil
-  ;;                     :background "#FF6E64"
-  ;;                     :underline nil)
-  ;; (set-face-attribute 'helm-source-header nil
-  ;;                     :background "#3F4D91")
-  ;; Make the cursor red.
-  ;; Doesn't work for future frames?
-  ;; (set-face-attribute 'cursor nil :background "red")
-  )
+                      :height 0.8))
 
 (use-package bm
   :demand
@@ -296,11 +212,6 @@
   :config
   (global-emojify-mode)
   (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
-
-;; (use-package company-emoji
-;;   :demand
-;;   :config
-;;   (company-emoji-init))
 
 (use-package flycheck)
 
