@@ -187,25 +187,21 @@
   (set-face-attribute 'mode-line-inactive nil
                       :underline nil
                       :overline nil
-                      :box '(:line-width 2 :style released-button)
-                      :height 0.8)
+                      :box '(:line-width 2 :style released-button))
   (set-face-attribute 'mode-line nil
                       :underline nil
                       :overline nil
-                      :box '(:line-width 2 :style released-button)
-                      :height 0.8))
+                      :box '(:line-width 2 :style released-button))
+  (set-face-attribute 'bm-face nil
+                      :underline nil
+                      :overline nil
+                      :background "yellow"))
 
 (use-package bm
   :demand
   :bind (("M-." . bm-next)
          ("M-," . bm-previous)
-         ("<M-SPC>" . bm-toggle))
-  :config
-  ;; Should perhaps go in solarized config?
-  (set-face-attribute 'bm-face nil
-                      :underline nil
-                      :overline nil
-                      :background "yellow"))
+         ("<M-SPC>" . bm-toggle)))
 
 (use-package emojify
   :demand
@@ -228,8 +224,6 @@
 
 (use-package feature-mode)
 
-(use-package haskell-mode
-  :config
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-indent))
+(use-package haskell-mode)
 
 (use-package markdown-mode)
