@@ -13,7 +13,7 @@
               linum-format "%4d"
               isearch-allow-scroll t
               save-interprogram-paste-before-kill t
-              mode-line-format (list "%Z %6l %2c > %m; %b; %f; %P")
+              mode-line-format (list "(%Z %4l %3c) (%m) (%b) (%f) (%P)")
               revert-without-query '(".*")
               dired-listing-switches "-alh"
               truncate-partial-width-windows nil
@@ -120,6 +120,19 @@
 (use-package cl
   :demand)
 
+(use-package ivy
+  :demand
+  :config
+  (setq-default ivy-re-builders-alist '((t . ivy--regex-ignore-order))
+                ivy-use-virtual-buffers t
+                ivy-height 15)
+  (ivy-mode t)
+  :bind (("C-b" . switch-to-buffer)))
+
+(use-package swiper
+  :bind (("C-s" . swiper)
+         ("C-S-s" . isearch-forward)))
+
 (use-package dired
   :demand
   :bind
@@ -179,6 +192,12 @@
 
 (use-package highlight-thing)
 
+(use-package bm
+  :demand
+  :bind (("M-." . bm-next)
+         ("M-," . bm-previous)
+         ("<M-SPC>" . bm-toggle)))
+
 (use-package solarized-theme
   :demand
   :config
@@ -196,12 +215,6 @@
                       :underline nil
                       :overline nil
                       :background "yellow"))
-
-(use-package bm
-  :demand
-  :bind (("M-." . bm-next)
-         ("M-," . bm-previous)
-         ("<M-SPC>" . bm-toggle)))
 
 (use-package emojify
   :demand
