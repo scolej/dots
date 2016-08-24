@@ -1,3 +1,8 @@
+;; IDEAS
+;;
+;; * Change cursor colour to reflect save state.
+;; * Prefix 1,2,3 bookmark for different colour bookmarks.
+
 (setq debug-on-error nil)
 
 (setq-default inhibit-startup-message t
@@ -23,11 +28,11 @@
               isearch-wrap-function '(lambda nil)
               large-file-warning-threshold 20000000
               c-basic-offset 4
-              lazy-highlight-cleanup nil
+              lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               show-trailing-whitespace nil
               scroll-conservatively 1000
-              scroll-margin 20)
+              scroll-margin 0)
 
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
 ;; Works if you don't call (set-face-attribute) for the cursor ??
@@ -49,6 +54,7 @@
 (savehist-mode t)
 (delete-selection-mode t)
 (column-number-mode t)
+(global-hl-line-mode t)
 
 (setf text-scale-mode-step 1.05)
 
@@ -129,7 +135,19 @@
   (ivy-mode t)
   :bind (("C-b" . switch-to-buffer)))
 
+(use-package ace-jump-mode
+  :demand
+  :bind (("<M-return>" . ace-jump-char-mode)))
+
+(use-package projectile
+  :config
+  (projectile-global-mode)
+  (setq-default projectile-indexing-method 'alien
+                projectile-completion-system 'ivy)
+  :bind (("C-p" . projectile-find-file)))
+
 (use-package swiper
+  :demand
   :bind (("C-s" . swiper)
          ("C-S-s" . isearch-forward)))
 
