@@ -126,6 +126,11 @@
 (use-package cl
   :demand)
 
+(use-package winner-mode
+  :demand
+  :config
+  (winner-mode t))
+
 (use-package ivy
   :demand
   :config
