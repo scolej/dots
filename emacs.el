@@ -2,6 +2,7 @@
 ;;
 ;; * Change cursor colour to reflect save state.
 ;; * Prefix 1,2,3 bookmark for different colour bookmarks.
+;; * Highlight mouse cursor pos always
 
 (setq debug-on-error nil)
 
@@ -55,6 +56,7 @@
 (delete-selection-mode t)
 (column-number-mode t)
 (global-hl-line-mode t)
+(winner-mode t)
 
 (setf text-scale-mode-step 1.05)
 
@@ -87,6 +89,26 @@
 
 (add-hook 'text-mode-hook 'words-dammit)
 
+;; Functions and bindings for long-pressing right mouse button for copy / cut.
+(defvar longmouse-timer nil)
+(defun longmouse-down ()
+  (interactive)
+  (setq longmouse-timer
+        (run-at-time 0.3
+                     nil
+                     '(lambda ()
+                        (whole-line-or-region-kill-region 1)))))
+(defun longmouse-up ()
+  (interactive)
+  (if (eq longmouse-timer nil)
+      (whole-line-or-region-kill-ring-save 1)
+    (progn
+      (cancel-timer longmouse-timer)
+      (setq longmouse-timer nil))))
+(global-set-key [down-mouse-3] 'longmouse-down)
+(global-set-key [mouse-3] 'longmouse-up)
+(global-set-key [mouse-2] 'mouse-yank-at-click)
+
 ;; Keys
 (windmove-default-keybindings)
 (global-set-key (kbd "C--") 'text-scale-decrease)
@@ -111,8 +133,6 @@
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
-(global-set-key [mouse-3] 'kill-region)
-(global-set-key [mouse-2] 'mouse-yank-at-click)
 
 (require 'package)
 (package-initialize)
@@ -126,10 +146,9 @@
 (use-package cl
   :demand)
 
-(use-package winner-mode
-  :demand
-  :config
-  (winner-mode t))
+;; TODO Does this even work?
+(use-package mouse+
+  :bind (([mouse-down-2] . mouse-flash-position)))
 
 (use-package ivy
   :demand
@@ -197,7 +216,8 @@
 
 (use-package hungry-delete
   :demand
-  :bind (("<S-backspace>" . hungry-delete-backward)))
+  :bind (("<S-backspace>" . hungry-delete-backward)
+         ("<S-delete>" . hungry-delete-forward)))
 
 (use-package mwim
   :demand
