@@ -6,6 +6,10 @@
 ;; * Mode line click yank buffer file path
 ;; * Long press right -> copy, short press right -> cut
 ;; * Flash text on copy?
+;;
+;; TODO
+;;
+;; * Has save predicate broken? Doesn't revert to unsaved if you add a space then delete a
 
 (setq debug-on-error nil)
 
@@ -42,6 +46,22 @@
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
 ;; Works if you don't call (set-face-attribute) for the cursor ??
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
+
+;; Experiment with facy mode-line...
+(defun save-smiley()
+  (if (buffer-modified-p)
+      ":/"
+    ":)"))
+(defun generate-modeline ()
+  (string-join (list (save-smiley)
+                     (format "%4d:%2d" (line-number-at-pos (point)) (current-column))
+                     (format "%3d%%%%" (/ (point) 0.01 (point-max)))
+                     (buffer-name)
+                     (buffer-file-name))
+               " "))
+(setq-default mode-line-format '("" (:eval (generate-modeline))))
+;; TODO Is this overkill?
+(add-hook 'post-command-hook 'force-mode-line-update)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
