@@ -3,6 +3,9 @@
 ;; * Change cursor colour to reflect save state.
 ;; * Prefix 1,2,3 bookmark for different colour bookmarks.
 ;; * Highlight mouse cursor pos always
+;; * Mode line click yank buffer file path
+;; * Long press right -> copy, short press right -> cut
+;; * Flash text on copy?
 
 (setq debug-on-error nil)
 
@@ -33,7 +36,8 @@
               lazy-highlight-max-at-a-time nil
               show-trailing-whitespace nil
               scroll-conservatively 1000
-              scroll-margin 0)
+              scroll-margin 0
+              recentf-max-saved-items 100)
 
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
 ;; Works if you don't call (set-face-attribute) for the cursor ??
@@ -88,6 +92,7 @@
   (forward-line -1))
 
 (add-hook 'text-mode-hook 'words-dammit)
+(add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
 
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
 (defvar longmouse-timer nil)
@@ -97,17 +102,20 @@
         (run-at-time 0.3
                      nil
                      '(lambda ()
-                        (whole-line-or-region-kill-region 1)))))
+                        (setq longmouse-timer nil)
+                        (whole-line-or-region-delete 1)))))
 (defun longmouse-up ()
   (interactive)
-  (if (eq longmouse-timer nil)
-      (whole-line-or-region-kill-ring-save 1)
+  (unless (eq longmouse-timer nil)
     (progn
+      (whole-line-or-region-kill-ring-save 1)
+      (setq deactivate-mark nil)
+      (message "Saved region.")
       (cancel-timer longmouse-timer)
       (setq longmouse-timer nil))))
 (global-set-key [down-mouse-3] 'longmouse-down)
 (global-set-key [mouse-3] 'longmouse-up)
-(global-set-key [mouse-2] 'mouse-yank-at-click)
+(global-set-key [mouse-2] 'whole-line-or-region-yank)
 
 ;; Keys
 (windmove-default-keybindings)
@@ -129,6 +137,7 @@
 (global-set-key (kbd "C-b") 'switch-to-buffer)
 (global-set-key (kbd "M-s s") 'sort-lines)
 (global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
+(global-set-key (kbd "M-s u") 'upcase-region)
 (global-set-key (kbd "<C-tab>") 'mode-line-other-buffer)
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 (global-set-key [S-wheel-down] 'scroll-left)
@@ -145,10 +154,6 @@
 
 (use-package cl
   :demand)
-
-;; TODO Does this even work?
-(use-package mouse+
-  :bind (([mouse-down-2] . mouse-flash-position)))
 
 (use-package ivy
   :demand
