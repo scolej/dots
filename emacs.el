@@ -114,6 +114,27 @@
 (add-hook 'text-mode-hook 'words-dammit)
 (add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
 
+;; Speedy grep
+;; Provide an rgrep which will use the last values unless there is a prefix arg to specify them again.
+(defvar speedy-grep-last-glob nil)
+(defvar speedy-grep-last-dir nil)
+(defun speedy-grep-rgrep (glob dir pat)
+  (interactive
+   (list
+    (if (or (not speedy-grep-last-glob)
+            current-prefix-arg)
+        (read-string "Glob: " nil 'glob)
+      speedy-grep-last-glob)
+    (if (or (not speedy-grep-last-dir)
+            current-prefix-arg)
+        (read-string "Directory: " nil 'dir)
+      speedy-grep-last-dir)
+   (read-string "Pattern: " nil 'pat)))
+  (progn
+    (setq speedy-grep-last-dir dir)
+    (setq speedy-grep-last-glob glob)
+    (rgrep pat glob dir)))
+  
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
 (defvar longmouse-timer nil)
 (defun longmouse-down ()
@@ -155,6 +176,7 @@
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c f m") 'iconify-frame)
 (global-set-key (kbd "C-b") 'switch-to-buffer)
+(global-set-key (kbd "M-r") 'speedy-grep-rgrep)
 (global-set-key (kbd "M-s s") 'sort-lines)
 (global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
 (global-set-key (kbd "M-s u") 'upcase-region)
