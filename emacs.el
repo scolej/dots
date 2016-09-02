@@ -49,15 +49,19 @@
 
 ;; Experiment with facy mode-line...
 (defun save-smiley()
-  (if (buffer-modified-p)
-      ":/"
-    ":)"))
+  (cond
+   ((and (buffer-modified-p) buffer-read-only) ":{O")
+   (buffer-read-only ":{")
+   ((buffer-modified-p) ":O")
+   ((not (buffer-modified-p)) ":)")
+   t ":S"))
 (defun generate-modeline ()
   (string-join (list (save-smiley)
                      (format "%4d:%2d" (line-number-at-pos (point)) (current-column))
                      (format "%3d%%%%" (/ (point) 0.01 (point-max)))
                      (buffer-name)
-                     (buffer-file-name))
+                     ;;(buffer-file-name)
+                     )
                " "))
 (setq-default mode-line-format '("" (:eval (generate-modeline))))
 ;; TODO Is this overkill?
@@ -123,13 +127,13 @@
    (list
     (if (or (not speedy-grep-last-glob)
             current-prefix-arg)
-        (read-string "Glob: " nil 'glob)
+        (completing-read "Glob: " nil 'glob)
       speedy-grep-last-glob)
     (if (or (not speedy-grep-last-dir)
             current-prefix-arg)
-        (read-string "Directory: " nil 'dir)
+        (read-directory-name "Directory: ")
       speedy-grep-last-dir)
-   (read-string "Pattern: " nil 'pat)))
+   (completing-read "Pattern: " nil 'pat)))
   (progn
     (setq speedy-grep-last-dir dir)
     (setq speedy-grep-last-glob glob)
@@ -212,10 +216,11 @@
 
 (use-package projectile
   :config
-  (projectile-global-mode)
+  (projectile-global-mode t)
   (setq-default projectile-indexing-method 'alien
                 projectile-completion-system 'ivy)
-  :bind (("C-p" . projectile-find-file)))
+  :bind (("C-p" . projectile-find-file)
+         ("C-S-p" . projectile-switch-project)))
 
 (use-package swiper
   :demand
@@ -274,7 +279,7 @@
 (use-package whole-line-or-region
   :demand
   :config
-  (whole-line-or-region-mode))
+  (whole-line-or-region-mode t))
 
 (use-package duplicate-thing
   :demand
@@ -309,7 +314,7 @@
 (use-package emojify
   :demand
   :config
-  (global-emojify-mode)
+  (global-emojify-mode t)
   (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
 
 (use-package flycheck)
