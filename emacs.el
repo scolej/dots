@@ -15,6 +15,7 @@
 (setq debug-on-error nil)
 
 (setq-default inhibit-startup-message t
+              initial-scratch-message nil
               visible-bell nil
               ring-bell-function 'ignore
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -27,7 +28,7 @@
               linum-format "%4d"
               isearch-allow-scroll t
               save-interprogram-paste-before-kill t
-              mode-line-format (list "(%Z %4l %3c) (%m) (%b) (%f) (%P)")
+              ;; mode-line-format (list "(%Z %4l %3c) (%m) (%b) (%f) (%P)")
               revert-without-query '(".*")
               dired-listing-switches "-alh"
               truncate-partial-width-windows nil
@@ -209,24 +210,28 @@
                 ivy-use-virtual-buffers t
                 ivy-height 15)
   (ivy-mode t)
-  :bind (("C-b" . switch-to-buffer)))
+  :bind
+  (("C-b" . switch-to-buffer)))
 
 (use-package ace-jump-mode
   :demand
-  :bind (("<M-return>" . ace-jump-char-mode)))
+  :bind
+  (("<M-return>" . ace-jump-char-mode)))
 
 (use-package projectile
   :config
   (projectile-global-mode t)
   (setq-default projectile-indexing-method 'alien
                 projectile-completion-system 'ivy)
-  :bind (("C-p" . projectile-find-file)
-         ("C-S-p" . projectile-switch-project)))
+  :bind
+  (("C-p" . projectile-find-file)
+   ("C-S-p" . projectile-switch-project)))
 
 (use-package swiper
   :demand
-  :bind (("C-s" . swiper)
-         ("C-S-s" . isearch-forward)))
+  :bind
+  (("C-s" . swiper)
+   ("C-S-s" . isearch-forward)))
 
 (use-package dired
   :demand
@@ -248,8 +253,9 @@
   :demand
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process))
-  :bind (("C-`" . ibuffer)
-         ("<escape>" . ibuffer)))
+  :bind
+  (("C-`" . ibuffer)
+   ("<escape>" . ibuffer)))
 
 (use-package shell
   :demand
@@ -259,23 +265,27 @@
 (use-package drag-stuff
   :demand
   :pin melpa-stable
-  :bind (("<M-down>" . drag-stuff-down)
-         ("<M-up>" . drag-stuff-up)))
+  :bind
+  (("<M-down>" . drag-stuff-down)
+   ("<M-up>" . drag-stuff-up)))
 
 (use-package expand-region
   :demand
   :pin melpa-stable
-  :bind (("M-u" . er/expand-region)))
+  :bind
+  (("M-u" . er/expand-region)))
 
 (use-package hungry-delete
   :demand
-  :bind (("<S-backspace>" . hungry-delete-backward)
-         ("<S-delete>" . hungry-delete-forward)))
+  :bind
+  (("<S-backspace>" . hungry-delete-backward)
+   ("<S-delete>" . hungry-delete-forward)))
 
 (use-package mwim
   :demand
   :pin melpa-stable
-  :bind (("C-a" . mwim-beginning-of-code-or-line)))
+  :bind
+  (("C-a" . mwim-beginning-of-code-or-line)))
 
 (use-package whole-line-or-region
   :demand
@@ -284,15 +294,17 @@
 
 (use-package duplicate-thing
   :demand
-  :bind (("M-d" . duplicate-thing)))
+  :bind
+  (("M-d" . duplicate-thing)))
 
 (use-package highlight-thing)
 
 (use-package bm
   :demand
-  :bind (("M-." . bm-next)
-         ("M-," . bm-previous)
-         ("<M-SPC>" . bm-toggle)))
+  :bind
+  (("M-." . bm-next)
+   ("M-," . bm-previous)
+   ("<M-SPC>" . bm-toggle)))
 
 (use-package solarized-theme
   :demand
@@ -326,7 +338,8 @@
                 vc-handled-backends nil))
 
 (use-package transpose-frame
-  :bind ("C-x t" . transpose-frame))
+  :bind
+  ("C-x t" . transpose-frame))
 
 (use-package git-gutter+)
 
