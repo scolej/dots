@@ -6,6 +6,7 @@
 ;; * Mode line click yank buffer file path
 ;; * Long press right -> copy, short press right -> cut
 ;; * Flash text on copy?
+;; * C-u split window operates on parent window. To easily add more cols / rows at top level.
 ;;
 ;; TODO
 ;;
@@ -138,7 +139,7 @@
     (setq speedy-grep-last-dir dir)
     (setq speedy-grep-last-glob glob)
     (rgrep pat glob dir)))
-  
+
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
 (defvar longmouse-timer nil)
 (defun longmouse-down ()
@@ -319,7 +320,10 @@
 
 (use-package flycheck)
 
-(use-package magit)
+(use-package magit
+  :config
+  (setq-default auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffers-p
+                vc-handled-backends nil))
 
 (use-package transpose-frame
   :bind ("C-x t" . transpose-frame))
