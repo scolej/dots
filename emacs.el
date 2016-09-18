@@ -41,8 +41,8 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               show-trailing-whitespace nil
-              scroll-conservatively 1000
-              scroll-margin 0
+              scroll-conservatively 9999
+              scroll-margin 10
               recentf-max-saved-items 100)
 
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
@@ -62,8 +62,7 @@
                      (format "%4d:%2d" (line-number-at-pos (point)) (current-column))
                      (format "%3d%%%%" (/ (point) 0.01 (point-max)))
                      (buffer-name)
-                     ;;(buffer-file-name)
-                     )
+                     (if (window-dedicated-p) "pinned"))
                " "))
 (setq-default mode-line-format '("" (:eval (generate-modeline))))
 ;; TODO Is this overkill?
@@ -100,6 +99,13 @@
   (interactive)
   (toggle-truncate-lines))
 
+(defun toggle-pin ()
+  (interactive)
+  (if (window-dedicated-p)
+      (set-window-dedicated-p nil nil)
+    (set-window-dedicated-p nil t)))
+(global-set-key (kbd "C-x p") 'toggle-pin)
+
 (defun words-dammit ()
   (interactive)
   (toggle-truncate-lines 0)
@@ -119,9 +125,13 @@
 
 (add-hook 'text-mode-hook 'words-dammit)
 (add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
+(add-hook 'occur-hook 'occur-rename-buffer)
+
+(add-to-list 'auto-mode-alist '("\\.log\\'" . read-only-mode))
 
 ;; Speedy grep
 ;; Provide an rgrep which will use the last values unless there is a prefix arg to specify them again.
+(require 'grep)
 (defvar speedy-grep-last-glob nil)
 (defvar speedy-grep-last-dir nil)
 (defun speedy-grep-rgrep (glob dir pat)
@@ -211,7 +221,7 @@
                 ivy-height 15)
   (ivy-mode t)
   :bind
-  (("C-b" . switch-to-buffer)))
+  (("<escape>" . switch-to-buffer)))
 
 (use-package ace-jump-mode
   :demand
@@ -223,9 +233,9 @@
   (projectile-global-mode t)
   (setq-default projectile-indexing-method 'alien
                 projectile-completion-system 'ivy)
-  :bind
-  (("C-p" . projectile-find-file)
-   ("C-S-p" . projectile-switch-project)))
+:bind
+(("C-`" . projectile-find-file)
+ ("C-~" . projectile-switch-project)))
 
 (use-package swiper
   :demand
@@ -254,8 +264,7 @@
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process))
   :bind
-  (("C-`" . ibuffer)
-   ("<escape>" . ibuffer)))
+  (("C-b" . ibuffer)))
 
 (use-package shell
   :demand
@@ -324,18 +333,20 @@
                       :overline nil
                       :background "yellow"))
 
-(use-package emojify
-  :demand
-  :config
-  (global-emojify-mode t)
-  (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
+;; (use-package emojify
+;;   :demand
+;;   :config
+;;   (global-emojify-mode t)
+;;   (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
 
 (use-package flycheck)
 
 (use-package magit
   :config
   (setq-default auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffers-p
-                vc-handled-backends nil))
+                vc-handled-backends nil)
+  :bind
+  (("C-c m" . magit-status)))
 
 (use-package transpose-frame
   :bind
