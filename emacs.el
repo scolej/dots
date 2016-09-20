@@ -42,7 +42,7 @@
               lazy-highlight-max-at-a-time nil
               show-trailing-whitespace nil
               scroll-conservatively 9999
-              scroll-margin 10
+              scroll-margin 0
               recentf-max-saved-items 100)
 
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
@@ -149,7 +149,7 @@
   (progn
     (setq speedy-grep-last-dir dir)
     (setq speedy-grep-last-glob glob)
-    (rgrep pat glob dir)))
+    (rgrep pat glob dir nil)))
 
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
 (defvar longmouse-timer nil)
@@ -222,6 +222,14 @@
   (ivy-mode t)
   :bind
   (("<escape>" . switch-to-buffer)))
+
+(use-package back-button
+  :demand
+  :config
+  (back-button-mode t)
+  :bind
+  (("<M-left>" . back-button-global-backward)
+   ("<M-right>" . back-button-global-forward)))
 
 (use-package ace-jump-mode
   :demand
@@ -301,10 +309,10 @@
   :config
   (whole-line-or-region-mode t))
 
-(use-package duplicate-thing
-  :demand
-  :bind
-  (("M-d" . duplicate-thing)))
+;; (use-package duplicate-thing
+;;   :demand
+;;   :bind
+;;   (("M-d" . duplicate-thing)))
 
 (use-package highlight-thing)
 
