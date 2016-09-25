@@ -183,6 +183,7 @@
 (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-/") 'replace-string)
+(global-set-key (kbd "C-d") 'kill-whole-line)
 (global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
 (global-set-key (kbd "<S-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
@@ -209,6 +210,15 @@
 (require 'use-package)
 
 (prefer-coding-system 'utf-8)
+
+(use-package syntax-subword-mode
+  :demand
+  :config
+  (global-syntax-subword-mode))
+
+(use-package evil
+  :config
+  (define-key evil-normal-state-map (kbd ";") 'evil-ex))
 
 (use-package cl
   :demand)
@@ -309,10 +319,13 @@
   :config
   (whole-line-or-region-mode t))
 
-;; (use-package duplicate-thing
-;;   :demand
-;;   :bind
-;;   (("M-d" . duplicate-thing)))
+(use-package duplicate-thing
+  :demand
+  :config
+  (defun duplicate-down () (interactive) (duplicate-thing 1) (next-line))
+  :bind
+  (("<C-M-down>" . duplicate-down)
+   ("<C-M-up>" . duplicate-thing)))
 
 (use-package highlight-thing)
 
