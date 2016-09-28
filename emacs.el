@@ -261,7 +261,7 @@
 (use-package syntax-subword-mode
   :demand
   :config
-  (global-syntax-subword-mode))
+  (global-syntax-subword-mode t))
 
 (use-package evil
   :config
