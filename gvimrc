@@ -1,0 +1,17 @@
+set guioptions-=m
+set guioptions-=T
+set guioptions-=r
+set guioptions-=l
+set guioptions-=R
+set guioptions-=L
+set guioptions+=c
+set guicursor=a:blinkon0
+colo nocturne
+set bg=dark
+set mousehide
+set mousefocus
+set cursorline
+set linespace=0
+set guiheadroom=0
+set lines=30
+set columns=80
