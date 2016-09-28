@@ -49,24 +49,35 @@
 ;; Works if you don't call (set-face-attribute) for the cursor ??
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 
+;;
 ;; Experiment with facy mode-line...
-(defun save-smiley()
+;;
+
+(defun save-smiley ()
+  "Figure out a smiley to show, based on the save state of the file."
   (cond
    ((and (buffer-modified-p) buffer-read-only) ":{O")
    (buffer-read-only ":{")
    ((buffer-modified-p) ":O")
    ((not (buffer-modified-p)) ":)")
-   t ":S"))
+   (t ":S")))
+
 (defun generate-modeline ()
+  "Generate a modeline string to display."
   (string-join (list (save-smiley)
                      (format "%4d:%2d" (line-number-at-pos (point)) (current-column))
                      (format "%3d%%%%" (/ (point) 0.01 (point-max)))
                      (buffer-name)
                      (if (window-dedicated-p) "pinned"))
                " "))
+
 (setq-default mode-line-format '("" (:eval (generate-modeline))))
 ;; TODO Is this overkill?
 (add-hook 'post-command-hook 'force-mode-line-update)
+
+;;
+;; Enable built in modes
+;;
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -87,19 +98,23 @@
 (global-hl-line-mode t)
 (winner-mode t)
 
-(setf text-scale-mode-step 1.05)
-
 ;; Stop polluting the entire filesystem with backup files.
 (if (boundp '*my-backup-dir*)
     (let ((dir *my-backup-dir*))
       (setq backup-directory-alist `((".*" . ,dir)))
       (setq auto-save-file-name-transforms `((".*" ,dir t)))))
 
+;;
+;; Little shortcuts
+;;
+
 (defun ttl ()
+  "Shortcut for truncating lines."
   (interactive)
   (toggle-truncate-lines))
 
 (defun toggle-pin ()
+  "Toggle pinning on a window to keep it around."
   (interactive)
   (if (window-dedicated-p)
       (set-window-dedicated-p nil nil)
@@ -107,6 +122,7 @@
 (global-set-key (kbd "C-x p") 'toggle-pin)
 
 (defun words-dammit ()
+  "I just want word wrapping!"
   (interactive)
   (toggle-truncate-lines 0)
   (visual-line-mode t))
@@ -123,14 +139,33 @@
   (newline)
   (forward-line -1))
 
+;;
+;; Hooks and such
+;;
+
 (add-hook 'text-mode-hook 'words-dammit)
 (add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
 (add-hook 'occur-hook 'occur-rename-buffer)
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . read-only-mode))
 
+;; Some goodness scrounged from http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/.
+;; See if it helps ivy search do its thing or not.
+(defun minibuffer-setup-hook ()
+  (setq gc-cons-threshold most-positive-fixnum))
+(defun minibuffer-exit-hook ()
+  (setq gc-cons-threshold 800000))
+(add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
+(add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+
+;;
 ;; Speedy grep
-;; Provide an rgrep which will use the last values unless there is a prefix arg to specify them again.
+;;
+;; Provide an rgrep which will use the last values unless
+;; there is a prefix arg to specify them again.
+;;
+;; TODO This doesn't work unless you've already run rgrep :S
+
 (require 'grep)
 (defvar speedy-grep-last-glob nil)
 (defvar speedy-grep-last-dir nil)
@@ -151,7 +186,12 @@
     (setq speedy-grep-last-glob glob)
     (rgrep pat glob dir nil)))
 
+;;
+;; Longmouse
+;;
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
+;;
+
 (defvar longmouse-timer nil)
 (defun longmouse-down ()
   (interactive)
@@ -174,7 +214,10 @@
 (global-set-key [mouse-3] 'longmouse-up)
 (global-set-key [mouse-2] 'whole-line-or-region-yank)
 
+;;
 ;; Keys
+;;
+
 (windmove-default-keybindings)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -202,6 +245,10 @@
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
 
+;;
+;; Packages
+;;
+
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
@@ -218,6 +265,7 @@
 
 (use-package evil
   :config
+  (setq-default evil-search-wrap nil)
   (define-key evil-normal-state-map (kbd ";") 'evil-ex))
 
 (use-package cl
@@ -233,18 +281,18 @@
   :bind
   (("<escape>" . switch-to-buffer)))
 
-(use-package back-button
-  :demand
-  :config
-  (back-button-mode t)
-  :bind
-  (("<M-left>" . back-button-global-backward)
-   ("<M-right>" . back-button-global-forward)))
+;; (use-package back-button
+;;   :demand
+;;   :config
+;;   (back-button-mode t)
+;;   :bind
+;;   (("<M-left>" . back-button-global-backward)
+;;    ("<M-right>" . back-button-global-forward)))
 
-(use-package ace-jump-mode
-  :demand
-  :bind
-  (("<M-return>" . ace-jump-char-mode)))
+;; (use-package ace-jump-mode
+;;   :demand
+;;   :bind
+;;   (("<M-return>" . ace-jump-char-mode)))
 
 (use-package projectile
   :config
@@ -255,11 +303,11 @@
 (("C-`" . projectile-find-file)
  ("C-~" . projectile-switch-project)))
 
-(use-package swiper
-  :demand
-  :bind
-  (("C-s" . swiper)
-   ("C-S-s" . isearch-forward)))
+;; (use-package swiper
+;;   :demand
+;;   :bind
+;;   (("C-s" . swiper)
+;;    ("C-S-s" . isearch-forward)))
 
 (use-package dired
   :demand
@@ -268,12 +316,12 @@
 
 (use-package dired-x)
 
-(use-package neotree
-  :demand
-  :config
-  (setq-default neo-theme 'ascii
-                neo-window-width 45)
-  (add-hook 'neotree-mode-hook (lambda () (text-scale-set -5))))
+;; (use-package neotree
+;;   :demand
+;;   :config
+;;   (setq-default neo-theme 'ascii
+;;                 neo-window-width 45)
+;;   (add-hook 'neotree-mode-hook (lambda () (text-scale-set -5))))
 
 (use-package dedicated)
 
@@ -289,12 +337,12 @@
   :config
   (setq-default comint-scroll-show-maximum-output nil))
 
-(use-package drag-stuff
-  :demand
-  :pin melpa-stable
-  :bind
-  (("<M-down>" . drag-stuff-down)
-   ("<M-up>" . drag-stuff-up)))
+;; (use-package drag-stuff
+;;   :demand
+;;   :pin melpa-stable
+;;   :bind
+;;   (("<M-down>" . drag-stuff-down)
+;;    ("<M-up>" . drag-stuff-up)))
 
 (use-package expand-region
   :demand
@@ -302,30 +350,30 @@
   :bind
   (("M-u" . er/expand-region)))
 
-(use-package hungry-delete
-  :demand
-  :bind
-  (("<S-backspace>" . hungry-delete-backward)
-   ("<S-delete>" . hungry-delete-forward)))
+;; (use-package hungry-delete
+;;   :demand
+;;   :bind
+;;   (("<S-backspace>" . hungry-delete-backward)
+;;    ("<S-delete>" . hungry-delete-forward)))
 
-(use-package mwim
-  :demand
-  :pin melpa-stable
-  :bind
-  (("C-a" . mwim-beginning-of-code-or-line)))
+;; (use-package mwim
+;;   :demand
+;;   :pin melpa-stable
+;;   :bind
+;;   (("C-a" . mwim-beginning-of-code-or-line)))
 
-(use-package whole-line-or-region
-  :demand
-  :config
-  (whole-line-or-region-mode t))
+;; (use-package whole-line-or-region
+;;   :demand
+;;   :config
+;;   (whole-line-or-region-mode t))
 
-(use-package duplicate-thing
-  :demand
-  :config
-  (defun duplicate-down () (interactive) (duplicate-thing 1) (next-line))
-  :bind
-  (("<C-M-down>" . duplicate-down)
-   ("<C-M-up>" . duplicate-thing)))
+;; (use-package duplicate-thing
+;;   :demand
+;;   :config
+;;   (defun duplicate-down () (interactive) (duplicate-thing 1) (next-line))
+;;   :bind
+;;   (("<C-M-down>" . duplicate-down)
+;;    ("<C-M-up>" . duplicate-thing)))
 
 (use-package highlight-thing)
 
@@ -340,7 +388,7 @@
   :demand
   :config
   (setq-default solarized-use-less-bold t)
-  (load-theme 'solarized-light)
+  (load-theme 'solarized-dark)
   (set-face-attribute 'mode-line-inactive nil
                       :underline nil
                       :overline nil
@@ -375,7 +423,7 @@
 
 (use-package git-gutter+)
 
-(use-package visual-regexp)
+;; (use-package visual-regexp)
 
 (use-package rainbow-mode)
 
