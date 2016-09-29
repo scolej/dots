@@ -6,8 +6,9 @@ set guioptions-=R
 set guioptions-=L
 set guioptions+=c
 set guicursor=a:blinkon0
-colo nocturne
-set bg=dark
+let g:solarized_italic=0
+colo solarized
+set bg=light
 set mousehide
 set mousefocus
 set cursorline
@@ -15,3 +16,4 @@ set linespace=0
 set guiheadroom=0
 set lines=30
 set columns=80
+highlight Cursor guifg=black guibg=red
