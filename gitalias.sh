@@ -1,0 +1,11 @@
+#!/bin/sh
+alias g='git'
+alias ga='git add'
+alias gau='git add -u'
+alias gco='git checkout'
+alias gcom='git commit'
+alias gcoma='git commit --amend'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline -n10'
+alias gs='git status'
