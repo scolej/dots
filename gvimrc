@@ -6,9 +6,6 @@ set guioptions-=R
 set guioptions-=L
 set guioptions+=c
 set guicursor=a:blinkon0
-let g:solarized_italic=0
-colo solarized
-set bg=light
 set mousehide
 set mousefocus
 set cursorline
