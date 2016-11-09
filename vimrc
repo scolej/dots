@@ -1,45 +1,52 @@
-set nocp
-set clipboard=unnamed
-set ruler
-set nowrap
-set autoindent
-set ignorecase
-set mouse=a
-set tw=0
-set linebreak
-set number
-set nowrapscan
-syntax on
-set virtualedit+=block
-set tabstop=4
-set shiftwidth=4
-set softtabstop=2
-set expandtab
-set wildmode=list:full
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
-set shortmess=aoOtI
-set fillchars+=vert:\
-hi LineNr gui=NONE
-hi StatusLine gui=NONE
-hi StatusLineNC gui=NONE
-hi VertSplit gui=NONE
-nore ; :
-nore , ;
-map Y y$
-map j gj
-map k gk
-map Down gj
-map Up gk
-noremap <leader>w :%s/\s\+$//ge<CR>
-noremap <leader>h :set hls!<CR>
-noremap <leader>d :e .<CR>
-nnoremap <silent> <S-Right> <c-w>l
-nnoremap <silent> <S-Left> <c-w>h
-nnoremap <silent> <S-Up> <c-w>k
-nnoremap <silent> <S-Down> <c-w>j
-filetype on
+au BufNewFile,BufRead *.flintconf set syntax=json
 au BufNewFile,BufRead *.flintconf set syntax=json
 au BufNewFile,BufRead *.gradle set syntax=groovy
+au BufNewFile,BufRead *.gradle set syntax=groovy
+filetype on
 let NERDTreeIgnore=['\.hi$', '\.o$']
 let NERDTreeMinimalUI=1
 let NERDTreeSortOrder=[]
+let NERDTreeWinPos="right"
+map Down gj
+map Up gk
+map Y y$
+map j gj
+map k gk
+nmap <silent> <S-Down> :wincmd j<CR>
+nmap <silent> <S-Left> :wincmd h<CR>
+nmap <silent> <S-Right> :wincmd l<CR>
+nmap <silent> <S-Up> :wincmd k<CR>
+nore , ;
+nore ; :
+nore <leader>c :%s/\[[0-9]*m//g<CR>
+nore <leader>d :e .<CR>
+nore <leader>h :set hls!<CR>
+nore <leader>j :Ex<CR>
+nore <leader>w :%s/\s\+$//ge<CR>
+nore [ O<ESC>
+nore ] o<ESC>
+nore gf gF
+set autoindent
+set backspace=indent,eol,start
+set clipboard=unnamed
+set expandtab
+set fillchars+=vert:\
+set isfname-=:
+set linebreak
+set mouse=a
+set nocp
+set nojoinspaces
+set nowrap
+set nowrapscan
+set number
+set ruler
+set shiftwidth=4
+set shortmess=aoOtI
+set smartcase
+set softtabstop=2
+set tabstop=4
+set tw=0
+set virtualedit+=block
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
+set wildmode=longest:full,full
+syntax on

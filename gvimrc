@@ -7,10 +7,8 @@ set guioptions-=L
 set guioptions+=c
 set guicursor=a:blinkon0
 set mousehide
-set mousefocus
+" set mousefocus
 set cursorline
 set linespace=0
 set guiheadroom=0
-set lines=30
-set columns=80
 highlight Cursor guifg=black guibg=red
