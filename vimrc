@@ -1,7 +1,3 @@
-au BufNewFile,BufRead *.flintconf set syntax=json
-au BufNewFile,BufRead *.flintconf set syntax=json
-au BufNewFile,BufRead *.gradle set syntax=groovy
-au BufNewFile,BufRead *.gradle set syntax=groovy
 filetype on
 let NERDTreeIgnore=['\.hi$', '\.o$']
 let NERDTreeMinimalUI=1
@@ -26,6 +22,8 @@ nore <leader>w :%s/\s\+$//ge<CR>
 nore [ O<ESC>
 nore ] o<ESC>
 nore gf gF
+nore <space> 15l
+nore <backspace> 15h
 set autoindent
 set backspace=indent,eol,start
 set clipboard=unnamed
