@@ -37,7 +37,7 @@ nnoremap <silent> <S-Right> <c-w>l
 nnoremap <silent> <S-Left> <c-w>h
 nnoremap <silent> <S-Up> <c-w>k
 nnoremap <silent> <S-Down> <c-w>j
-filetype on
+filetype plugin indent on
 au BufNewFile,BufRead *.flintconf set syntax=json
 au BufNewFile,BufRead *.gradle set syntax=groovy
 let NERDTreeIgnore=['\.hi$', '\.o$']
