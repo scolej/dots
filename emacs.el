@@ -45,36 +45,6 @@
               scroll-margin 0
               recentf-max-saved-items 100)
 
-;; Make the cursor red in future frames. TODO :/ Doesn't work ??
-;; Works if you don't call (set-face-attribute) for the cursor ??
-(add-to-list 'default-frame-alist '(cursor-color . "red"))
-
-;;
-;; Experiment with facy mode-line...
-;;
-
-(defun save-smiley ()
-  "Figure out a smiley to show, based on the save state of the file."
-  (cond
-   ((and (buffer-modified-p) buffer-read-only) ":{O")
-   (buffer-read-only ":{")
-   ((buffer-modified-p) ":O")
-   ((not (buffer-modified-p)) ":)")
-   (t ":S")))
-
-(defun generate-modeline ()
-  "Generate a modeline string to display."
-  (string-join (list (save-smiley)
-                     (format "%4d:%2d" (line-number-at-pos (point)) (current-column))
-                     (format "%3d%%%%" (/ (point) 0.01 (point-max)))
-                     (buffer-name)
-                     (if (window-dedicated-p) "pinned"))
-               " "))
-
-(setq-default mode-line-format '("" (:eval (generate-modeline))))
-;; TODO Is this overkill?
-(add-hook 'post-command-hook 'force-mode-line-update)
-
 ;;
 ;; Enable built in modes
 ;;
@@ -151,40 +121,12 @@
 
 ;; Some goodness scrounged from http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/.
 ;; See if it helps ivy search do its thing or not.
-(defun minibuffer-setup-hook ()
+(defun my-minibuffer-setup-hook ()
   (setq gc-cons-threshold most-positive-fixnum))
-(defun minibuffer-exit-hook ()
+(defun my-minibuffer-exit-hook ()
   (setq gc-cons-threshold 800000))
 (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
 (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
-
-;;
-;; Speedy grep
-;;
-;; Provide an rgrep which will use the last values unless
-;; there is a prefix arg to specify them again.
-;;
-;; TODO This doesn't work unless you've already run rgrep :S
-
-(require 'grep)
-(defvar speedy-grep-last-glob nil)
-(defvar speedy-grep-last-dir nil)
-(defun speedy-grep-rgrep (glob dir pat)
-  (interactive
-   (list
-    (if (or (not speedy-grep-last-glob)
-            current-prefix-arg)
-        (completing-read "Glob: " nil 'glob)
-      speedy-grep-last-glob)
-    (if (or (not speedy-grep-last-dir)
-            current-prefix-arg)
-        (read-directory-name "Directory: ")
-      speedy-grep-last-dir)
-   (completing-read "Pattern: " nil 'pat)))
-  (progn
-    (setq speedy-grep-last-dir dir)
-    (setq speedy-grep-last-glob glob)
-    (rgrep pat glob dir nil)))
 
 ;;
 ;; Longmouse
@@ -258,7 +200,7 @@
 
 (prefer-coding-system 'utf-8)
 
-(use-package syntax-subword-mode
+(use-package syntax-subword
   :demand
   :config
   (global-syntax-subword-mode t))
@@ -281,49 +223,39 @@
   :bind
   (("<escape>" . switch-to-buffer)))
 
-;; (use-package back-button
-;;   :demand
-;;   :config
-;;   (back-button-mode t)
-;;   :bind
-;;   (("<M-left>" . back-button-global-backward)
-;;    ("<M-right>" . back-button-global-forward)))
+(use-package swiper
+  :demand
+  :bind
+  (("C-s" . swiper)
+   ("C-S-s" . isearch-forward)))
 
-;; (use-package ace-jump-mode
-;;   :demand
-;;   :bind
-;;   (("<M-return>" . ace-jump-char-mode)))
+(use-package back-button
+  :demand
+  :config
+  (back-button-mode t)
+  :bind
+  (("<M-left>" . back-button-global-backward)
+   ("<M-right>" . back-button-global-forward)))
 
 (use-package projectile
   :config
   (projectile-global-mode t)
   (setq-default projectile-indexing-method 'alien
                 projectile-completion-system 'ivy)
-:bind
-(("C-`" . projectile-find-file)
- ("C-~" . projectile-switch-project)))
+  :bind
+  (("C-`" . projectile-find-file)
+   ("C-~" . projectile-switch-project)))
 
-;; (use-package swiper
+;; (use-package dired
 ;;   :demand
 ;;   :bind
-;;   (("C-s" . swiper)
-;;    ("C-S-s" . isearch-forward)))
+;;   (:map dired-mode-map ("<backspace>" . dired-up-directory)))
 
-(use-package dired
+(use-package neotree
   :demand
-  :bind
-  (:map dired-mode-map ("<backspace>" . dired-up-directory)))
-
-(use-package dired-x)
-
-;; (use-package neotree
-;;   :demand
-;;   :config
-;;   (setq-default neo-theme 'ascii
-;;                 neo-window-width 45)
-;;   (add-hook 'neotree-mode-hook (lambda () (text-scale-set -5))))
-
-(use-package dedicated)
+  :config
+  (setq-default neo-theme 'ascii
+                neo-window-width 45))
 
 (use-package ibuffer
   :demand
@@ -332,48 +264,30 @@
   :bind
   (("C-b" . ibuffer)))
 
-(use-package shell
-  :demand
-  :config
-  (setq-default comint-scroll-show-maximum-output nil))
-
-;; (use-package drag-stuff
-;;   :demand
-;;   :pin melpa-stable
-;;   :bind
-;;   (("<M-down>" . drag-stuff-down)
-;;    ("<M-up>" . drag-stuff-up)))
-
 (use-package expand-region
   :demand
   :pin melpa-stable
   :bind
   (("M-u" . er/expand-region)))
 
-;; (use-package hungry-delete
-;;   :demand
-;;   :bind
-;;   (("<S-backspace>" . hungry-delete-backward)
-;;    ("<S-delete>" . hungry-delete-forward)))
+(use-package mwim
+  :demand
+  :pin melpa-stable
+  :bind
+  (("C-a" . mwim-beginning-of-code-or-line)))
 
-;; (use-package mwim
-;;   :demand
-;;   :pin melpa-stable
-;;   :bind
-;;   (("C-a" . mwim-beginning-of-code-or-line)))
+(use-package whole-line-or-region
+  :demand
+  :config
+  (whole-line-or-region-mode t))
 
-;; (use-package whole-line-or-region
-;;   :demand
-;;   :config
-;;   (whole-line-or-region-mode t))
-
-;; (use-package duplicate-thing
-;;   :demand
-;;   :config
-;;   (defun duplicate-down () (interactive) (duplicate-thing 1) (next-line))
-;;   :bind
-;;   (("<C-M-down>" . duplicate-down)
-;;    ("<C-M-up>" . duplicate-thing)))
+(use-package duplicate-thing
+  :demand
+  :config
+  (defun duplicate-down () (interactive) (duplicate-thing 1) (next-line))
+  :bind
+  (("<C-M-down>" . duplicate-down)
+   ("<C-M-up>" . duplicate-thing)))
 
 (use-package highlight-thing)
 
@@ -402,12 +316,6 @@
                       :overline nil
                       :background "yellow"))
 
-;; (use-package emojify
-;;   :demand
-;;   :config
-;;   (global-emojify-mode t)
-;;   (setq emojify-display-style 'image)) ;; 😊😍😡😲😳😷❤🚗🌛🌱🍃🍄
-
 (use-package flycheck)
 
 (use-package magit
@@ -421,10 +329,6 @@
   :bind
   ("C-x t" . transpose-frame))
 
-(use-package git-gutter+)
-
-;; (use-package visual-regexp)
-
 (use-package rainbow-mode)
 
 (use-package feature-mode)
@@ -432,3 +336,7 @@
 (use-package haskell-mode)
 
 (use-package markdown-mode)
+
+;; Make the cursor red in future frames. TODO :/ Doesn't work ??
+;; Works if you don't call (set-face-attribute) for the cursor ??
+(add-to-list 'default-frame-alist '(cursor-color . "red"))
