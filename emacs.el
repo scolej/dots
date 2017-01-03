@@ -25,6 +25,7 @@
               show-help-function nil
               hi-lock-auto-select-face t
               indent-tabs-mode nil
+              tab-width 4
               linum-format "%4d"
               isearch-allow-scroll t
               save-interprogram-paste-before-kill t
@@ -36,14 +37,16 @@
               split-width-threshold 2000
               cursor-type 'box
               isearch-wrap-function '(lambda nil)
-              large-file-warning-threshold 20000000
+              large-file-warning-threshold nil
               c-basic-offset 4
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
-              show-trailing-whitespace nil
+              show-trailing-whitespace t
               scroll-conservatively 9999
               scroll-margin 0
               recentf-max-saved-items 100)
+
+(prefer-coding-system 'utf-8)
 
 ;;
 ;; Enable built in modes
@@ -67,12 +70,6 @@
 (column-number-mode t)
 (global-hl-line-mode t)
 (winner-mode t)
-
-;; Stop polluting the entire filesystem with backup files.
-(if (boundp '*my-backup-dir*)
-    (let ((dir *my-backup-dir*))
-      (setq backup-directory-alist `((".*" . ,dir)))
-      (setq auto-save-file-name-transforms `((".*" ,dir t)))))
 
 ;;
 ;; Little shortcuts
@@ -118,6 +115,7 @@
 (add-hook 'occur-hook 'occur-rename-buffer)
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . read-only-mode))
+(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
 
 ;; Some goodness scrounged from http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/.
 ;; See if it helps ivy search do its thing or not.
@@ -169,7 +167,6 @@
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-/") 'replace-string)
 (global-set-key (kbd "C-d") 'kill-whole-line)
-(global-set-key (kbd "<C-return>") 'set-rectangular-region-anchor)
 (global-set-key (kbd "<S-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
 (global-set-key (kbd "<C-S-right>") 'forward-whitespace)
@@ -182,10 +179,15 @@
 (global-set-key (kbd "M-s s") 'sort-lines)
 (global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
 (global-set-key (kbd "M-s u") 'upcase-region)
+(global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "<C-tab>") 'mode-line-other-buffer)
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 (global-set-key [S-wheel-down] 'scroll-left)
 (global-set-key [S-wheel-up] 'scroll-right)
+
+;; TODO
+;; Remove C-d from groovy-mode-map
+;; Remove <tab> from feature mode map
 
 ;;
 ;; Packages
@@ -198,17 +200,22 @@
 
 (require 'use-package)
 
-(prefer-coding-system 'utf-8)
+(use-package auto-compile
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
+
+(use-package multiple-cursors
+  :config
+  (setq-default mc/always-run-for-all t)
+  :bind
+  (("<C-return>" . set-rectangular-region-anchor)
+   ("C-c n" . mc/mark-next-like-this)))
 
 (use-package syntax-subword
   :demand
   :config
   (global-syntax-subword-mode t))
-
-(use-package evil
-  :config
-  (setq-default evil-search-wrap nil)
-  (define-key evil-normal-state-map (kbd ";") 'evil-ex))
 
 (use-package cl
   :demand)
@@ -216,7 +223,7 @@
 (use-package ivy
   :demand
   :config
-  (setq-default ivy-re-builders-alist '((t . ivy--regex-ignore-order))
+  (setq-default ivy-re-builders-alist '((t . ivy--regex))
                 ivy-use-virtual-buffers t
                 ivy-height 15)
   (ivy-mode t)
@@ -246,23 +253,24 @@
   (("C-`" . projectile-find-file)
    ("C-~" . projectile-switch-project)))
 
-;; (use-package dired
-;;   :demand
-;;   :bind
-;;   (:map dired-mode-map ("<backspace>" . dired-up-directory)))
-
-(use-package neotree
+(use-package dired
   :demand
-  :config
-  (setq-default neo-theme 'ascii
-                neo-window-width 45))
+  :bind
+  (:map dired-mode-map ("<backspace>" . dired-up-directory)))
+
+(use-package dired+
+  :demand
+  :bind
+  (("C-c d" . dired-jump)))
 
 (use-package ibuffer
   :demand
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process))
   :bind
-  (("C-b" . ibuffer)))
+  (("C-b" . ibuffer)
+   :map ibuffer-mode-map
+   ("U" . ibuffer-unmark-all)))
 
 (use-package expand-region
   :demand
@@ -302,7 +310,7 @@
   :demand
   :config
   (setq-default solarized-use-less-bold t)
-  (load-theme 'solarized-dark)
+  (load-theme 'solarized-light)
   (set-face-attribute 'mode-line-inactive nil
                       :underline nil
                       :overline nil
@@ -322,6 +330,7 @@
   :config
   (setq-default auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffers-p
                 vc-handled-backends nil)
+  (add-hook 'magit-status-mode-hook 'delete-other-windows)
   :bind
   (("C-c m" . magit-status)))
 
@@ -331,12 +340,29 @@
 
 (use-package rainbow-mode)
 
-(use-package feature-mode)
+;; (use-package flyspell)
+
+(use-package feature-mode
+  ;; :config
+  ;; (add-hook 'feature-mode-hook 'flyspell-mode)
+  )
 
 (use-package haskell-mode)
 
 (use-package markdown-mode)
 
+(use-package drag-stuff
+  :config
+  (drag-stuff-global-mode t))
+
+(use-package speedbar
+  :config
+  (setq-default speedbar-show-unknown-files t
+                speedbar-use-images nil))
+
+;; (use-package projectile-speedbar)
+
 ;; Make the cursor red in future frames. TODO :/ Doesn't work ??
 ;; Works if you don't call (set-face-attribute) for the cursor ??
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
+(set-cursor-color "red")
