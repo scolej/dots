@@ -1,17 +1,3 @@
-;; IDEAS
-;;
-;; * Change cursor colour to reflect save state.
-;; * Prefix 1,2,3 bookmark for different colour bookmarks.
-;; * Highlight mouse cursor pos always
-;; * Mode line click yank buffer file path
-;; * Long press right -> copy, short press right -> cut
-;; * Flash text on copy?
-;; * C-u split window operates on parent window. To easily add more cols / rows at top level.
-;;
-;; TODO
-;;
-;; * Has save predicate broken? Doesn't revert to unsaved if you add a space then delete a
-
 (setq debug-on-error nil)
 
 (setq-default inhibit-startup-message t
@@ -29,7 +15,6 @@
               linum-format "%4d"
               isearch-allow-scroll t
               save-interprogram-paste-before-kill t
-              ;; mode-line-format (list "(%Z %4l %3c) (%m) (%b) (%f) (%P)")
               revert-without-query '(".*")
               dired-listing-switches "-alh"
               truncate-partial-width-windows nil
@@ -111,8 +96,8 @@
 ;;
 
 (add-hook 'text-mode-hook 'words-dammit)
-(add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
-(add-hook 'occur-hook 'occur-rename-buffer)
+;; (add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
+;; (add-hook 'occur-hook 'occur-rename-buffer)
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . read-only-mode))
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
@@ -200,6 +185,33 @@
 
 (require 'use-package)
 
+;; Built in
+
+(use-package dired
+  :ensure nil
+  :demand
+  :bind
+  (:map dired-mode-map ("<backspace>" . dired-up-directory)))
+
+(use-package ibuffer
+  :ensure nil
+  :demand
+  :config
+  (setq-default ibuffer-default-sorting-mode '(filename/process))
+  :bind
+  (("C-x b" . ibuffer)
+   :map ibuffer-mode-map
+   ("U" . ibuffer-unmark-all)))
+
+(use-package speedbar
+  :ensure nil
+  :config
+  (speedbar-add-supported-extension ".hs")
+  (setq-default speedbar-show-unknown-files t
+                speedbar-use-images nil))
+
+;; Extra
+
 (use-package auto-compile
   :config
   (auto-compile-on-load-mode)
@@ -236,13 +248,13 @@
   (("C-s" . swiper)
    ("C-S-s" . isearch-forward)))
 
-(use-package back-button
-  :demand
-  :config
-  (back-button-mode t)
-  :bind
-  (("<M-left>" . back-button-global-backward)
-   ("<M-right>" . back-button-global-forward)))
+;; (use-package back-button
+;;   :demand
+;;   :config
+;;   (back-button-mode t)
+;;   :bind
+;;   (("<M-left>" . back-button-global-backward)
+;;    ("<M-right>" . back-button-global-forward)))
 
 (use-package projectile
   :config
@@ -253,24 +265,10 @@
   (("C-`" . projectile-find-file)
    ("C-~" . projectile-switch-project)))
 
-(use-package dired
-  :demand
-  :bind
-  (:map dired-mode-map ("<backspace>" . dired-up-directory)))
-
 (use-package dired+
   :demand
   :bind
   (("C-c d" . dired-jump)))
-
-(use-package ibuffer
-  :demand
-  :config
-  (setq-default ibuffer-default-sorting-mode '(filename/process))
-  :bind
-  (("C-b" . ibuffer)
-   :map ibuffer-mode-map
-   ("U" . ibuffer-unmark-all)))
 
 (use-package expand-region
   :demand
@@ -353,16 +351,11 @@
 
 (use-package drag-stuff
   :config
-  (drag-stuff-global-mode t))
-
-(use-package speedbar
-  :config
-  (setq-default speedbar-show-unknown-files t
-                speedbar-use-images nil))
+  (drag-stuff-global-mode t)
+  (drag-stuff-define-keys))
 
 ;; (use-package projectile-speedbar)
 
-;; Make the cursor red in future frames. TODO :/ Doesn't work ??
-;; Works if you don't call (set-face-attribute) for the cursor ??
+;; Make the cursor red.
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 (set-cursor-color "red")
