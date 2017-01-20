@@ -91,16 +91,23 @@
   (newline)
   (forward-line -1))
 
+(defun copy-buffer-path ()
+  (interactive)
+  (kill-new (buffer-file-name)))
+
 ;;
 ;; Hooks and such
 ;;
 
 (add-hook 'text-mode-hook 'words-dammit)
 ;; (add-hook 'isearch-mode-end-hook 'recenter-top-bottom)
-;; (add-hook 'occur-hook 'occur-rename-buffer)
+(add-hook 'occur-hook 'occur-rename-buffer)
 
-(add-to-list 'auto-mode-alist '("\\.log\\'" . read-only-mode))
-(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
+(add-hook 'find-file-hook
+          (lambda ()
+            (when (string= (file-name-extension buffer-file-name) "log")
+              (read-only-mode t)
+              (auto-revert-mode t))))
 
 ;; Some goodness scrounged from http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/.
 ;; See if it helps ivy search do its thing or not.
@@ -110,6 +117,11 @@
   (setq gc-cons-threshold 800000))
 (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
 (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+
+;; (defadvice compile-goto-error (after recenter-after-selecting)
+;;   (interactive)
+;;   (recenter)
+;;   (message "hello"))
 
 ;;
 ;; Longmouse
@@ -148,7 +160,7 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C-c o") 'ffap)
 (global-set-key (kbd "C-c r") 'revert-buffer)
-(global-set-key (kbd "C-v") 'yank)
+;; (global-set-key (kbd "C-v") 'yank)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-/") 'replace-string)
 (global-set-key (kbd "C-d") 'kill-whole-line)
@@ -167,8 +179,13 @@
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "<C-tab>") 'mode-line-other-buffer)
 (global-set-key (kbd "C-x f") 'recentf-open-files)
-(global-set-key [S-wheel-down] 'scroll-left)
-(global-set-key [S-wheel-up] 'scroll-right)
+(global-set-key [S-wheel-down] '(lambda () (interactive) (scroll-left 5)))
+(global-set-key [S-wheel-up] '(lambda () (interactive) (scroll-right 5)))
+
+(defun yank-pop-forwards (arg)
+  (interactive "p")
+  (yank-pop (- arg)))
+(global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
 ;; TODO
 ;; Remove C-d from groovy-mode-map
@@ -191,17 +208,24 @@
   :ensure nil
   :demand
   :bind
-  (:map dired-mode-map ("<backspace>" . dired-up-directory)))
+  (:map
+   dired-mode-map
+   ("<backspace>" . dired-up-directory)
+   ("<up-mouse-1>" . dired-mouse-find-file)))
 
 (use-package ibuffer
   :ensure nil
   :demand
   :config
   (setq-default ibuffer-default-sorting-mode '(filename/process))
+  (defun ibuffer-really-unmark-all ()
+    "Unmark all the things in ibuffer."
+    (interactive)
+    (ibuffer-unmark-all ?\*))
   :bind
   (("C-x b" . ibuffer)
    :map ibuffer-mode-map
-   ("U" . ibuffer-unmark-all)))
+   ("U" . ibuffer-really-unmark-all)))
 
 (use-package speedbar
   :ensure nil
@@ -209,6 +233,12 @@
   (speedbar-add-supported-extension ".hs")
   (setq-default speedbar-show-unknown-files t
                 speedbar-use-images nil))
+
+(use-package nxml-mode
+  :ensure nil
+  :config
+  (add-hook 'nxml-mode-hook
+            (lambda () (toggle-truncate-lines t))))
 
 ;; Extra
 
@@ -240,12 +270,22 @@
                 ivy-height 15)
   (ivy-mode t)
   :bind
-  (("<escape>" . switch-to-buffer)))
+  (("<escape>" . switch-to-buffer)
+   :map ivy-minibuffer-map
+   ("<tab>" . ivy-partial)))
 
 (use-package swiper
   :demand
+  :config
+  (defun smart-swiper ()
+    (interactive)
+    (let ((init-input (if (region-active-p)
+                          (buffer-substring (mark) (point))
+                        "")))
+      (deactivate-mark)
+      (swiper init-input)))
   :bind
-  (("C-s" . swiper)
+  (("C-s" . smart-swiper)
    ("C-S-s" . isearch-forward)))
 
 ;; (use-package back-button
@@ -285,7 +325,9 @@
 (use-package whole-line-or-region
   :demand
   :config
-  (whole-line-or-region-mode t))
+  (whole-line-or-region-mode t)
+  :bind
+  (("C-v" . whole-line-or-region-yank)))
 
 (use-package duplicate-thing
   :demand
@@ -299,32 +341,37 @@
 
 (use-package bm
   :demand
+  :config
+  (setq-default bm-recenter t)
   :bind
   (("M-." . bm-next)
    ("M-," . bm-previous)
    ("<M-SPC>" . bm-toggle)))
 
-(use-package solarized-theme
-  :demand
-  :config
-  (setq-default solarized-use-less-bold t)
-  (load-theme 'solarized-light)
-  (set-face-attribute 'mode-line-inactive nil
-                      :underline nil
-                      :overline nil
-                      :box '(:line-width 2 :style released-button))
-  (set-face-attribute 'mode-line nil
-                      :underline nil
-                      :overline nil
-                      :box '(:line-width 2 :style released-button))
-  (set-face-attribute 'bm-face nil
-                      :underline nil
-                      :overline nil
-                      :background "yellow"))
+;; (use-package solarized-theme
+;;   :demand
+;;   :config
+;;   (setq-default solarized-use-less-bold t)
+;;   (load-theme 'solarized-light)
+;;   (set-face-attribute 'mode-line-inactive nil
+;;                       :underline nil
+;;                       :overline nil
+;;                       :box '(:line-width 2 :style released-button))
+;;   (set-face-attribute 'mode-line nil
+;;                       :underline nil
+;;                       :overline nil
+;;                       :box '(:line-width 2 :style released-button))
+;;   (set-face-attribute 'bm-face nil
+;;                       :underline nil
+;;                       :overline nil
+;;                       :background "yellow"))
+
+(use-package lenlen-theme)
 
 (use-package flycheck)
 
 (use-package magit
+  :demand
   :config
   (setq-default auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffers-p
                 vc-handled-backends nil)
@@ -352,10 +399,19 @@
 (use-package drag-stuff
   :config
   (drag-stuff-global-mode t)
-  (drag-stuff-define-keys))
+  (drag-stuff-define-keys)
+  (unless (null drag-stuff-mode) (add-hook 'git-rebase-mode-hook '(lambda () (drag-stuff-mode -1)))))
 
 ;; (use-package projectile-speedbar)
+
+(use-package company
+  :config
+  (setq-default company-dabbrev-downcase nil)
+  (global-company-mode t))
 
 ;; Make the cursor red.
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 (set-cursor-color "red")
+
+(set-face-attribute 'mode-line-inactive nil :height 0.7)
+(set-face-attribute 'mode-line  nil :height 0.7)
