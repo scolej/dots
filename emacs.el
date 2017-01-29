@@ -26,7 +26,7 @@
               c-basic-offset 4
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
-              show-trailing-whitespace t
+              show-trailing-whitespace nil
               scroll-conservatively 9999
               scroll-margin 0
               recentf-max-saved-items 100)
@@ -272,7 +272,10 @@
   :bind
   (("<escape>" . switch-to-buffer)
    :map ivy-minibuffer-map
-   ("<tab>" . ivy-partial)))
+   ("<tab>" . ivy-partial)
+   ("<escape>" . minibuffer-keyboard-quit)
+   :map ivy-switch-buffer-map
+   ("<escape>" . minibuffer-keyboard-quit)))
 
 (use-package swiper
   :demand
@@ -288,13 +291,13 @@
   (("C-s" . smart-swiper)
    ("C-S-s" . isearch-forward)))
 
-;; (use-package back-button
-;;   :demand
-;;   :config
-;;   (back-button-mode t)
-;;   :bind
-;;   (("<M-left>" . back-button-global-backward)
-;;    ("<M-right>" . back-button-global-forward)))
+(use-package back-button
+  :demand
+  :config
+  (back-button-mode t)
+  :bind
+  (("<M-left>" . back-button-local-backward)
+   ("<M-right>" . back-button-local-forward)))
 
 (use-package projectile
   :config
@@ -310,6 +313,12 @@
   :bind
   (("C-c d" . dired-jump)))
 
+(use-package dired-x
+  :demand
+  :config
+  (setq-default dired-omit-files-p t
+                dired-auto-revert-buffer t))
+
 (use-package expand-region
   :demand
   :pin melpa-stable
@@ -320,7 +329,7 @@
   :demand
   :pin melpa-stable
   :bind
-  (("C-a" . mwim-beginning-of-code-or-line)))
+  (("C-a" . mwim-beginning-of-line-or-code)))
 
 (use-package whole-line-or-region
   :demand
@@ -348,24 +357,6 @@
    ("M-," . bm-previous)
    ("<M-SPC>" . bm-toggle)))
 
-;; (use-package solarized-theme
-;;   :demand
-;;   :config
-;;   (setq-default solarized-use-less-bold t)
-;;   (load-theme 'solarized-light)
-;;   (set-face-attribute 'mode-line-inactive nil
-;;                       :underline nil
-;;                       :overline nil
-;;                       :box '(:line-width 2 :style released-button))
-;;   (set-face-attribute 'mode-line nil
-;;                       :underline nil
-;;                       :overline nil
-;;                       :box '(:line-width 2 :style released-button))
-;;   (set-face-attribute 'bm-face nil
-;;                       :underline nil
-;;                       :overline nil
-;;                       :background "yellow"))
-
 (use-package lenlen-theme)
 
 (use-package flycheck)
@@ -392,17 +383,24 @@
   ;; (add-hook 'feature-mode-hook 'flyspell-mode)
   )
 
-(use-package haskell-mode)
+(use-package haskell-mode
+  :config
+  (setq-default flycheck-ghc-search-path '("src" "test"))
+  (add-hook 'haskell-mode-hook 'hindent-mode)
+  ;; (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  ;; (setq haskell-process-type 'cabal-repl)
+  )
 
 (use-package markdown-mode)
 
 (use-package drag-stuff
   :config
   (drag-stuff-global-mode t)
-  (drag-stuff-define-keys)
-  (unless (null drag-stuff-mode) (add-hook 'git-rebase-mode-hook '(lambda () (drag-stuff-mode -1)))))
-
-;; (use-package projectile-speedbar)
+  ;; (drag-stuff-define-keys)
+  (unless (null drag-stuff-mode) (add-hook 'git-rebase-mode-hook '(lambda () (drag-stuff-mode -1))))
+  :bind
+  (("<M-up>" . drag-stuff-up)
+   ("<M-down>" . drag-stuff-down)))
 
 (use-package company
   :config
@@ -413,5 +411,6 @@
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
 (set-cursor-color "red")
 
+;; Make the modeline small.
 (set-face-attribute 'mode-line-inactive nil :height 0.7)
 (set-face-attribute 'mode-line  nil :height 0.7)
