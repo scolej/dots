@@ -109,47 +109,10 @@
               (read-only-mode t)
               (auto-revert-mode t))))
 
-;; Some goodness scrounged from http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/.
-;; See if it helps ivy search do its thing or not.
-(defun my-minibuffer-setup-hook ()
-  (setq gc-cons-threshold most-positive-fixnum))
-(defun my-minibuffer-exit-hook ()
-  (setq gc-cons-threshold 800000))
-(add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
-(add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
-
 ;; (defadvice compile-goto-error (after recenter-after-selecting)
 ;;   (interactive)
 ;;   (recenter)
 ;;   (message "hello"))
-
-;;
-;; Longmouse
-;;
-;; Functions and bindings for long-pressing right mouse button for copy / cut.
-;;
-
-(defvar longmouse-timer nil)
-(defun longmouse-down ()
-  (interactive)
-  (setq longmouse-timer
-        (run-at-time 0.3
-                     nil
-                     '(lambda ()
-                        (setq longmouse-timer nil)
-                        (whole-line-or-region-delete 1)))))
-(defun longmouse-up ()
-  (interactive)
-  (unless (eq longmouse-timer nil)
-    (progn
-      (whole-line-or-region-kill-ring-save 1)
-      (setq deactivate-mark nil)
-      (message "Saved region.")
-      (cancel-timer longmouse-timer)
-      (setq longmouse-timer nil))))
-(global-set-key [down-mouse-3] 'longmouse-down)
-(global-set-key [mouse-3] 'longmouse-up)
-(global-set-key [mouse-2] 'whole-line-or-region-yank)
 
 ;;
 ;; Keys
@@ -238,16 +201,12 @@
   :ensure nil
   :config
   (add-hook 'nxml-mode-hook
-            (lambda () (toggle-truncate-lines t))))
+            (lambda () (toggle-truncate-lines nil))))
 
 ;; Extra
 
-(use-package auto-compile
-  :config
-  (auto-compile-on-load-mode)
-  (auto-compile-on-save-mode))
-
 (use-package multiple-cursors
+  :disabled t
   :config
   (setq-default mc/always-run-for-all t)
   :bind
@@ -270,7 +229,7 @@
                 ivy-height 15)
   (ivy-mode t)
   :bind
-  (("<escape>" . switch-to-buffer)
+  (( ;; "<escape>" . switch-to-buffer)
    :map ivy-minibuffer-map
    ("<tab>" . ivy-partial)
    ("<escape>" . minibuffer-keyboard-quit)
@@ -307,11 +266,6 @@
   :bind
   (("C-`" . projectile-find-file)
    ("C-~" . projectile-switch-project)))
-
-(use-package dired+
-  :demand
-  :bind
-  (("C-c d" . dired-jump)))
 
 (use-package dired-x
   :demand
@@ -376,12 +330,7 @@
 
 (use-package rainbow-mode)
 
-;; (use-package flyspell)
-
-(use-package feature-mode
-  ;; :config
-  ;; (add-hook 'feature-mode-hook 'flyspell-mode)
-  )
+(use-package feature-mode)
 
 (use-package haskell-mode
   :config
@@ -402,10 +351,16 @@
   (("<M-up>" . drag-stuff-up)
    ("<M-down>" . drag-stuff-down)))
 
-(use-package company
+(use-package evil
   :config
-  (setq-default company-dabbrev-downcase nil)
-  (global-company-mode t))
+  (define-key evil-normal-state-map (kbd ";") 'evil-ex)
+  (define-prefix-command 'leader-map)
+  (define-key evil-normal-state-map (kbd "\\") 'leader-map)
+  (define-key 'leader-map (kbd "b") 'ivy-switch-buffer)
+  (define-key 'leader-map (kbd "j") 'dired-jump)
+  (define-key 'leader-map (kbd "m") 'magit-status)
+  (define-key 'leader-map (kbd "w") 'delete-trailing-whitespace)
+  (evil-mode t))
 
 ;; Make the cursor red.
 (add-to-list 'default-frame-alist '(cursor-color . "red"))
