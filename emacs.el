@@ -93,8 +93,10 @@
 ;; Keys
 ;;
 
-(global-set-key (kbd "<f1>") 'find-file)
-(global-set-key (kbd "<f2>") 'save-all)
+(global-set-key (kbd "<S-f3>") 'save-all)
+(global-set-key (kbd "<f1>") 'switch-to-buffer)
+(global-set-key (kbd "<f2>") 'find-file)
+(global-set-key (kbd "<f3>") 'save-buffer)
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c f m") 'iconify-frame)
@@ -122,10 +124,11 @@
 ;; Built in
 
 (require 'dired)
-(define-key dired-mode-map (kbd "<backspace>") 'dired-up-directory)
+(define-key dired-mode-map (kbd "<escape>") 'dired-up-directory)
 
 (require 'dired-x)
-(global-set-key (kbd "<f3>") 'dired-jump)
+(global-set-key (kbd "<escape>") 'dired-jump)
+
 
 ;; Extra
 
