@@ -29,6 +29,7 @@ set backspace=indent,eol,start
 set clipboard=unnamed
 set expandtab
 set fillchars+=vert:\
+set ignorecase
 set isfname-=:
 set linebreak
 set mouse=a
@@ -48,3 +49,4 @@ set virtualedit+=block
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
 set wildmode=longest:full,full
 syntax on
+autocmd BufNewFile,BufRead Jenkinsfile set syntax=groovy
