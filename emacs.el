@@ -76,6 +76,7 @@
      (read-only-mode t)
      (auto-revert-mode t))))
 
+(global-set-key (kbd "<f1>") 'save-buffer)
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c r") 'revert-buffer)
@@ -86,6 +87,10 @@
 (global-set-key (kbd "M-s u") 'upcase-region)
 (global-set-key [S-wheel-down] '(lambda () (interactive) (scroll-left 5)))
 (global-set-key [S-wheel-up] '(lambda () (interactive) (scroll-right 5)))
+(global-set-key (kbd "C-x <up>") 'windmove-up)
+(global-set-key (kbd "C-x <down>") 'windmove-down)
+(global-set-key (kbd "C-x <left>") 'windmove-left)
+(global-set-key (kbd "C-x <right>") 'windmove-right)
 
 (defun yank-pop-forwards (arg)
   (interactive "p")
