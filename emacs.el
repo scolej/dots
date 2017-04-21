@@ -1,3 +1,4 @@
+
 (setq-default c-basic-offset 4
               cursor-type 'box
               dired-listing-switches "-alh"
@@ -111,5 +112,12 @@
               vc-handled-backends nil)
 (add-hook 'magit-status-mode-hook 'delete-other-windows)
 (global-set-key (kbd "C-c m") 'magit-status)
+
+(require 'ivy)
+(ivy-mode t)
+(setq-default ivy-use-virtual-buffers t)
+
+(require 'transpose-frame)
+(global-set-key (kbd "C-x t") 'transpose-frame)
 
 (load-theme 'acme)

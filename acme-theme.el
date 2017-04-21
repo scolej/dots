@@ -1,8 +1,13 @@
+;; Faces to investigate:
+;; - no matching paren
+;; - magit colours
+;; - highlight faces?
+
 (deftheme acme "A simple theme inspired by the Acme editor.")
 (custom-make-theme-feature 'acme)
 
 ;; Colours
-(let ((bg0 "#fcf2d5")
+(let ((bg0 "#FDF6DF")
       (bg-dark "#e6b87d")
       (fg0 "#333333")
       (fg-dark "#000000")
