@@ -1,7 +1,7 @@
-
 (setq-default c-basic-offset 4
               cursor-type 'box
               dired-listing-switches "-alh"
+              dired-auto-revert-buffer t
               hi-lock-auto-select-face t
               indent-tabs-mode nil
               inhibit-startup-message t
@@ -12,6 +12,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
+              mouse-autoselect-window 0.5
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               recentf-max-saved-items 100
@@ -86,8 +87,8 @@
 (global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
 (global-set-key (kbd "M-s s") 'sort-lines)
 (global-set-key (kbd "M-s u") 'upcase-region)
-(global-set-key [S-wheel-down] '(lambda () (interactive) (scroll-left 5)))
-(global-set-key [S-wheel-up] '(lambda () (interactive) (scroll-right 5)))
+(global-set-key [S-wheel-down] '(lambda () (interactive) (scroll-left 20)))
+(global-set-key [S-wheel-up] '(lambda () (interactive) (scroll-right 20)))
 (global-set-key (kbd "C-x <up>") 'windmove-up)
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
@@ -110,14 +111,12 @@
 (require 'magit)
 (setq-default auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffers-p
               vc-handled-backends nil)
-(add-hook 'magit-status-mode-hook 'delete-other-windows)
+(setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
 (global-set-key (kbd "C-c m") 'magit-status)
-
-(require 'ivy)
-(ivy-mode t)
-(setq-default ivy-use-virtual-buffers t)
 
 (require 'transpose-frame)
 (global-set-key (kbd "C-x t") 'transpose-frame)
 
-(load-theme 'acme)
+(let ((scale 0.75))
+  (set-face-attribute 'mode-line nil :height scale)
+  (set-face-attribute 'mode-line-inactive nil :height scale))
