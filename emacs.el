@@ -29,6 +29,14 @@
               truncate-partial-width-windows nil
               visible-bell nil)
 
+;; Backup set up.
+(setq backup-by-copying t
+      backup-directory-alist '(("." . "~/.saves"))
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 2
+      version-control t)
+
 (prefer-coding-system 'utf-8)
 
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -48,6 +56,7 @@
 (delete-selection-mode t)
 (column-number-mode t)
 (global-hl-line-mode 0)
+(cua-mode t)
 
 (defun ttl ()
   "Shortcut for truncating lines."
@@ -82,7 +91,6 @@
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c r") 'revert-buffer)
-(global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
 (global-set-key (kbd "M-s s") 'sort-lines)
@@ -116,6 +124,21 @@
 
 (require 'transpose-frame)
 (global-set-key (kbd "C-x t") 'transpose-frame)
+
+(require 'auto-complete)
+(ac-config-default)
+(setq ac-auto-show-menu nil
+      ac-use-quick-help nil)
+(define-key ac-completing-map (kbd "<down>") nil)
+(define-key ac-completing-map (kbd "<up>") nil)
+
+(require 'flycheck)
+(global-flycheck-mode)
+
+(require 'haskell-mode)
+
+(require 'hindent)
+(add-hook 'haskell-mode-hook #'hindent-mode)
 
 (let ((scale 0.75))
   (set-face-attribute 'mode-line nil :height scale)
