@@ -56,7 +56,7 @@
 (delete-selection-mode t)
 (column-number-mode t)
 (global-hl-line-mode 0)
-(cua-mode t)
+(cua-mode 0)
 
 (defun ttl ()
   "Shortcut for truncating lines."
@@ -101,6 +101,7 @@
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
+(global-set-key (kbd "C-z") 'undo)
 
 (defun yank-pop-forwards (arg)
   (interactive "p")
@@ -131,6 +132,9 @@
       ac-use-quick-help nil)
 (define-key ac-completing-map (kbd "<down>") nil)
 (define-key ac-completing-map (kbd "<up>") nil)
+(define-key ac-completing-map (kbd "<RET>") nil)
+(define-key ac-completing-map (kbd "<return>") nil)
+(define-key ac-completing-map (kbd "<backtab>") 'ac-previous)
 
 (require 'flycheck)
 (global-flycheck-mode)
@@ -140,6 +144,20 @@
 (require 'hindent)
 (add-hook 'haskell-mode-hook #'hindent-mode)
 
-(let ((scale 0.75))
-  (set-face-attribute 'mode-line nil :height scale)
-  (set-face-attribute 'mode-line-inactive nil :height scale))
+(require 'bm)
+(global-set-key (kbd "<M-SPC>") 'bm-toggle)
+(global-set-key (kbd "<M-up>") 'bm-previous)
+(global-set-key (kbd "<M-down>") 'bm-next)
+
+(require 'back-button)
+(global-set-key (kbd "<M-left>") 'back-button-global-backward)
+(global-set-key (kbd "<M-right>") 'back-button-global-forward)
+
+(require 'markdown-mode)
+;; Remove bindings that clash with bindings for back-button.
+(define-key markdown-mode-map (kbd "<M-left>") nil)
+(define-key markdown-mode-map (kbd "<M-right>") nil)
+
+(require 'ivy)
+(ivy-mode)
+(setq-default ivy-use-virtual-buffers t)
