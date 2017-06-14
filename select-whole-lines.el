@@ -22,7 +22,12 @@ DIRECTION is either 'up or 'down."
              (forward-line -1)
            (forward-line)))
         ((null (region-active-p))
-         (transient-mark-mode t)
+         ;; Set transient-mark-mode such that it will be disabled just
+         ;; like a normal shift selection.
+         (setq-local transient-mark-mode
+                     (cons 'only
+                           (unless (eq transient-mark-mode 'lambda)
+                             transient-mark-mode)))
          (setq selecting-whole-lines t)
          (setq selecting-whole-lines-restore-column (current-column))
          (if (eq direction 'up)
@@ -46,6 +51,7 @@ DIRECTION is either 'up or 'down."
 (define-minor-mode select-whole-lines-mode
   "Easily select whole lines."
   :lighter " wl"
+  :global t
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "<S-down>") 'select-whole-lines-down)
             (define-key map (kbd "<S-up>") 'select-whole-lines-up)
