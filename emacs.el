@@ -19,6 +19,8 @@
               revert-without-query '(".*")
               ring-bell-function 'ignore
               save-interprogram-paste-before-kill t
+              sentence-end-double-space nil
+              set-mark-command-repeat-pop t
               scroll-conservatively 9999
               scroll-margin 0
               show-help-function nil
@@ -86,6 +88,7 @@
    (when (string= (file-name-extension buffer-file-name) "log")
      (read-only-mode t)
      (auto-revert-mode t))))
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (global-set-key (kbd "<f1>") 'save-buffer)
 (global-set-key (kbd "C-c f c") 'make-frame)
@@ -109,10 +112,10 @@
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
 (require 'dired)
-(define-key dired-mode-map (kbd "<escape>") 'dired-up-directory)
+(define-key dired-mode-map (kbd "<backspace>") 'dired-up-directory)
 
 (require 'dired-x)
-(global-set-key (kbd "<escape>") 'dired-jump)
+(global-set-key (kbd "C-x j") 'dired-jump)
 
 (require 'mwim)
 (global-set-key (kbd "C-a") 'mwim-beginning-of-line-or-code)
@@ -161,3 +164,12 @@
 (require 'ivy)
 (ivy-mode)
 (setq-default ivy-use-virtual-buffers t)
+(global-set-key (kbd "<escape>") 'ivy-switch-buffer)
+(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+
+(require 'swiper)
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-S-s") 'isearch-forward)
+
+(require 'select-whole-lines)
+(select-whole-lines-mode)
