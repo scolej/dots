@@ -173,3 +173,30 @@
 
 (require 'select-whole-lines)
 (select-whole-lines-mode)
+
+;;
+;; Experiment with auto saving.
+;;
+
+(defvar-local save-all-the-things-timer nil
+  "Timer for each buffer to automatically save itsself.")
+
+(defvar save-all-the-things-delay 2
+  "Time to wait after a change before saving (seconds).")
+
+(defun save-all-the-things-timer-setter (x y z)
+  "Reset any existing save timer and set a new one.
+Args X Y and Z are unused."
+  (when buffer-file-name
+    (when save-all-the-things-timer
+      (cancel-timer save-all-the-things-timer))
+    (setq-local save-all-the-things-timer
+                (run-at-time save-all-the-things-delay
+                             nil
+                             (lambda (buf)
+                               (when (get-buffer buf)
+                                 (with-current-buffer buf
+                                   (save-buffer))))
+                               (buffer-name)))))
+
+(add-hook 'after-change-functions 'save-all-the-things-timer-setter)
