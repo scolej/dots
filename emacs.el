@@ -77,6 +77,13 @@
   (interactive)
   (kill-new (buffer-file-name)))
 
+(defun copy-buffer-path-and-line ()
+  "Copy the full path to the current buffer's file and append a
+colon followed by the line number."
+  (interactive)
+  (kill-new (concat (buffer-file-name)
+                    ":"
+                    (number-to-string (line-number-at-pos (point))))))
 (add-hook 'occur-hook 'occur-rename-buffer)
 
 (global-set-key (kbd "C-c f c") 'make-frame)
@@ -93,6 +100,11 @@
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "<escape>") 'ivy-switch-buffer)
+(global-set-key (kbd "C-x s") (lambda () (interactive) (shell (generate-new-buffer-name "*shell*"))))
+(global-set-key (kbd "<f10>") 'kill-region)
+(global-set-key (kbd "<f11>") 'kill-ring-save)
+(global-set-key (kbd "<f12>") 'yank)
 
 (defun yank-pop-forwards (arg)
   (interactive "p")
