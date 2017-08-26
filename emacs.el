@@ -12,6 +12,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
+              mode-line-format "%b %*"
               mouse-autoselect-window 0.5
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -24,7 +25,7 @@
               scroll-conservatively 9999
               scroll-margin 0
               show-help-function nil
-              show-paren-style 'expression
+              show-paren-style 'parenthesis
               show-trailing-whitespace nil
               tab-width 4
               truncate-lines t
@@ -76,21 +77,8 @@
   (interactive)
   (kill-new (buffer-file-name)))
 
-(defun save-all ()
-  "Save every buffer."
-  (interactive)
-  (save-some-buffers 'no-confirm))
-
 (add-hook 'occur-hook 'occur-rename-buffer)
-(add-hook
- 'find-file-hook
- (lambda ()
-   (when (string= (file-name-extension buffer-file-name) "log")
-     (read-only-mode t)
-     (auto-revert-mode t))))
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-(global-set-key (kbd "<f1>") 'save-buffer)
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c r") 'revert-buffer)
@@ -111,92 +99,76 @@
   (yank-pop (- arg)))
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
-(require 'dired)
-(define-key dired-mode-map (kbd "<backspace>") 'dired-up-directory)
+(use-package dired
+  :bind (:map dired-mode-map
+              ("<backspace>" . dired-up-directory)))
 
-(require 'dired-x)
-(global-set-key (kbd "C-x j") 'dired-jump)
+(use-package dired-x
+  :bind (("M-j" . dired-jump)))
 
-(require 'mwim)
-(global-set-key (kbd "C-a") 'mwim-beginning-of-line-or-code)
+(use-package mwim
+  :bind (("C-a" . mwim-beginning-of-line-or-code)))
 
-(require 'magit)
-(setq-default auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffers-p
-              vc-handled-backends nil)
-(setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
-(global-set-key (kbd "C-c m") 'magit-status)
+(use-package transpose-frame
+  :bind (("C-x t" . transpose-frame)))
 
-(require 'transpose-frame)
-(global-set-key (kbd "C-x t") 'transpose-frame)
+(use-package auto-complete
+  :demand
+  :config
+  (ac-config-default)
+  (setq ac-auto-show-menu t
+        ac-use-quick-help nil)
+  :bind (:map ac-completing-map
+              ("<down>" . nil)
+              ("<up>" . nil)
+              ("<RET>" . nil)
+              ("<return>" . nil)
+              ("<backtab>" . ac-previous)
+              ("C-p" . ac-previous)
+              ("C-n" . ac-next)
+              ("C-j" . ac-complete)
+              ("<escape>" . keyboard-quit)))
 
-(require 'auto-complete)
-(ac-config-default)
-(setq ac-auto-show-menu nil
-      ac-use-quick-help nil)
-(define-key ac-completing-map (kbd "<down>") nil)
-(define-key ac-completing-map (kbd "<up>") nil)
-(define-key ac-completing-map (kbd "<RET>") nil)
-(define-key ac-completing-map (kbd "<return>") nil)
-(define-key ac-completing-map (kbd "<backtab>") 'ac-previous)
+(use-package multiple-cursors
+  :bind (("C-S-n" . mc/mark-next-like-this)
+         ("<M-S-down>" . mc/mark-next-lines)
+         ("<M-S-up>" . mc/mark-previous-lines)))
 
-(require 'flycheck)
-(global-flycheck-mode)
+(use-package flycheck
+  :config
+  (global-flycheck-mode))
 
-(require 'haskell-mode)
+(use-package haskell-mode)
 
-(require 'hindent)
-(add-hook 'haskell-mode-hook #'hindent-mode)
+(use-package hindent
+  :config
+  (add-hook 'haskell-mode-hook #'hindent-mode))
 
-(require 'bm)
-(global-set-key (kbd "<M-SPC>") 'bm-toggle)
-(global-set-key (kbd "<M-up>") 'bm-previous)
-(global-set-key (kbd "<M-down>") 'bm-next)
+(use-package bm
+  :bind (("<M-SPC>" . bm-toggle)
+         ("<M-up>" . bm-previous)
+         ("<M-down>" . bm-next)))
 
-(require 'back-button)
-(global-set-key (kbd "<M-left>") 'back-button-global-backward)
-(global-set-key (kbd "<M-right>") 'back-button-global-forward)
+(use-package markdown-mode)
 
-(require 'markdown-mode)
-;; Remove bindings that clash with bindings for back-button.
-(define-key markdown-mode-map (kbd "<M-left>") nil)
-(define-key markdown-mode-map (kbd "<M-right>") nil)
+(use-package ivy
+  :config
+  (ivy-mode)
+  (setq-default ivy-use-virtual-buffers t)
+  :bind (("<escape>" . ivy-switch-buffer)
+         :map ivy-switch-buffer-map
+         ("<escape>" . minibuffer-keyboard-quit)))
 
-(require 'ivy)
-(ivy-mode)
-(setq-default ivy-use-virtual-buffers t)
-(global-set-key (kbd "<escape>") 'ivy-switch-buffer)
-(define-key ivy-switch-buffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+(use-package swiper
+  :bind (("C-s" . swiper)
+         ("C-S-s" . isearch-forward)))
 
-(require 'swiper)
-(global-set-key (kbd "C-s") 'swiper)
-(global-set-key (kbd "C-S-s") 'isearch-forward)
+(use-package projectile
+  :config
+  (projectile-mode)
+  (setq projectile-completion-system 'ivy))
 
-(require 'select-whole-lines)
-(select-whole-lines-mode)
+(use-package counsel
+  :bind (("C-c j" . counsel-git-grep)))
 
-;;
-;; Experiment with auto saving.
-;;
-
-(defvar-local save-all-the-things-timer nil
-  "Timer for each buffer to automatically save itsself.")
-
-(defvar save-all-the-things-delay 2
-  "Time to wait after a change before saving (seconds).")
-
-(defun save-all-the-things-timer-setter (x y z)
-  "Reset any existing save timer and set a new one.
-Args X Y and Z are unused."
-  (when buffer-file-name
-    (when save-all-the-things-timer
-      (cancel-timer save-all-the-things-timer))
-    (setq-local save-all-the-things-timer
-                (run-at-time save-all-the-things-delay
-                             nil
-                             (lambda (buf)
-                               (when (get-buffer buf)
-                                 (with-current-buffer buf
-                                   (save-buffer))))
-                               (buffer-name)))))
-
-(add-hook 'after-change-functions 'save-all-the-things-timer-setter)
+(load "save-all-the-things.el")
