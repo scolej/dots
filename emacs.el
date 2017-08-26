@@ -101,7 +101,8 @@
 
 (use-package dired
   :bind (:map dired-mode-map
-              ("<backspace>" . dired-up-directory)))
+              ("<backspace>" . dired-up-directory)
+              ("C-t" . nil)))
 
 (use-package dired-x
   :bind (("M-j" . dired-jump)))
@@ -172,3 +173,22 @@
   :bind (("C-c j" . counsel-git-grep)))
 
 (load "save-all-the-things.el")
+
+(use-package rust-mode)
+
+(use-package flycheck-rust
+  :init
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
+(use-package drag-stuff
+  :bind (("<M-up>" . drag-stuff-up)
+         ("<M-down>" . drag-stuff-down)))
+
+(use-package duplicate-thing
+  :init
+  (defun duplicate-thing-down ()
+    (interactive)
+    (duplicate-thing 1)
+    (next-line))
+  :bind (("<C-M-up>" . duplicate-thing)
+         ("<C-M-down>" . duplicate-thing-down)))
