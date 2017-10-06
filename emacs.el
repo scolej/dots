@@ -1,7 +1,15 @@
+;; TODO Swiper - send bm toggle keys through to main buffer.
+;;             - use active selection.
+;; TODO SATT - Don't save if there is no matching file.
+;;           - What to do when buffer is changed out from underneath? As in git checkout.
+;; TODO - Creating a bad process with make-process (missing args?) seems to break everything.
+;; TODO - Custom modeline breaks eshell.
+
 (setq-default c-basic-offset 4
               cursor-type 'box
               dired-listing-switches "-alh"
               dired-auto-revert-buffer t
+              dired-dwim-target t
               hi-lock-auto-select-face t
               indent-tabs-mode nil
               inhibit-startup-message t
@@ -12,7 +20,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format "%b %*"
+              mode-line-format "%b %* %l" ;; TODO - This breaks eshell!
               mouse-autoselect-window 0.5
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -31,6 +39,9 @@
               truncate-lines t
               truncate-partial-width-windows nil
               visible-bell nil)
+
+;; Stop making vertical splits.
+(setq-default split-width-threshold nil)
 
 ;; Backup set up.
 (setq backup-by-copying t
@@ -75,16 +86,27 @@
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
   (interactive)
-  (kill-new (buffer-file-name)))
+  (let ((s (buffer-file-name)))
+    (kill-new s)
+    (message (format "Copied %s" s))))
 
 (defun copy-buffer-path-and-line ()
   "Copy the full path to the current buffer's file and append a
 colon followed by the line number."
   (interactive)
-  (kill-new (concat (buffer-file-name)
+  (let ((s (concat (buffer-file-name)
                     ":"
                     (number-to-string (line-number-at-pos (point))))))
+    (kill-new s)
+    (message (format "Copied %s" s))))
+
 (add-hook 'occur-hook 'occur-rename-buffer)
+(add-hook 'occur-hook 'hl-line-mode)
+
+(add-hook 'lisp-mode-hook 'paredit-mode)
+
+(defun chunky-scroll-left () (interactive) (scroll-left 20))
+(defun chunky-scroll-right () (interactive) (scroll-right 20))
 
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
@@ -93,18 +115,19 @@ colon followed by the line number."
 (global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
 (global-set-key (kbd "M-s s") 'sort-lines)
 (global-set-key (kbd "M-s u") 'upcase-region)
-(global-set-key [S-wheel-down] '(lambda () (interactive) (scroll-left 20)))
-(global-set-key [S-wheel-up] '(lambda () (interactive) (scroll-right 20)))
+(global-set-key [S-wheel-up] 'chunky-scroll-right)
+(global-set-key [S-wheel-down] 'chunky-scroll-left)
+(global-set-key (kbd "<S-prior>") 'chunky-scroll-right)
+(global-set-key (kbd "<S-next>") 'chunky-scroll-left)
 (global-set-key (kbd "C-x <up>") 'windmove-up)
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "<escape>") 'ivy-switch-buffer)
-(global-set-key (kbd "C-x s") (lambda () (interactive) (shell (generate-new-buffer-name "*shell*"))))
-(global-set-key (kbd "<f10>") 'kill-region)
-(global-set-key (kbd "<f11>") 'kill-ring-save)
-(global-set-key (kbd "<f12>") 'yank)
+(global-set-key (kbd "<f1>") 'save-buffer)
+(global-set-key (kbd "<f2>") nil) ;; Unmap nasty 2 column shenanigans.
+(global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
+(global-set-key (kbd "C-c b b") 'copy-buffer-path)
 
 (defun yank-pop-forwards (arg)
   (interactive "p")
@@ -112,6 +135,9 @@ colon followed by the line number."
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
 (use-package dired
+  :config
+  (add-hook 'dired-mode-hook 'hl-line-mode)
+  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)
               ("C-t" . nil)))
@@ -143,6 +169,8 @@ colon followed by the line number."
               ("<escape>" . keyboard-quit)))
 
 (use-package multiple-cursors
+  :config
+  (add-to-list 'mc/cmds-to-run-once 'forward-whitespace)
   :bind (("C-S-n" . mc/mark-next-like-this)
          ("<M-S-down>" . mc/mark-next-lines)
          ("<M-S-up>" . mc/mark-previous-lines)))
@@ -154,17 +182,17 @@ colon followed by the line number."
 (use-package haskell-mode)
 
 (use-package hindent
+  :disabled
   :config
   (add-hook 'haskell-mode-hook #'hindent-mode))
 
 (use-package bm
-  :bind (("<M-SPC>" . bm-toggle)
-         ("<M-up>" . bm-previous)
-         ("<M-down>" . bm-next)))
+  :bind (("<M-SPC>" . bm-toggle)))
 
 (use-package markdown-mode)
 
 (use-package ivy
+  :demand
   :config
   (ivy-mode)
   (setq-default ivy-use-virtual-buffers t)
@@ -179,18 +207,15 @@ colon followed by the line number."
 (use-package projectile
   :config
   (projectile-mode)
-  (setq projectile-completion-system 'ivy))
+  (setq projectile-completion-system 'ivy
+        projectile-indexing-method 'alien))
 
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
 
 (load "save-all-the-things.el")
 
-(use-package rust-mode)
-
-(use-package flycheck-rust
-  :init
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+(use-package rust-mode :disabled)
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -204,3 +229,17 @@ colon followed by the line number."
     (next-line))
   :bind (("<C-M-up>" . duplicate-thing)
          ("<C-M-down>" . duplicate-thing-down)))
+
+(use-package org-mode
+  :bind (:map orgtbl-mode-map
+              ("<backspace>" . nil)
+              ("<DEL>" . nil)))
+
+(use-package magit
+  :config
+  (setq magit-commit-show-diff nil)
+  :bind (("C-c m" . magit-status)))
+
+(use-package feature-mode
+  :bind (:map feature-mode-map
+              ("C-c g" . jump-to-step-definition-current-line)))

@@ -23,10 +23,12 @@
 
 (defun save-all-the-things--saver (buf)
   "Save the buffer, if it still exists, and do it quietly."
-  (when (get-buffer buf)
+  (when (and (get-buffer buf)
+             (buffer-file-name)
+             (file-regular-p (buffer-file-name)))
     (with-current-buffer buf
       (let ((inhibit-message t))
         (save-buffer)))))
 
-(add-hook 'post-command-hook
-          'save-all-the-things--timer-setter)
+;; (add-hook 'post-command-hook
+;;           'save-all-the-things--timer-setter)
