@@ -38,7 +38,8 @@
               tab-width 4
               truncate-lines t
               truncate-partial-width-windows nil
-              visible-bell nil)
+              visible-bell nil
+              next-error-recenter t)
 
 ;; Stop making vertical splits.
 (setq-default split-width-threshold nil)
@@ -72,6 +73,13 @@
 (global-hl-line-mode 0)
 (cua-mode 0)
 
+(add-hook 'find-file-hook
+          (lambda ()
+            (let ((ext (file-name-extension buffer-file-name)))
+              (when (or (string= ext "log")
+                        (string= ext "logga"))
+                (read-only-mode t)))))
+
 (defun ttl ()
   "Shortcut for truncating lines."
   (interactive)
@@ -80,6 +88,7 @@
 (defun words-dammit ()
   "I just want word wrapping!"
   (interactive)
+  (fundamental-mode)
   (toggle-truncate-lines 0)
   (visual-line-mode t))
 
@@ -100,13 +109,21 @@ colon followed by the line number."
     (kill-new s)
     (message (format "Copied %s" s))))
 
-(add-hook 'occur-hook 'occur-rename-buffer)
-(add-hook 'occur-hook 'hl-line-mode)
-
-(add-hook 'lisp-mode-hook 'paredit-mode)
+(add-hook 'occur-hook #'occur-rename-buffer)
+(add-hook 'occur-hook #'hl-line-mode)
+(add-hook 'next-error-hook #'recenter)
+(add-hook 'lisp-mode-hook #'paredit-mode)
+(add-hook 'emacs-lisp-mode-hook #'paredit-mode)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
 (defun chunky-scroll-right () (interactive) (scroll-right 20))
+
+(defun delete-other-frames ()
+  (interactive)
+  (mapc #'(lambda (f)
+            (unless (eq f (selected-frame))
+              (delete-frame f)))
+        (frame-list)))
 
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
@@ -208,7 +225,8 @@ colon followed by the line number."
   :config
   (projectile-mode)
   (setq projectile-completion-system 'ivy
-        projectile-indexing-method 'alien))
+        projectile-indexing-method 'alien
+        projectile-switch-project-action 'projectile-commander))
 
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
@@ -243,3 +261,9 @@ colon followed by the line number."
 (use-package feature-mode
   :bind (:map feature-mode-map
               ("C-c g" . jump-to-step-definition-current-line)))
+
+(use-package ag
+  :config
+  (defun ag-here (str)
+    (interactive "M")
+    (ag str default-directory)))
