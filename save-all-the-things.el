@@ -7,7 +7,7 @@
 (defvar-local save-all-the-things--timer nil
   "Timer for each buffer to automatically save itsself.")
 
-(defvar save-all-the-things-delay 2
+(defvar save-all-the-things-delay 1
   "Time to wait after a change before saving (seconds).")
 
 (defun save-all-the-things--timer-setter ()
@@ -21,14 +21,17 @@
                              'save-all-the-things--saver
                              (buffer-name)))))
 
-(defun save-all-the-things--saver (buf)
+(defun save-all-the-things--saver (buffer-name)
   "Save the buffer, if it still exists, and do it quietly."
-  (when (and (get-buffer buf)
-             (buffer-file-name)
-             (file-regular-p (buffer-file-name)))
-    (with-current-buffer buf
-      (let ((inhibit-message t))
-        (save-buffer)))))
+  (let ((buf (get-buffer buffer-name)))
+    (if (verify-visited-file-modtime buf)
+        (when (and buf
+                   (buffer-file-name)
+                   (file-regular-p (buffer-file-name))
+                   (buffer-modified-p buf))
+          (with-current-buffer buf
+            (let ((inhibit-message t))
+              (save-buffer))))
+      (message "File has been changed outside Emacs, save-all-the-things will not do its thing."))))
 
-;; (add-hook 'post-command-hook
-;;           'save-all-the-things--timer-setter)
+(add-hook 'post-command-hook 'save-all-the-things--timer-setter)

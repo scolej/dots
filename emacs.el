@@ -38,8 +38,7 @@
               tab-width 4
               truncate-lines t
               truncate-partial-width-windows nil
-              visible-bell nil
-              next-error-recenter t)
+              visible-bell nil)
 
 ;; Stop making vertical splits.
 (setq-default split-width-threshold nil)
@@ -111,7 +110,7 @@ colon followed by the line number."
 
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
-(add-hook 'next-error-hook #'recenter)
+(add-hook 'next-error-hook #'recenter) ;; TODO This breaks (does not return to occur buffer).
 (add-hook 'lisp-mode-hook #'paredit-mode)
 (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
 
@@ -179,7 +178,8 @@ colon followed by the line number."
               ("<up>" . nil)
               ("<RET>" . nil)
               ("<return>" . nil)
-              ("<backtab>" . ac-previous)
+              ("<tab>" . nil)
+              ("<backtab>" . nil)
               ("C-p" . ac-previous)
               ("C-n" . ac-next)
               ("C-j" . ac-complete)
@@ -249,6 +249,8 @@ colon followed by the line number."
          ("<C-M-down>" . duplicate-thing-down)))
 
 (use-package org-mode
+  :config
+  (setq org-support-shift-select t)
   :bind (:map orgtbl-mode-map
               ("<backspace>" . nil)
               ("<DEL>" . nil)))
@@ -267,3 +269,36 @@ colon followed by the line number."
   (defun ag-here (str)
     (interactive "M")
     (ag str default-directory)))
+
+;; PIKA WIP
+
+(defun insert-current-hhmm ()
+  (interactive)
+  (insert (format-time-string "%H%M" (current-time))))
+
+(defun insert-current-date ()
+  (interactive)
+(insert (format-time-string "%Y-%m-%d" (current-time))))
+
+(defvar pikatock-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<S-return>") 'insert-current-hhmm)
+    (define-key map (kbd "C-c t") 'insert-current-date)
+    map))
+
+(defun pika-indent-function ()
+  (save-excursion
+    (indent-line-to
+    (let ((c (char-after (+ (current-indentation) (point-at-bol)))))
+      (cond
+       ((null c) 0)
+       ((char-equal ?- c) 4)
+       (0))))))
+
+(define-derived-mode pikatock-mode
+  text-mode "Pikatock" "Major mode for time logs."
+  (setq-local electric-indent-mode t)
+  (setq-local indent-line-function #'pika-indent-function)
+  (setq-local require-final-newline t))
+
+(add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
