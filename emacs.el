@@ -144,6 +144,7 @@ colon followed by the line number."
 (global-set-key (kbd "<f2>") nil) ;; Unmap nasty 2 column shenanigans.
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
+(global-set-key (kbd "<escape>") 'ibuffer)
 
 (defun yank-pop-forwards (arg)
   (interactive "p")
@@ -209,6 +210,7 @@ colon followed by the line number."
 (use-package markdown-mode)
 
 (use-package ivy
+  :disabled
   :demand
   :config
   (ivy-mode)
@@ -218,6 +220,7 @@ colon followed by the line number."
          ("<escape>" . minibuffer-keyboard-quit)))
 
 (use-package swiper
+  :disabled
   :bind (("C-s" . swiper)
          ("C-S-s" . isearch-forward)))
 
@@ -230,8 +233,6 @@ colon followed by the line number."
 
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
-
-(load "save-all-the-things.el")
 
 (use-package rust-mode :disabled)
 
@@ -270,6 +271,11 @@ colon followed by the line number."
     (interactive "M")
     (ag str default-directory)))
 
+(use-package geiser
+  :config
+  (add-hook 'geiser-mode-hook 'paredit-mode)
+  (setq-default geiser-scheme-implementation 'chicken))
+
 ;; PIKA WIP
 
 (defun insert-current-hhmm ()
@@ -302,3 +308,9 @@ colon followed by the line number."
   (setq-local require-final-newline t))
 
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
+
+(load "save-all-the-things.el")
+(mapc (lambda (m) (add-hook m 'save-all-the-things-mode))
+      '(emacs-lisp-mode-hook
+        haskell-mode-hook
+        feature-mode-hook))

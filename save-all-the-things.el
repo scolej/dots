@@ -1,3 +1,4 @@
+;; Save all the things mode.
 ;;
 ;; Experiment with auto saving.
 ;;
@@ -34,4 +35,10 @@
               (save-buffer))))
       (message "File has been changed outside Emacs, save-all-the-things will not do its thing."))))
 
-(add-hook 'post-command-hook 'save-all-the-things--timer-setter)
+(define-minor-mode save-all-the-things-mode
+  "Automatically save the buffer after there has been no input for a while."
+  :lighter " satt"
+  :global nil
+  (if save-all-the-things-mode
+      (add-hook 'post-command-hook 'save-all-the-things--timer-setter)
+    (remove-hook 'post-command-hook 'save-all-the-things--timer-setter)))
