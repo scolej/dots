@@ -21,7 +21,7 @@
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
               mode-line-format "%b %* %l" ;; TODO - This breaks eshell!
-              mouse-autoselect-window 0.5
+              mouse-autoselect-window t
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               recentf-max-saved-items 100
@@ -111,8 +111,6 @@ colon followed by the line number."
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
 (add-hook 'next-error-hook #'recenter) ;; TODO This breaks (does not return to occur buffer).
-(add-hook 'lisp-mode-hook #'paredit-mode)
-(add-hook 'emacs-lisp-mode-hook #'paredit-mode)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
 (defun chunky-scroll-right () (interactive) (scroll-right 20))
@@ -124,6 +122,10 @@ colon followed by the line number."
               (delete-frame f)))
         (frame-list)))
 
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-x 2") (lambda () (interactive) (split-window-vertically) (other-window 1)))
+(global-set-key (kbd "C-x 3") (lambda () (interactive) (split-window-horizontally) (other-window 1)))
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c r") 'revert-buffer)
@@ -141,10 +143,13 @@ colon followed by the line number."
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "<f1>") 'save-buffer)
-(global-set-key (kbd "<f2>") nil) ;; Unmap nasty 2 column shenanigans.
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
 (global-set-key (kbd "<escape>") 'ibuffer)
+
+;; Unmap shenanigans.
+(global-set-key (kbd "<f2>") nil)
+(global-set-key (kbd "C-h h") nil)
 
 (defun yank-pop-forwards (arg)
   (interactive "p")
@@ -153,8 +158,9 @@ colon followed by the line number."
 
 (use-package dired
   :config
-  (add-hook 'dired-mode-hook 'hl-line-mode)
-  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook #'hl-line-mode)
+  ;; (remove-hook 'dired-mode-hook #'recenter)
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)
               ("C-t" . nil)))
@@ -163,12 +169,13 @@ colon followed by the line number."
   :bind (("M-j" . dired-jump)))
 
 (use-package mwim
-  :bind (("C-a" . mwim-beginning-of-line-or-code)))
+  :bind (("C-a" . mwim-beginning-of-code-or-line)))
 
 (use-package transpose-frame
   :bind (("C-x t" . transpose-frame)))
 
 (use-package auto-complete
+  :disabled
   :demand
   :config
   (ac-config-default)
@@ -210,7 +217,6 @@ colon followed by the line number."
 (use-package markdown-mode)
 
 (use-package ivy
-  :disabled
   :demand
   :config
   (ivy-mode)
@@ -220,7 +226,6 @@ colon followed by the line number."
          ("<escape>" . minibuffer-keyboard-quit)))
 
 (use-package swiper
-  :disabled
   :bind (("C-s" . swiper)
          ("C-S-s" . isearch-forward)))
 
@@ -252,6 +257,7 @@ colon followed by the line number."
 (use-package org-mode
   :config
   (setq org-support-shift-select t)
+  (add-hook 'org-mode-hook #'visual-line-mode)
   :bind (:map orgtbl-mode-map
               ("<backspace>" . nil)
               ("<DEL>" . nil)))
@@ -269,7 +275,8 @@ colon followed by the line number."
   :config
   (defun ag-here (str)
     (interactive "M")
-    (ag str default-directory)))
+    (ag str default-directory))
+  (global-set-key (kbd "C-x a") #'ag-here))
 
 (use-package geiser
   :config
@@ -285,6 +292,7 @@ colon followed by the line number."
 (defun insert-current-date ()
   (interactive)
 (insert (format-time-string "%Y-%m-%d" (current-time))))
+(global-set-key (kbd "C-c t") #'insert-current-date)
 
 (defvar pikatock-mode-map
   (let ((map (make-sparse-keymap)))
@@ -310,7 +318,40 @@ colon followed by the line number."
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
 
 (load "save-all-the-things.el")
-(mapc (lambda (m) (add-hook m 'save-all-the-things-mode))
-      '(emacs-lisp-mode-hook
-        haskell-mode-hook
-        feature-mode-hook))
+(mapc
+ (lambda (m) (add-hook m 'save-all-the-things-mode))
+ '(emacs-lisp-mode-hook
+   haskell-mode-hook
+   feature-mode-hook
+   org-mode-hook))
+
+;;
+
+(global-set-key (kbd "<S-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
+
+;; Don't lose text scaling when a buffer is reverted. Surely this
+;; should be default behaviour! :O
+(setq text-scale-mode-amount 0)
+(add-hook
+ 'before-revert-hook
+ (lambda ()
+   (setq text-scale-mode-amount-stashed text-scale-mode-amount)))
+(add-hook
+ 'after-revert-hook
+ (lambda ()
+   (text-scale-increase text-scale-mode-amount-stashed)))
+
+;;
+
+(defun process-in-dir (dir program &rest args)
+  "Start a process in a directory. Automatically create a buffer
+for output. Spaces in the program will be split out into
+arguments and joined with ARGS. ARGS are not split on spaces."
+  (let* ((args1 (split-string program " "))
+         (program (car args1))
+         (args2 (append (cdr args1) args))
+         (buf (get-buffer-create program)))
+    (with-current-buffer (switch-to-buffer-other-window buf)
+      (let ((default-directory dir))
+        (erase-buffer)
+        (apply #'start-process program buf program args2)))))

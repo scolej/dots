@@ -40,5 +40,5 @@
   :lighter " satt"
   :global nil
   (if save-all-the-things-mode
-      (add-hook 'post-command-hook 'save-all-the-things--timer-setter)
-    (remove-hook 'post-command-hook 'save-all-the-things--timer-setter)))
+      (add-hook 'post-command-hook 'save-all-the-things--timer-setter nil t)
+    (remove-hook 'post-command-hook 'save-all-the-things--timer-setter t)))
