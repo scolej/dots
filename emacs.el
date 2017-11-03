@@ -1,10 +1,3 @@
-;; TODO Swiper - send bm toggle keys through to main buffer.
-;;             - use active selection.
-;; TODO SATT - Don't save if there is no matching file.
-;;           - What to do when buffer is changed out from underneath? As in git checkout.
-;; TODO - Creating a bad process with make-process (missing args?) seems to break everything.
-;; TODO - Custom modeline breaks eshell.
-
 (setq-default c-basic-offset 4
               cursor-type 'box
               dired-listing-switches "-alh"
@@ -20,7 +13,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format "%b %* %l" ;; TODO - This breaks eshell!
+              mode-line-format "%b %* %l"
               mouse-autoselect-window t
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -110,7 +103,7 @@ colon followed by the line number."
 
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
-(add-hook 'next-error-hook #'recenter) ;; TODO This breaks (does not return to occur buffer).
+(add-hook 'next-error-hook #'recenter)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
 (defun chunky-scroll-right () (interactive) (scroll-right 20))
@@ -255,9 +248,10 @@ colon followed by the line number."
          ("<C-M-down>" . duplicate-thing-down)))
 
 (use-package org-mode
+  :init
+  (add-hook 'org-mode-hook #'visual-line-mode)
   :config
   (setq org-support-shift-select t)
-  (add-hook 'org-mode-hook #'visual-line-mode)
   :bind (:map orgtbl-mode-map
               ("<backspace>" . nil)
               ("<DEL>" . nil)))
@@ -353,5 +347,5 @@ arguments and joined with ARGS. ARGS are not split on spaces."
          (buf (get-buffer-create program)))
     (with-current-buffer (switch-to-buffer-other-window buf)
       (let ((default-directory dir))
-        (erase-buffer)
+        (erase-buffer) ;; TODO view-mode
         (apply #'start-process program buf program args2)))))

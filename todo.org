@@ -1,0 +1,12 @@
+* Swiper
+** Send bm toggle keys through to main buffer
+** Use active selection as initial search
+* Random buggy stuff noticed
+** Compile mode recentre while in follow-mode seems broken
+** Creating a bad process with make-process (missing args?) seems to break everything.
+** Custom modeline breaks eshell.
+* Ideas
+** Mega-highlight mode
+Eval the contents of a buffer to get a set of highlight strings and
+highlight them all in visible buffers. Do it automatically after a
+timeout.
