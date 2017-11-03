@@ -1,5 +1,5 @@
 (setq-default c-basic-offset 4
-              cursor-type 'box
+              cursor-type '(bar . 2)
               dired-listing-switches "-alh"
               dired-auto-revert-buffer t
               dired-dwim-target t
@@ -139,6 +139,7 @@ colon followed by the line number."
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
 (global-set-key (kbd "<escape>") 'ibuffer)
+(global-set-key (kbd "<S-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
 
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
@@ -148,6 +149,14 @@ colon followed by the line number."
   (interactive "p")
   (yank-pop (- arg)))
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
+
+(use-package select-whole-lines
+  :config
+  (select-whole-lines-mode))
+
+(use-package save-all-the-things
+  :config
+  (save-all-the-things-mode))
 
 (use-package dired
   :config
@@ -311,29 +320,12 @@ colon followed by the line number."
 
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
 
-(load "save-all-the-things.el")
-(mapc
- (lambda (m) (add-hook m 'save-all-the-things-mode))
- '(emacs-lisp-mode-hook
-   haskell-mode-hook
-   feature-mode-hook
-   org-mode-hook))
-
 ;;
 
-(global-set-key (kbd "<S-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
-
-;; Don't lose text scaling when a buffer is reverted. Surely this
-;; should be default behaviour! :O
+;; Don't lose text scaling when a buffer is reverted. Surely this should be default behaviour! :O
 (setq text-scale-mode-amount 0)
-(add-hook
- 'before-revert-hook
- (lambda ()
-   (setq text-scale-mode-amount-stashed text-scale-mode-amount)))
-(add-hook
- 'after-revert-hook
- (lambda ()
-   (text-scale-increase text-scale-mode-amount-stashed)))
+(add-hook 'before-revert-hook (lambda () (setq text-scale-mode-amount-stashed text-scale-mode-amount)))
+(add-hook 'after-revert-hook (lambda () (text-scale-increase text-scale-mode-amount-stashed)))
 
 ;;
 
@@ -347,5 +339,6 @@ arguments and joined with ARGS. ARGS are not split on spaces."
          (buf (get-buffer-create program)))
     (with-current-buffer (switch-to-buffer-other-window buf)
       (let ((default-directory dir))
-        (erase-buffer) ;; TODO view-mode
+        (erase-buffer)
+        (view-mode)
         (apply #'start-process program buf program args2)))))
