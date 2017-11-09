@@ -150,6 +150,8 @@ colon followed by the line number."
   (yank-pop (- arg)))
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
+(use-package mega-highlight)
+
 (use-package select-whole-lines
   :config
   (select-whole-lines-mode))
@@ -257,8 +259,6 @@ colon followed by the line number."
          ("<C-M-down>" . duplicate-thing-down)))
 
 (use-package org-mode
-  :init
-  (add-hook 'org-mode-hook #'visual-line-mode)
   :config
   (setq org-support-shift-select t)
   :bind (:map orgtbl-mode-map
@@ -268,6 +268,21 @@ colon followed by the line number."
 (use-package magit
   :config
   (setq magit-commit-show-diff nil)
+  ;; Protect against accidental pushes to upstream
+  (defadvice magit-push-current-to-upstream
+      (around my-protect-accidental-magit-push-current-to-upstream)
+    (let ((my-magit-ask-before-push t))
+      ad-do-it))
+  (defadvice magit-git-push (around my-protect-accidental-magit-git-push)
+    (if (bound-and-true-p my-magit-ask-before-push)
+        ;; Arglist is (BRANCH TARGET ARGS)
+        (if (yes-or-no-p (format "Push %s branch upstream to %s? "
+                                 (ad-get-arg 0) (ad-get-arg 1)))
+            ad-do-it
+          (error "Push to upstream aborted by user"))
+      ad-do-it))
+  (ad-activate 'magit-push-current-to-upstream)
+  (ad-activate 'magit-git-push)
   :bind (("C-c m" . magit-status)))
 
 (use-package feature-mode
@@ -339,6 +354,8 @@ arguments and joined with ARGS. ARGS are not split on spaces."
          (buf (get-buffer-create program)))
     (with-current-buffer (switch-to-buffer-other-window buf)
       (let ((default-directory dir))
+        (read-only-mode -1)
         (erase-buffer)
-        (view-mode)
-        (apply #'start-process program buf program args2)))))
+        (apply #'start-process program buf program args2)
+        (view-mode))))
+  nil)
