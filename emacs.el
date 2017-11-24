@@ -1,5 +1,5 @@
 (setq-default c-basic-offset 4
-              cursor-type '(bar . 2)
+              cursor-type 'box
               dired-listing-switches "-alh"
               dired-auto-revert-buffer t
               dired-dwim-target t
@@ -145,6 +145,11 @@ colon followed by the line number."
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
 
+(defun close-window-or-frame ()
+  (interactive)
+  (if (one-window-p) (delete-frame) (delete-window)))
+(global-set-key (kbd "<f19>") #'close-window-or-frame)
+
 (defun yank-pop-forwards (arg)
   (interactive "p")
   (yank-pop (- arg)))
@@ -153,12 +158,15 @@ colon followed by the line number."
 (use-package mega-highlight)
 
 (use-package select-whole-lines
+  :disabled
   :config
   (select-whole-lines-mode))
 
 (use-package save-all-the-things
   :config
   (save-all-the-things-mode))
+
+(use-package co-man-der)
 
 (use-package dired
   :config
@@ -334,13 +342,6 @@ colon followed by the line number."
   (setq-local require-final-newline t))
 
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
-
-;;
-
-;; Don't lose text scaling when a buffer is reverted. Surely this should be default behaviour! :O
-(setq text-scale-mode-amount 0)
-(add-hook 'before-revert-hook (lambda () (setq text-scale-mode-amount-stashed text-scale-mode-amount)))
-(add-hook 'after-revert-hook (lambda () (text-scale-increase text-scale-mode-amount-stashed)))
 
 ;;
 
