@@ -145,6 +145,17 @@ colon followed by the line number."
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
 
+;; Saner word motion?
+(require 'misc)
+(defun kill-forward-to-word ()
+  "Word killing which replicates the motion used by 'forward-to-word'."
+  (interactive)
+  (kill-forward-chars
+   (- (save-excursion (forward-to-word 1) (point)) (point))))
+(global-set-key (kbd "M-f") #'forward-to-word)
+(global-set-key (kbd "M-b") #'backward-word)
+(global-set-key (kbd "M-d") #'kill-forward-to-word)
+
 (defun close-window-or-frame ()
   (interactive)
   (if (one-window-p) (delete-frame) (delete-window)))
@@ -232,8 +243,10 @@ colon followed by the line number."
   :demand
   :config
   (ivy-mode)
-  (setq-default ivy-use-virtual-buffers t)
+  (setq-default ivy-use-virtual-buffers t
+                ivy-do-completion-in-region nil)
   :bind (("<escape>" . ivy-switch-buffer)
+         ("C-c C-r" . ivy-resume)
          :map ivy-switch-buffer-map
          ("<escape>" . minibuffer-keyboard-quit)))
 
