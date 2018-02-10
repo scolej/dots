@@ -141,20 +141,11 @@ colon followed by the line number."
 (global-set-key (kbd "<escape>") 'ibuffer)
 (global-set-key (kbd "<S-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
 
+(windmove-default-keybindings)
+
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
-
-;; Saner word motion?
-(require 'misc)
-(defun kill-forward-to-word ()
-  "Word killing which replicates the motion used by 'forward-to-word'."
-  (interactive)
-  (kill-forward-chars
-   (- (save-excursion (forward-to-word 1) (point)) (point))))
-(global-set-key (kbd "M-f") #'forward-to-word)
-(global-set-key (kbd "M-b") #'backward-word)
-(global-set-key (kbd "M-d") #'kill-forward-to-word)
 
 (defun close-window-or-frame ()
   (interactive)
@@ -178,6 +169,19 @@ colon followed by the line number."
   (save-all-the-things-mode))
 
 (use-package co-man-der)
+
+(use-package eshell
+  ;; And this guy:
+  ;; alias g 'git -c color.ui=always -c core.pager=cat'
+  :init
+  ;; Don't show status because it fights my simple modeline.
+  (setq eshell-status-in-mode-line nil)
+  :config
+  ;; Nasty: Eshell does it's own weird thing with keymaps, have to use a hook to configure.
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (define-key eshell-mode-map (kbd "<up>") nil)
+              (define-key eshell-mode-map (kbd "<down>") nil))))
 
 (use-package dired
   :config
@@ -279,9 +283,14 @@ colon followed by the line number."
   :bind (("<C-M-up>" . duplicate-thing)
          ("<C-M-down>" . duplicate-thing-down)))
 
-(use-package org-mode
+(use-package org
   :config
   (setq org-support-shift-select t)
+  :bind (:map org-mode-map
+              ("<S-left>" . nil)
+              ("<S-right>" . nil)))
+
+(use-package org-table
   :bind (:map orgtbl-mode-map
               ("<backspace>" . nil)
               ("<DEL>" . nil)))
