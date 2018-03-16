@@ -2,7 +2,7 @@
               cursor-type 'box
               dired-listing-switches "-alh"
               dired-auto-revert-buffer t
-              dired-dwim-target t
+              dired-dwim-target nil
               hi-lock-auto-select-face t
               indent-tabs-mode nil
               inhibit-startup-message t
@@ -13,8 +13,8 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format "%b %* %l"
-              mouse-autoselect-window t
+              mode-line-format '((:eval (save-all-the-things-mode-line-indicator)) " %b:%l %* %f")
+              mouse-autoselect-window 1
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               recentf-max-saved-items 100
@@ -31,7 +31,8 @@
               tab-width 4
               truncate-lines t
               truncate-partial-width-windows nil
-              visible-bell nil)
+              visible-bell nil
+              frame-title-format '("%b"))
 
 ;; Stop making vertical splits.
 (setq-default split-width-threshold nil)
@@ -54,6 +55,7 @@
 
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
+(tooltip-mode 0)
 (menu-bar-mode 0)
 (blink-cursor-mode 0)
 (show-paren-mode t)
@@ -64,13 +66,26 @@
 (column-number-mode t)
 (global-hl-line-mode 0)
 (cua-mode 0)
+(windmove-default-keybindings)
+(column-number-mode -1)
+;; (diff-auto-refine-mode -1)
+(line-number-at-pos -1)
+
+(electric-indent-mode t)
 
 (add-hook 'find-file-hook
           (lambda ()
             (let ((ext (file-name-extension buffer-file-name)))
               (when (or (string= ext "log")
                         (string= ext "logga"))
-                (read-only-mode t)))))
+                (read-only-mode t)
+                (text-scale-set -1)
+                (hl-line-mode)))))
+
+(defun save-all ()
+  "Save every buffer."
+  (interactive)
+  (save-some-buffers 'no-confirm))
 
 (defun ttl ()
   "Shortcut for truncating lines."
@@ -87,9 +102,10 @@
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
   (interactive)
-  (let ((s (buffer-file-name)))
-    (kill-new s)
-    (message (format "Copied %s" s))))
+  (let ((str (cond (buffer-file-name)
+                   (default-directory))))
+    (kill-new str)
+    (message (format "Copied %s" str))))
 
 (defun copy-buffer-path-and-line ()
   "Copy the full path to the current buffer's file and append a
@@ -105,8 +121,12 @@ colon followed by the line number."
 (add-hook 'occur-hook #'hl-line-mode)
 (add-hook 'next-error-hook #'recenter)
 
+(add-hook 'archive-mode-hook #'hl-line-mode)
+
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
 (defun chunky-scroll-right () (interactive) (scroll-right 20))
+(defun small-scroll-left () (interactive) (scroll-left 10))
+(defun small-scroll-right () (interactive) (scroll-right 10))
 
 (defun delete-other-frames ()
   (interactive)
@@ -115,10 +135,18 @@ colon followed by the line number."
               (delete-frame f)))
         (frame-list)))
 
+;; (ffap-bindings)
+
+;; Unmap shenanigans.
+(global-set-key (kbd "<f2>") nil)
+(global-set-key (kbd "C-h h") nil)
+
+(global-set-key (kbd "C-c l") #'list-processes)
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-x 2") (lambda () (interactive) (split-window-vertically) (other-window 1)))
 (global-set-key (kbd "C-x 3") (lambda () (interactive) (split-window-horizontally) (other-window 1)))
+(global-set-key (kbd "C-x C-b") #'ibuffer)
 (global-set-key (kbd "C-c f c") 'make-frame)
 (global-set-key (kbd "C-c f d") 'delete-frame)
 (global-set-key (kbd "C-c r") 'revert-buffer)
@@ -130,22 +158,33 @@ colon followed by the line number."
 (global-set-key [S-wheel-down] 'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") 'chunky-scroll-right)
 (global-set-key (kbd "<S-next>") 'chunky-scroll-left)
+(global-set-key (kbd "<wheel-left>") 'small-scroll-right)
+(global-set-key (kbd "<wheel-right>") 'small-scroll-left)
 (global-set-key (kbd "C-x <up>") 'windmove-up)
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "<f1>") 'save-buffer)
+(global-set-key (kbd "<f1>") #'describe-function)
+(global-set-key (kbd "<f2>") #'describe-variable)
+(global-set-key (kbd "<f5>") 'revert-buffer)
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
 (global-set-key (kbd "<escape>") 'ibuffer)
 (global-set-key (kbd "<S-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
+(global-set-key (kbd "<C-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
 
 (windmove-default-keybindings)
 
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
+
+;; (global-set-key (kbd "<return>") nil)
+;; (defun clever-enter ()
+;;   (interactive)
+;;   (if (region-active-p) (kill-ring-save (mark) (point))
+;;     (newline)))
 
 (defun close-window-or-frame ()
   (interactive)
@@ -168,7 +207,9 @@ colon followed by the line number."
   :config
   (save-all-the-things-mode))
 
-(use-package co-man-der)
+(use-package co-man-der
+  :config
+  (add-hook 'co-man-der-mode-hook #'hl-line-mode))
 
 (use-package eshell
   ;; And this guy:
@@ -202,7 +243,6 @@ colon followed by the line number."
   :bind (("C-x t" . transpose-frame)))
 
 (use-package auto-complete
-  :disabled
   :demand
   :config
   (ac-config-default)
@@ -215,6 +255,8 @@ colon followed by the line number."
               ("<return>" . nil)
               ("<tab>" . nil)
               ("<backtab>" . nil)
+              ("<C-down>" . nil)
+              ("<C-up>" . nil)
               ("C-p" . ac-previous)
               ("C-n" . ac-next)
               ("C-j" . ac-complete)
@@ -227,9 +269,7 @@ colon followed by the line number."
          ("<M-S-down>" . mc/mark-next-lines)
          ("<M-S-up>" . mc/mark-previous-lines)))
 
-(use-package flycheck
-  :config
-  (global-flycheck-mode))
+;; (use-package flycheck)
 
 (use-package haskell-mode)
 
@@ -239,7 +279,9 @@ colon followed by the line number."
   (add-hook 'haskell-mode-hook #'hindent-mode))
 
 (use-package bm
-  :bind (("<M-SPC>" . bm-toggle)))
+  :bind (("<M-SPC>" . bm-toggle)
+         ("M-." . bm-next)
+         ("M-," . bm-previous)))
 
 (use-package markdown-mode)
 
@@ -247,8 +289,9 @@ colon followed by the line number."
   :demand
   :config
   (ivy-mode)
-  (setq-default ivy-use-virtual-buffers t
-                ivy-do-completion-in-region nil)
+  (setq-default ivy-use-virtual-buffers nil
+                ivy-do-completion-in-region nil
+                ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
   :bind (("<escape>" . ivy-switch-buffer)
          ("C-c C-r" . ivy-resume)
          :map ivy-switch-buffer-map
@@ -258,12 +301,19 @@ colon followed by the line number."
   :bind (("C-s" . swiper)
          ("C-S-s" . isearch-forward)))
 
+(use-package counsel
+  :config
+  (counsel-mode))
+
 (use-package projectile
   :config
   (projectile-mode)
   (setq projectile-completion-system 'ivy
         projectile-indexing-method 'alien
-        projectile-switch-project-action 'projectile-commander))
+        projectile-switch-project-action 'projectile-find-file)
+  (add-to-list 'projectile-globally-ignored-directories "build")
+  (add-to-list 'projectile-globally-ignored-directories "bin")
+  :bind (("<S-escape>" . #'projectile-find-file)))
 
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
@@ -313,11 +363,16 @@ colon followed by the line number."
       ad-do-it))
   (ad-activate 'magit-push-current-to-upstream)
   (ad-activate 'magit-git-push)
+  (magit-auto-revert-mode -1)
+  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  ;; (setq magit-display-buffer-function #'display-buffer-same-window)
   :bind (("C-c m" . magit-status)))
 
 (use-package feature-mode
   :bind (:map feature-mode-map
-              ("C-c g" . jump-to-step-definition-current-line)))
+              ("C-c g" . jump-to-step-definition-current-line)
+              ("M-." . nil)
+              ("M-," . nil)))
 
 (use-package ag
   :config
@@ -325,11 +380,6 @@ colon followed by the line number."
     (interactive "M")
     (ag str default-directory))
   (global-set-key (kbd "C-x a") #'ag-here))
-
-(use-package geiser
-  :config
-  (add-hook 'geiser-mode-hook 'paredit-mode)
-  (setq-default geiser-scheme-implementation 'chicken))
 
 ;; PIKA WIP
 
@@ -349,21 +399,32 @@ colon followed by the line number."
     map))
 
 (defun pika-indent-function ()
-  (save-excursion
+  (let ((before-column (- (point) (point-at-bol) (current-indentation))) ;; Current column, relative to indentation
+        (c (char-after (+ (current-indentation) (point-at-bol))))) ;; First character on line
     (indent-line-to
-    (let ((c (char-after (+ (current-indentation) (point-at-bol)))))
-      (cond
-       ((null c) 0)
-       ((char-equal ?- c) 4)
-       (0))))))
+     (cond ((and (not (null c)) (char-equal ?- c)) 4)
+           ((= (point) (point-at-bol)) 4)
+           (0)))
+    (set-window-point nil
+                      (max
+                       (+ (point-at-bol) (current-indentation) before-column) ;; Restore previous position which was after indent
+                       (+ (point-at-bol) (current-indentation)))))) ;; Move point to first character on line
+
+(defvar pikatock-highlights '(
+                              ("^....-..-..*$" . font-lock-function-name-face)
+                              ("^....-...." . font-lock-variable-name-face)
+                              (":" . font-lock-comment-face)
+                              ))
 
 (define-derived-mode pikatock-mode
   text-mode "Pikatock" "Major mode for time logs."
-  (setq-local electric-indent-mode t)
+  ;; (setq-local electric-indent-mode t)
   (setq-local indent-line-function #'pika-indent-function)
-  (setq-local require-final-newline t))
+  (setq-local require-final-newline t)
+  (setq-local font-lock-defaults '(pikatock-highlights)))
 
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
+(add-to-list 'auto-mode-alist '("\\.moss\\'" . co-man-der-mode))
 
 ;;
 
@@ -382,3 +443,52 @@ arguments and joined with ARGS. ARGS are not split on spaces."
         (apply #'start-process program buf program args2)
         (view-mode))))
   nil)
+
+;;
+
+(defun duplicate-buffer ()
+  (interactive)
+  (let ((b (get-buffer-create (generate-new-buffer-name (buffer-name)))))
+    (copy-to-buffer b (point-min) (point-max))
+    (switch-to-buffer b)))
+
+(defun gitted-p ()
+  "Is this file in a git repo?"
+  (null (locate-dominating-file default-directory ".git")))
+
+(defun nxml-narrow ()
+  "Narrow the buffer the the XML element at point."
+  (interactive)
+  (let ((p0 (point-at-bol))
+        (p1 (save-excursion
+              (nxml-forward-element)
+              (point))))
+    (narrow-to-region p0 p1)))
+
+(defun xml-wrap-selection-with-tag (tag)
+  (interactive "M")
+  (when (region-active-p)
+    (insert "</" tag ">")
+    (save-excursion
+      (goto-char (mark))
+      (insert "<" tag ">"))
+    (deactivate-mark)))
+
+
+(defun dedicate-window ()
+  (interactive)
+  (set-window-dedicated-p nil t))
+
+(defun undedicate-window ()
+  (interactive)
+  (set-window-dedicated-p nil nil))
+
+
+(defun tail-tail-tail ()
+  (interactive)
+  (revert-buffer)
+  (end-of-buffer))
+(global-set-key (kbd "<C-next>") 'tail-tail-tail)
+
+;; (defun cleanse-buffers ()
+;;   (mapcar
