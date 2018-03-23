@@ -32,19 +32,28 @@
   (when buffer
     (with-current-buffer buffer
       (cond
-       ((not (buffer-file-name)) ;; Buffer has no associated file.
-        (setq-local save-all-the-things--state 'frustrated))
-       ((not (file-regular-p (buffer-file-name))) ;; Buffer is weird?
-        (setq-local save-all-the-things--state 'frustrated))
        ((not (buffer-modified-p)) ;; No changes.
         (setq-local save-all-the-things--state 'all-sweet))
        ((not (verify-visited-file-modtime))
         (message "File has been changed outside Emacs, save-all-the-things will not do its thing.")
         (setq-local save-all-the-things--state 'badly-frustrated))
        (t
-        (let ((inhibit-message t)) (save-buffer))
+        (let ((inhibit-message t)) (basic-save-buffer nil))
         (setq-local save-all-the-things--state 'all-sweet))))
     (force-mode-line-update)))
+
+(defun should-enable-save-all-the-things (buffer)
+  (with-current-buffer buffer
+    (and (buffer-file-name)
+         (file-regular-p (buffer-file-name))
+         (not (not (locate-dominating-file default-directory ".git"))))))
+
+(defun enable-or-disable-save-all-the-things ()
+    (if (should-enable-save-all-the-things (current-buffer))
+        (progn (save-all-the-things-mode t)
+               (message "Started save."))
+      (save-all-the-things-mode -1)
+      (message "stopped save.")))
 
 (defun save-all-the-things--after-change (x y z)
   "Indicate that the buffer contents have changed."
@@ -66,12 +75,11 @@ Add it to your MODE-LINE-FORMAT list like so:
 
 (define-minor-mode save-all-the-things-mode
   "Automatically save the buffer after there has been no input for a while."
-  :lighter " satt"
-  :global t
+  :lighter " saaave"
   (if save-all-the-things-mode
-      (progn (add-hook 'post-command-hook 'save-all-the-things--timer-setter)
+      (progn (add-hook 'post-command-hook 'save-all-the-things--timer-setter nil t)
              (add-hook 'after-change-functions 'save-all-the-things--after-change nil t))
-    (remove-hook 'post-command-hook 'save-all-the-things--timer-setter)
+    (remove-hook 'post-command-hook 'save-all-the-things--timer-setter t)
     (remove-hook 'after-change-functions 'save-all-the-things--after-change t)))
 
 (provide 'save-all-the-things)

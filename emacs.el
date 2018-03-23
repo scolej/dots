@@ -82,6 +82,8 @@
                 (text-scale-set -1)
                 (hl-line-mode)))))
 
+;; (add-hook 'find-file-hook #'enable-or-disable-save-all-the-things)
+
 (defun save-all ()
   "Save every buffer."
   (interactive)
@@ -205,7 +207,8 @@ colon followed by the line number."
 
 (use-package save-all-the-things
   :config
-  (save-all-the-things-mode))
+  ;; (save-all-the-things-mode))
+  )
 
 (use-package co-man-der
   :config
@@ -247,7 +250,8 @@ colon followed by the line number."
   :config
   (ac-config-default)
   (setq ac-auto-show-menu t
-        ac-use-quick-help nil)
+        ac-use-quick-help nil
+        ac-ignore-case nil)
   :bind (:map ac-completing-map
               ("<down>" . nil)
               ("<up>" . nil)
@@ -343,7 +347,10 @@ colon followed by the line number."
 (use-package org-table
   :bind (:map orgtbl-mode-map
               ("<backspace>" . nil)
-              ("<DEL>" . nil)))
+              ("<DEL>" . nil)
+              ("<tab>" . orgtbl-tab)
+              ;; ("TAB" . nil)
+              ))
 
 (use-package magit
   :config
@@ -492,3 +499,12 @@ arguments and joined with ARGS. ARGS are not split on spaces."
 
 ;; (defun cleanse-buffers ()
 ;;   (mapcar
+
+(defun purge-trailing-whitespace ()
+  (interactive)
+  (mapc
+   (lambda (f)
+     (with-temp-file f
+       (insert-file-contents f)
+       (delete-trailing-whitespace)))
+   (find-lisp-find-files default-directory ".*")))
