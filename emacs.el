@@ -13,7 +13,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format '((:eval (save-all-the-things-mode-line-indicator)) " %b:%l %* %f")
+              mode-line-format '((:eval (satt-mode-line-indicator)) " %b:%l %f")
               mouse-autoselect-window 1
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -81,8 +81,6 @@
                 (read-only-mode t)
                 (text-scale-set -1)
                 (hl-line-mode)))))
-
-;; (add-hook 'find-file-hook #'enable-or-disable-save-all-the-things)
 
 (defun save-all ()
   "Save every buffer."
@@ -207,8 +205,8 @@ colon followed by the line number."
 
 (use-package save-all-the-things
   :config
-  ;; (save-all-the-things-mode))
-  )
+  (add-hook 'after-save-hook #'satt-enable-or-disable)
+  (add-hook 'find-file-hook #'satt-enable-or-disable))
 
 (use-package co-man-der
   :config
