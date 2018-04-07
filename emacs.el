@@ -13,7 +13,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format '((:eval (satt-mode-line-indicator)) " %b:%l %f")
+              mode-line-format '("%b:%l %* %f")
               mouse-autoselect-window 1
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -35,7 +35,7 @@
               frame-title-format '("%b"))
 
 ;; Stop making vertical splits.
-(setq-default split-width-threshold nil)
+;; (setq-default split-width-threshold nil)
 
 ;; Backup set up.
 (setq backup-by-copying t
@@ -68,7 +68,6 @@
 (cua-mode 0)
 (windmove-default-keybindings)
 (column-number-mode -1)
-;; (diff-auto-refine-mode -1)
 (line-number-at-pos -1)
 
 (electric-indent-mode t)
@@ -86,11 +85,6 @@
   "Save every buffer."
   (interactive)
   (save-some-buffers 'no-confirm))
-
-(defun ttl ()
-  "Shortcut for truncating lines."
-  (interactive)
-  (toggle-truncate-lines))
 
 (defun words-dammit ()
   "I just want word wrapping!"
@@ -120,7 +114,6 @@ colon followed by the line number."
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
 (add-hook 'next-error-hook #'recenter)
-
 (add-hook 'archive-mode-hook #'hl-line-mode)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
@@ -134,12 +127,6 @@ colon followed by the line number."
             (unless (eq f (selected-frame))
               (delete-frame f)))
         (frame-list)))
-
-;; (ffap-bindings)
-
-;; Unmap shenanigans.
-(global-set-key (kbd "<f2>") nil)
-(global-set-key (kbd "C-h h") nil)
 
 (global-set-key (kbd "C-c l") #'list-processes)
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -171,8 +158,6 @@ colon followed by the line number."
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
 (global-set-key (kbd "<escape>") 'ibuffer)
-(global-set-key (kbd "<S-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
-(global-set-key (kbd "<C-return>") (lambda () (interactive) (insert (gui-get-primary-selection))))
 
 (windmove-default-keybindings)
 
@@ -180,11 +165,14 @@ colon followed by the line number."
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
 
-;; (global-set-key (kbd "<return>") nil)
-;; (defun clever-enter ()
-;;   (interactive)
-;;   (if (region-active-p) (kill-ring-save (mark) (point))
-;;     (newline)))
+;; Try out some alternative cut/pasting.
+(defun clever-enter ()
+  (interactive)
+  (if (region-active-p)
+      (kill-ring-save (mark) (point))
+    (newline)))
+(global-set-key (kbd "RET") #'clever-enter)
+(global-set-key (kbd "S-RET") #'yank)
 
 (defun close-window-or-frame ()
   (interactive)
@@ -213,11 +201,10 @@ colon followed by the line number."
   (add-hook 'co-man-der-mode-hook #'hl-line-mode))
 
 (use-package eshell
-  ;; And this guy:
-  ;; alias g 'git -c color.ui=always -c core.pager=cat'
   :init
   ;; Don't show status because it fights my simple modeline.
-  (setq eshell-status-in-mode-line nil)
+  (setq eshell-status-in-mode-line nil
+        eshell-banner-message "")
   :config
   ;; Nasty: Eshell does it's own weird thing with keymaps, have to use a hook to configure.
   (add-hook 'eshell-mode-hook
@@ -271,7 +258,7 @@ colon followed by the line number."
          ("<M-S-down>" . mc/mark-next-lines)
          ("<M-S-up>" . mc/mark-previous-lines)))
 
-;; (use-package flycheck)
+(use-package flycheck)
 
 (use-package haskell-mode)
 
