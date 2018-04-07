@@ -13,7 +13,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format '("%b:%l %* %f")
+              mode-line-format '("%* %b:%l %f")
               mouse-autoselect-window 1
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -156,6 +156,7 @@ colon followed by the line number."
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
 (global-set-key (kbd "<escape>") 'ibuffer)
+(global-set-key (kbd "C-x k") (lambda () (interactive) (kill-buffer nil)))
 
 (windmove-default-keybindings)
 
@@ -269,6 +270,15 @@ Surely this exists elsewhere."
 (use-package flycheck)
 
 (use-package haskell-mode)
+
+;; point after mark on copy?
+
+(defun google (term)
+  (interactive "M")
+    (browse-url
+     (concat "https://google.com/search?query="
+             (url-encode-url term))))
+(global-set-key (kbd "C-c g") #'google)
 
 (defun hackage (term)
   (interactive "M")
