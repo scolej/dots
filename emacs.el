@@ -152,8 +152,6 @@ colon followed by the line number."
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "<f1>") #'describe-function)
-(global-set-key (kbd "<f2>") #'describe-variable)
 (global-set-key (kbd "<f5>") 'revert-buffer)
 (global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c b b") 'copy-buffer-path)
@@ -165,6 +163,16 @@ colon followed by the line number."
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
 
+(defun help-at-point ()
+  "Try to guess what the thing at point is and show help.
+Surely this exists elsewhere."
+  (interactive)
+  (let ((x (intern (substring-no-properties (thing-at-point 'symbol)))))
+    (cond ((functionp x) (describe-function x)   )
+          ((describe-variable x)))))
+(global-set-key (kbd "<f1>") #'help-at-point)
+(global-set-key (kbd "C-h h") #'help-at-point)
+
 ;; Try out some alternative cut/pasting.
 (defun clever-enter ()
   (interactive)
@@ -172,7 +180,7 @@ colon followed by the line number."
       (kill-ring-save (mark) (point))
     (newline)))
 (global-set-key (kbd "RET") #'clever-enter)
-(global-set-key (kbd "S-RET") #'yank)
+(global-set-key (kbd "<S-return>") #'yank)
 
 (defun close-window-or-frame ()
   (interactive)
@@ -261,6 +269,12 @@ colon followed by the line number."
 (use-package flycheck)
 
 (use-package haskell-mode)
+
+(defun hackage (term)
+  (interactive "M")
+    (browse-url
+     (concat "https://hackage.haskell.org/packages/search?terms="
+             (url-encode-url term))))
 
 (use-package hindent
   :disabled
