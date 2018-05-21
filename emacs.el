@@ -34,8 +34,7 @@
               visible-bell nil
               frame-title-format '("%b"))
 
-;; Stop making vertical splits.
-;; (setq-default split-width-threshold nil)
+(setq x-pointer-shape x-pointer-top-left-arrow)
 
 ;; Backup set up.
 (setq backup-by-copying t
@@ -63,14 +62,8 @@
 (recentf-mode t)
 (savehist-mode t)
 (delete-selection-mode t)
-(column-number-mode t)
 (global-hl-line-mode 0)
-(cua-mode 0)
-(windmove-default-keybindings)
-(column-number-mode -1)
-(line-number-at-pos -1)
-
-(electric-indent-mode t)
+(cua-mode t)
 
 (add-hook 'find-file-hook
           (lambda ()
@@ -106,14 +99,14 @@
 colon followed by the line number."
   (interactive)
   (let ((s (concat (buffer-file-name)
-                    ":"
-                    (number-to-string (line-number-at-pos (point))))))
+                   ":"
+                   (number-to-string (line-number-at-pos (point))))))
     (kill-new s)
     (message (format "Copied %s" s))))
 
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
-(add-hook 'next-error-hook #'recenter)
+(add-hook 'next-error-hook #'recenter) ;; TODO Does this actually work?
 (add-hook 'archive-mode-hook #'hl-line-mode)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
@@ -128,37 +121,38 @@ colon followed by the line number."
               (delete-frame f)))
         (frame-list)))
 
+(global-set-key (kbd "<C-SPC>") #'company-complete)
+(global-set-key (kbd "<S-next>") #'chunky-scroll-left)
+(global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
+(global-set-key (kbd "<escape>") #'ibuffer)
+(global-set-key (kbd "<f5>") #'revert-buffer)
+(global-set-key (kbd "<wheel-left>") #'small-scroll-right)
+(global-set-key (kbd "<wheel-right>") #'small-scroll-left)
+(global-set-key (kbd "C--") #'text-scale-decrease)
+(global-set-key (kbd "C-=") #'text-scale-increase)
+(global-set-key (kbd "C-c b b") #'copy-buffer-path)
+(global-set-key (kbd "C-c b l") #'copy-buffer-path-and-line)
+(global-set-key (kbd "C-c f c") #'make-frame)
+(global-set-key (kbd "C-c f d") #'delete-frame)
 (global-set-key (kbd "C-c l") #'list-processes)
-(global-set-key (kbd "C-=") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-c r") #'revert-buffer)
+(global-set-key (kbd "C-d") #'kill-whole-line)
 (global-set-key (kbd "C-x 2") (lambda () (interactive) (split-window-vertically) (other-window 1)))
 (global-set-key (kbd "C-x 3") (lambda () (interactive) (split-window-horizontally) (other-window 1)))
+(global-set-key (kbd "C-x <down>") #'windmove-down)
+(global-set-key (kbd "C-x <left>") #'windmove-left)
+(global-set-key (kbd "C-x <right>") #'windmove-right)
+(global-set-key (kbd "C-x <up>") #'windmove-up)
 (global-set-key (kbd "C-x C-b") #'ibuffer)
-(global-set-key (kbd "C-c f c") 'make-frame)
-(global-set-key (kbd "C-c f d") 'delete-frame)
-(global-set-key (kbd "C-c r") 'revert-buffer)
-(global-set-key (kbd "M-g") 'goto-line)
-(global-set-key (kbd "M-s d") 'delete-trailing-whitespace)
-(global-set-key (kbd "M-s s") 'sort-lines)
-(global-set-key (kbd "M-s u") 'upcase-region)
-(global-set-key [S-wheel-up] 'chunky-scroll-right)
-(global-set-key [S-wheel-down] 'chunky-scroll-left)
-(global-set-key (kbd "<S-prior>") 'chunky-scroll-right)
-(global-set-key (kbd "<S-next>") 'chunky-scroll-left)
-(global-set-key (kbd "<wheel-left>") 'small-scroll-right)
-(global-set-key (kbd "<wheel-right>") 'small-scroll-left)
-(global-set-key (kbd "C-x <up>") 'windmove-up)
-(global-set-key (kbd "C-x <down>") 'windmove-down)
-(global-set-key (kbd "C-x <left>") 'windmove-left)
-(global-set-key (kbd "C-x <right>") 'windmove-right)
-(global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "<f5>") 'revert-buffer)
-(global-set-key (kbd "C-c b l") 'copy-buffer-path-and-line)
-(global-set-key (kbd "C-c b b") 'copy-buffer-path)
-(global-set-key (kbd "<escape>") 'ibuffer)
 (global-set-key (kbd "C-x k") (lambda () (interactive) (kill-buffer nil)))
-
-(windmove-default-keybindings)
+(global-set-key (kbd "C-z") #'undo)
+(global-set-key (kbd "M-g") #'goto-line)
+(global-set-key (kbd "M-s d") #'delete-trailing-whitespace)
+(global-set-key (kbd "M-s s") #'sort-lines)
+(global-set-key (kbd "M-s u") #'upcase-region)
+(global-set-key [S-wheel-down] #'chunky-scroll-left)
+(global-set-key [S-wheel-up] #'chunky-scroll-right)
+(global-set-key (kbd "C-\\") #'replace-string)
 
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
@@ -174,15 +168,6 @@ Surely this exists elsewhere."
 (global-set-key (kbd "<f1>") #'help-at-point)
 (global-set-key (kbd "C-h h") #'help-at-point)
 
-;; Try out some alternative cut/pasting.
-(defun clever-enter ()
-  (interactive)
-  (if (region-active-p)
-      (kill-ring-save (mark) (point))
-    (newline)))
-(global-set-key (kbd "RET") #'clever-enter)
-(global-set-key (kbd "<S-return>") #'yank)
-
 (defun close-window-or-frame ()
   (interactive)
   (if (one-window-p) (delete-frame) (delete-window)))
@@ -195,15 +180,9 @@ Surely this exists elsewhere."
 
 (use-package mega-highlight)
 
-(use-package select-whole-lines
-  :disabled
-  :config
-  (select-whole-lines-mode))
-
 (use-package save-all-the-things
   :config
-  (add-hook 'after-save-hook #'satt-enable-or-disable)
-  (add-hook 'find-file-hook #'satt-enable-or-disable))
+  (add-hook 'find-file-hook #'save-all-the-things-mode))
 
 (use-package co-man-der
   :config
@@ -225,7 +204,6 @@ Surely this exists elsewhere."
   :config
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
   (add-hook 'dired-mode-hook #'hl-line-mode)
-  ;; (remove-hook 'dired-mode-hook #'recenter)
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)
               ("C-t" . nil)))
@@ -239,27 +217,6 @@ Surely this exists elsewhere."
 (use-package transpose-frame
   :bind (("C-x t" . transpose-frame)))
 
-(use-package auto-complete
-  :demand
-  :config
-  (ac-config-default)
-  (setq ac-auto-show-menu t
-        ac-use-quick-help nil
-        ac-ignore-case nil)
-  :bind (:map ac-completing-map
-              ("<down>" . nil)
-              ("<up>" . nil)
-              ("<RET>" . nil)
-              ("<return>" . nil)
-              ("<tab>" . nil)
-              ("<backtab>" . nil)
-              ("<C-down>" . nil)
-              ("<C-up>" . nil)
-              ("C-p" . ac-previous)
-              ("C-n" . ac-next)
-              ("C-j" . ac-complete)
-              ("<escape>" . keyboard-quit)))
-
 (use-package multiple-cursors
   :config
   (add-to-list 'mc/cmds-to-run-once 'forward-whitespace)
@@ -271,20 +228,18 @@ Surely this exists elsewhere."
 
 (use-package haskell-mode)
 
-;; point after mark on copy?
-
 (defun google (term)
   (interactive "M")
-    (browse-url
-     (concat "https://google.com/search?query="
-             (url-encode-url term))))
+  (browse-url
+   (concat "https://google.com/search?query="
+           (url-encode-url term))))
 (global-set-key (kbd "C-c g") #'google)
 
 (defun hackage (term)
   (interactive "M")
-    (browse-url
-     (concat "https://hackage.haskell.org/packages/search?terms="
-             (url-encode-url term))))
+  (browse-url
+   (concat "https://hackage.haskell.org/packages/search?terms="
+           (url-encode-url term))))
 
 (use-package hindent
   :disabled
@@ -318,6 +273,10 @@ Surely this exists elsewhere."
   :config
   (counsel-mode))
 
+(use-package company
+  :config
+  (global-company-mode t))
+
 (use-package projectile
   :config
   (projectile-mode)
@@ -331,7 +290,14 @@ Surely this exists elsewhere."
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
 
-(use-package rust-mode :disabled)
+(use-package rust-mode
+  :config
+  (add-hook 'rust-mode-hook #'racer-mode))
+
+(use-package racer
+  :config
+  (add-hook 'racer-mode-hook #'eldoc-mode)
+  (add-hook 'racer-mode-hook #'company-mode))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -363,7 +329,6 @@ Surely this exists elsewhere."
 
 (use-package magit
   :config
-  (setq magit-commit-show-diff nil)
   ;; Protect against accidental pushes to upstream
   (defadvice magit-push-current-to-upstream
       (around my-protect-accidental-magit-push-current-to-upstream)
@@ -379,9 +344,7 @@ Surely this exists elsewhere."
       ad-do-it))
   (ad-activate 'magit-push-current-to-upstream)
   (ad-activate 'magit-git-push)
-  (magit-auto-revert-mode -1)
   (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  ;; (setq magit-display-buffer-function #'display-buffer-same-window)
   :bind (("C-c m" . magit-status)))
 
 (use-package feature-mode
@@ -397,6 +360,12 @@ Surely this exists elsewhere."
     (ag str default-directory))
   (global-set-key (kbd "C-x a") #'ag-here))
 
+(use-package back-button
+  :config
+  (back-button-mode t)
+  :bind (("<M-right>" . #'back-button-local-forward)
+         ("<M-left>" . #'back-button-local-backward)))
+
 ;; PIKA WIP
 
 (defun insert-current-hhmm ()
@@ -405,7 +374,7 @@ Surely this exists elsewhere."
 
 (defun insert-current-date ()
   (interactive)
-(insert (format-time-string "%Y-%m-%d" (current-time))))
+  (insert (format-time-string "%Y-%m-%d" (current-time))))
 (global-set-key (kbd "C-c t") #'insert-current-date)
 
 (defvar pikatock-mode-map
@@ -434,7 +403,6 @@ Surely this exists elsewhere."
 
 (define-derived-mode pikatock-mode
   text-mode "Pikatock" "Major mode for time logs."
-  ;; (setq-local electric-indent-mode t)
   (setq-local indent-line-function #'pika-indent-function)
   (setq-local require-final-newline t)
   (setq-local font-lock-defaults '(pikatock-highlights)))
@@ -490,7 +458,6 @@ arguments and joined with ARGS. ARGS are not split on spaces."
       (insert "<" tag ">"))
     (deactivate-mark)))
 
-
 (defun dedicate-window ()
   (interactive)
   (set-window-dedicated-p nil t))
@@ -499,15 +466,11 @@ arguments and joined with ARGS. ARGS are not split on spaces."
   (interactive)
   (set-window-dedicated-p nil nil))
 
-
 (defun tail-tail-tail ()
   (interactive)
   (revert-buffer)
   (end-of-buffer))
 (global-set-key (kbd "<C-next>") 'tail-tail-tail)
-
-;; (defun cleanse-buffers ()
-;;   (mapcar
 
 (defun purge-trailing-whitespace ()
   (interactive)
@@ -517,3 +480,10 @@ arguments and joined with ARGS. ARGS are not split on spaces."
        (insert-file-contents f)
        (delete-trailing-whitespace)))
    (find-lisp-find-files default-directory ".*")))
+
+;; Common theme things
+(set-face-attribute 'mode-line nil
+                    :box '(:line-width 2 :style released-button)))
+(set-face-attribute 'mode-line-inactive nil
+                    :box '(:line-width 2 :style released-button)))
+(set-face-attribute 'cursor nil :background "red" :foreground "white")
