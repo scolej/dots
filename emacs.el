@@ -1,3 +1,7 @@
+;; TODO Minor mode key map
+;; C-up/down to fight Cabal-version
+;; C-d
+
 (setq-default c-basic-offset 4
               cursor-type 'box
               dired-listing-switches "-alh"
@@ -34,7 +38,7 @@
               visible-bell nil
               frame-title-format '("%b"))
 
-(setq x-pointer-shape x-pointer-top-left-arrow)
+(advice-add 'help-window-display-message :around #'ignore)
 
 ;; Backup set up.
 (setq backup-by-copying t
@@ -178,44 +182,49 @@ Surely this exists elsewhere."
   (yank-pop (- arg)))
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
-(use-package mega-highlight)
+(defun define-keys (keymap &rest keys)
+  (cl-loop for (key binding) on keys by #'cddr do
+           (define-key keymap (kbd key) binding)))
 
-(use-package save-all-the-things
-  :config
-  (add-hook 'find-file-hook #'save-all-the-things-mode))
+;;
+;; Built-ins
+;;
 
-(use-package co-man-der
-  :config
-  (add-hook 'co-man-der-mode-hook #'hl-line-mode))
+(require 'dired)
+(add-hook 'dired-mode-hook #'dired-hide-details-mode)
+(add-hook 'dired-mode-hook #'hl-line-mode)
+(define-keys dired-mode-map
+  "<backspace>" #'dired-up-directory
+  "C-t" nil)
 
-(use-package eshell
-  :init
-  ;; Don't show status because it fights my simple modeline.
-  (setq eshell-status-in-mode-line nil
-        eshell-banner-message "")
-  :config
-  ;; Nasty: Eshell does it's own weird thing with keymaps, have to use a hook to configure.
-  (add-hook 'eshell-mode-hook
-            (lambda ()
-              (define-key eshell-mode-map (kbd "<up>") nil)
-              (define-key eshell-mode-map (kbd "<down>") nil))))
+(require 'dired-x)
+(global-set-key (kbd "M-j") #'dired-jump)
 
-(use-package dired
-  :config
-  (add-hook 'dired-mode-hook #'dired-hide-details-mode)
-  (add-hook 'dired-mode-hook #'hl-line-mode)
-  :bind (:map dired-mode-map
-              ("<backspace>" . dired-up-directory)
-              ("C-t" . nil)))
+(require 'org)
+(setq org-support-shift-select t)
+(define-keys org-mode-map
+  "<S-left>" nil
+  "<S-right>" nil)
 
-(use-package dired-x
-  :bind (("M-j" . dired-jump)))
+(require 'org-table)
+(define-keys orgtbl-mode-map
+  "<backspace>" nil
+  "<DEL>" nil
+  "<tab>" #'orgtbl-tab)
+
+;;
+;; Misfits
+;;
+
+(require 'save-all-the-things)
+(add-hook 'find-file-hook #'save-all-the-things-mode)
+
+;;
+;; Packages
+;;
 
 (use-package mwim
   :bind (("C-a" . mwim-beginning-of-code-or-line)))
-
-(use-package transpose-frame
-  :bind (("C-x t" . transpose-frame)))
 
 (use-package multiple-cursors
   :config
@@ -227,6 +236,10 @@ Surely this exists elsewhere."
 (use-package flycheck)
 
 (use-package haskell-mode)
+
+(use-package intero
+  :config
+  (add-hook 'haskell-mode-hook #'intero-mode))
 
 (defun google (term)
   (interactive "M")
@@ -285,7 +298,7 @@ Surely this exists elsewhere."
         projectile-switch-project-action 'projectile-find-file)
   (add-to-list 'projectile-globally-ignored-directories "build")
   (add-to-list 'projectile-globally-ignored-directories "bin")
-  :bind (("<S-escape>" . #'projectile-find-file)))
+  :bind (("<S-escape>" . projectile-find-file)))
 
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
@@ -311,21 +324,6 @@ Surely this exists elsewhere."
     (next-line))
   :bind (("<C-M-up>" . duplicate-thing)
          ("<C-M-down>" . duplicate-thing-down)))
-
-(use-package org
-  :config
-  (setq org-support-shift-select t)
-  :bind (:map org-mode-map
-              ("<S-left>" . nil)
-              ("<S-right>" . nil)))
-
-(use-package org-table
-  :bind (:map orgtbl-mode-map
-              ("<backspace>" . nil)
-              ("<DEL>" . nil)
-              ("<tab>" . orgtbl-tab)
-              ;; ("TAB" . nil)
-              ))
 
 (use-package magit
   :config
@@ -363,8 +361,14 @@ Surely this exists elsewhere."
 (use-package back-button
   :config
   (back-button-mode t)
-  :bind (("<M-right>" . #'back-button-local-forward)
-         ("<M-left>" . #'back-button-local-backward)))
+  :bind (("<M-right>" . back-button-local-forward)
+         ("<M-left>" . back-button-local-backward)))
+
+(use-package highlight-thing
+  :config
+  (setq highlight-thing-what-thing nil
+        highlight-thing-prefer-active-region t)
+  (global-highlight-thing-mode t))
 
 ;; PIKA WIP
 
@@ -483,7 +487,7 @@ arguments and joined with ARGS. ARGS are not split on spaces."
 
 ;; Common theme things
 (set-face-attribute 'mode-line nil
-                    :box '(:line-width 2 :style released-button)))
+                    :box '(:line-width 1 :style released-button))
 (set-face-attribute 'mode-line-inactive nil
-                    :box '(:line-width 2 :style released-button)))
+                    :box '(:line-width 1 :style released-button))
 (set-face-attribute 'cursor nil :background "red" :foreground "white")
