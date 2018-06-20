@@ -1,6 +1,15 @@
-;; TODO Minor mode key map
+;; TODO
+;; Minor mode key map
 ;; C-up/down to fight Cabal-version
 ;; C-d
+
+(require 'package)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+
+(require 'use-package)
+(setq use-package-always-ensure nil)
 
 (setq-default c-basic-offset 4
               cursor-type 'box
@@ -235,6 +244,8 @@ Surely this exists elsewhere."
 
 (use-package flycheck)
 
+(use-package flycheck-rust)
+
 (use-package haskell-mode)
 
 (use-package intero
@@ -288,7 +299,11 @@ Surely this exists elsewhere."
 
 (use-package company
   :config
-  (global-company-mode t))
+  (global-company-mode t)
+  :bind (:map company-active-map
+              ("C-n" . company-select-next)
+              ("C-p" . company-select-previous)
+              ("C-j" . company-complete-selection)))
 
 (use-package projectile
   :config
@@ -358,17 +373,17 @@ Surely this exists elsewhere."
     (ag str default-directory))
   (global-set-key (kbd "C-x a") #'ag-here))
 
-(use-package back-button
-  :config
-  (back-button-mode t)
-  :bind (("<M-right>" . back-button-local-forward)
-         ("<M-left>" . back-button-local-backward)))
-
 (use-package highlight-thing
   :config
   (setq highlight-thing-what-thing nil
         highlight-thing-prefer-active-region t)
   (global-highlight-thing-mode t))
+
+(use-package parinfer
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'parinfer-mode))
+
+(use-package yaml-mode)
 
 ;; PIKA WIP
 
