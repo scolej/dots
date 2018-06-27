@@ -27,7 +27,7 @@
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
               mode-line-format '("%* %b:%l %f")
-              mouse-autoselect-window 1
+              mouse-autoselect-window 0.5
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               recentf-max-saved-items 100
@@ -134,10 +134,19 @@ colon followed by the line number."
               (delete-frame f)))
         (frame-list)))
 
+(defun keyboard-quit-sensible ()
+  "Sensible quit.
+Quit the minibuffer or whatever else is going on, regardless of
+window focus. Just let me hammer escape to get back to sanity!"
+  (interactive)
+  (if (> (minibuffer-depth) 0)
+      (minibuffer-keyboard-quit)
+    (keyboard-quit)))
+
 (global-set-key (kbd "<C-SPC>") #'company-complete)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
-(global-set-key (kbd "<escape>") #'ibuffer)
+(global-set-key (kbd "<escape>") #'keyboard-quit-sensible)
 (global-set-key (kbd "<f5>") #'revert-buffer)
 (global-set-key (kbd "<wheel-left>") #'small-scroll-right)
 (global-set-key (kbd "<wheel-right>") #'small-scroll-left)
@@ -170,16 +179,6 @@ colon followed by the line number."
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
 (global-set-key (kbd "C-h h") nil)
-
-(defun help-at-point ()
-  "Try to guess what the thing at point is and show help.
-Surely this exists elsewhere."
-  (interactive)
-  (let ((x (intern (substring-no-properties (thing-at-point 'symbol)))))
-    (cond ((functionp x) (describe-function x)   )
-          ((describe-variable x)))))
-(global-set-key (kbd "<f1>") #'help-at-point)
-(global-set-key (kbd "C-h h") #'help-at-point)
 
 (defun close-window-or-frame ()
   (interactive)
@@ -280,14 +279,22 @@ Surely this exists elsewhere."
 (use-package ivy
   :demand
   :config
+  (defun ivy-insert-or-expand-dir ()
+    "Insert the current candidate into current input.
+Don't finish completion. If input matches is a directory,
+use it to continue completion."
+    (interactive)
+    (ivy-insert-current)
+    (when (setq dir (ivy-expand-file-if-directory (ivy--input)))
+      (ivy--cd dir)))
   (ivy-mode)
   (setq-default ivy-use-virtual-buffers nil
                 ivy-do-completion-in-region nil
                 ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-  :bind (("<escape>" . ivy-switch-buffer)
-         ("C-c C-r" . ivy-resume)
-         :map ivy-switch-buffer-map
-         ("<escape>" . minibuffer-keyboard-quit)))
+  :bind (("C-b" . 'ivy-switch-buffer)
+         :map ivy-minibuffer-map
+         ("<escape>" . minibuffer-keyboard-quit)
+         ("<tab>" . ivy-insert-or-expand-dir)))
 
 (use-package swiper
   :bind (("C-s" . swiper)
@@ -299,6 +306,7 @@ Surely this exists elsewhere."
 
 (use-package company
   :config
+  (setq company-idle-delay nil)
   (global-company-mode t)
   :bind (:map company-active-map
               ("C-n" . company-select-next)
@@ -310,10 +318,9 @@ Surely this exists elsewhere."
   (projectile-mode)
   (setq projectile-completion-system 'ivy
         projectile-indexing-method 'alien
-        projectile-switch-project-action 'projectile-find-file)
+        projectile-switch-project-action 'projectile-dired)
   (add-to-list 'projectile-globally-ignored-directories "build")
-  (add-to-list 'projectile-globally-ignored-directories "bin")
-  :bind (("<S-escape>" . projectile-find-file)))
+  (add-to-list 'projectile-globally-ignored-directories "bin"))
 
 (use-package counsel
   :bind (("C-c j" . counsel-git-grep)))
@@ -376,14 +383,19 @@ Surely this exists elsewhere."
 (use-package highlight-thing
   :config
   (setq highlight-thing-what-thing nil
-        highlight-thing-prefer-active-region t)
+        highlight-thing-prefer-active-region t
+        highlight-thing-exclude-thing-under-point t)
   (global-highlight-thing-mode t))
 
-(use-package parinfer
-  :config
-  (add-hook 'emacs-lisp-mode-hook #'parinfer-mode))
-
 (use-package yaml-mode)
+
+(use-package helpful
+  :bind (("<f1>" . #'helpful-at-point)
+         ("C-h h" . #'helpful-at-point)))
+
+(use-package aggressive-indent
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode))
 
 ;; PIKA WIP
 
