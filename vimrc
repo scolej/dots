@@ -49,19 +49,7 @@ set wildmode=longest,list,full
 set wildmenu
 set completeopt+=longest
 
-let NERDTreeIgnore=['\.hi$', '\.o$']
-let NERDTreeMinimalUI=1
-let NERDTreeSortOrder=[]
-let NERDTreeWinPos="right"
-
-map <Leader>s :SyntasticToggleMode<CR>
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
+:noremap Q <Nop>
 
 map <silent> <Leader>t :CtrlP()<CR>
 noremap <leader>b :CtrlPBuffer<cr>

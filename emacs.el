@@ -76,7 +76,10 @@
 (savehist-mode t)
 (delete-selection-mode t)
 (global-hl-line-mode 0)
+(electric-indent-mode t)
+
 (cua-mode t)
+(setq cua-prefix-override-inhibit-delay 0.000001)
 
 (add-hook 'find-file-hook
           (lambda ()
@@ -143,6 +146,7 @@ window focus. Just let me hammer escape to get back to sanity!"
       (minibuffer-keyboard-quit)
     (keyboard-quit)))
 
+(global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<C-SPC>") #'company-complete)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
@@ -152,6 +156,7 @@ window focus. Just let me hammer escape to get back to sanity!"
 (global-set-key (kbd "<wheel-right>") #'small-scroll-left)
 (global-set-key (kbd "C--") #'text-scale-decrease)
 (global-set-key (kbd "C-=") #'text-scale-increase)
+(global-set-key (kbd "C-\\") #'replace-string)
 (global-set-key (kbd "C-c b b") #'copy-buffer-path)
 (global-set-key (kbd "C-c b l") #'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c f c") #'make-frame)
@@ -174,7 +179,6 @@ window focus. Just let me hammer escape to get back to sanity!"
 (global-set-key (kbd "M-s u") #'upcase-region)
 (global-set-key [S-wheel-down] #'chunky-scroll-left)
 (global-set-key [S-wheel-up] #'chunky-scroll-right)
-(global-set-key (kbd "C-\\") #'replace-string)
 
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
@@ -297,14 +301,16 @@ use it to continue completion."
          ("<tab>" . ivy-insert-or-expand-dir)))
 
 (use-package swiper
-  :bind (("C-s" . swiper)
-         ("C-S-s" . isearch-forward)))
+  :bind (("C-f" . swiper)
+         ("C-s" . isearch-forward)))
 
 (use-package counsel
+  :demand
   :config
-  (counsel-mode))
+  (counsel-mode t))
 
 (use-package company
+  :demand
   :config
   (setq company-idle-delay nil)
   (global-company-mode t)
@@ -314,6 +320,7 @@ use it to continue completion."
               ("C-j" . company-complete-selection)))
 
 (use-package projectile
+  :demand
   :config
   (projectile-mode)
   (setq projectile-completion-system 'ivy
@@ -391,11 +398,20 @@ use it to continue completion."
 
 (use-package helpful
   :bind (("<f1>" . #'helpful-at-point)
-         ("C-h h" . #'helpful-at-point)))
+         ("C-h h" . #'helpful-at-point)
+         ("C-h f" . #'helpful-function)
+         ("C-h v" . #'helpful-variable)))
 
 (use-package aggressive-indent
   :config
   (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode))
+
+(use-package groovy-mode)
+
+(use-package nxml-mode
+  :config
+  (setq nxml-child-indent 2
+        nxml-attribute-indent 2))
 
 ;; PIKA WIP
 
