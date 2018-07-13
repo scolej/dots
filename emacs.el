@@ -16,6 +16,7 @@
               dired-listing-switches "-alh"
               dired-auto-revert-buffer t
               dired-dwim-target nil
+              dired-recursive-deletes 'always
               hi-lock-auto-select-face t
               indent-tabs-mode nil
               inhibit-startup-message t
@@ -27,7 +28,7 @@
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
               mode-line-format '("%* %b:%l %f")
-              mouse-autoselect-window 0.5
+              mouse-autoselect-window 0.2
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
               recentf-max-saved-items 100
@@ -40,12 +41,14 @@
               scroll-margin 0
               show-help-function nil
               show-paren-style 'parenthesis
-              show-trailing-whitespace nil
+              show-trailing-whitespace t
               tab-width 4
               truncate-lines t
               truncate-partial-width-windows nil
               visible-bell nil
-              frame-title-format '("%b"))
+              frame-title-format '("%b")
+              load-prefer-newer t
+              split-width-threshold 300)
 
 (advice-add 'help-window-display-message :around #'ignore)
 
@@ -77,8 +80,9 @@
 (delete-selection-mode t)
 (global-hl-line-mode 0)
 (electric-indent-mode t)
+(fringe-mode 0)
 
-(cua-mode t)
+ (cua-mode t)
 (setq cua-prefix-override-inhibit-delay 0.000001)
 
 (add-hook 'find-file-hook
@@ -157,6 +161,7 @@ window focus. Just let me hammer escape to get back to sanity!"
 (global-set-key (kbd "C--") #'text-scale-decrease)
 (global-set-key (kbd "C-=") #'text-scale-increase)
 (global-set-key (kbd "C-\\") #'replace-string)
+(global-set-key (kbd "C-b") #'switch-to-buffer)
 (global-set-key (kbd "C-c b b") #'copy-buffer-path)
 (global-set-key (kbd "C-c b l") #'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c f c") #'make-frame)
@@ -218,11 +223,12 @@ window focus. Just let me hammer escape to get back to sanity!"
   "<S-left>" nil
   "<S-right>" nil)
 
-(require 'org-table)
-(define-keys orgtbl-mode-map
-  "<backspace>" nil
-  "<DEL>" nil
-  "<tab>" #'orgtbl-tab)
+;; (require 'org-table)
+;; (define-keys orgtbl-mode-map
+;;   "RET" nil
+;;   "<backspace>" nil
+;;   "<DEL>" nil
+;;   "<tab>" #'orgtbl-tab)
 
 ;;
 ;; Misfits
@@ -247,11 +253,12 @@ window focus. Just let me hammer escape to get back to sanity!"
 
 (use-package flycheck)
 
-(use-package flycheck-rust)
+(use-package flycheck-rust :disabled)
 
 (use-package haskell-mode)
 
 (use-package intero
+  :disabled
   :config
   (add-hook 'haskell-mode-hook #'intero-mode))
 
@@ -281,6 +288,7 @@ window focus. Just let me hammer escape to get back to sanity!"
 (use-package markdown-mode)
 
 (use-package ivy
+  :disabled
   :demand
   :config
   (defun ivy-insert-or-expand-dir ()
@@ -301,10 +309,12 @@ use it to continue completion."
          ("<tab>" . ivy-insert-or-expand-dir)))
 
 (use-package swiper
+  :disabled
   :bind (("C-f" . swiper)
          ("C-s" . isearch-forward)))
 
 (use-package counsel
+  :disabled
   :demand
   :config
   (counsel-mode t))
@@ -323,20 +333,19 @@ use it to continue completion."
   :demand
   :config
   (projectile-mode)
-  (setq projectile-completion-system 'ivy
-        projectile-indexing-method 'alien
-        projectile-switch-project-action 'projectile-dired)
+  (setq ;; projectile-completion-system 'ivy
+   projectile-indexing-method 'alien
+   projectile-switch-project-action 'projectile-dired)
   (add-to-list 'projectile-globally-ignored-directories "build")
   (add-to-list 'projectile-globally-ignored-directories "bin"))
 
-(use-package counsel
-  :bind (("C-c j" . counsel-git-grep)))
-
 (use-package rust-mode
+  :disabled
   :config
   (add-hook 'rust-mode-hook #'racer-mode))
 
 (use-package racer
+  :disabled
   :config
   (add-hook 'racer-mode-hook #'eldoc-mode)
   (add-hook 'racer-mode-hook #'company-mode))
@@ -375,17 +384,19 @@ use it to continue completion."
   :bind (("C-c m" . magit-status)))
 
 (use-package feature-mode
-  :bind (:map feature-mode-map
-              ("C-c g" . jump-to-step-definition-current-line)
-              ("M-." . nil)
-              ("M-," . nil)))
+  ;; :bind (:map feature-mode-map
+  ;;             ("RET" . nil)
+  ;;             ("C-c g" . jump-to-step-definition-current-line)
+  ;;             ("M-." . nil)
+  ;;             ("M-," . nil))
+  )
 
 (use-package ag
   :config
   (defun ag-here (str)
     (interactive "M")
     (ag str default-directory))
-  (global-set-key (kbd "C-x a") #'ag-here))
+  :bind (("C-x a" . #'ag-here)))
 
 (use-package highlight-thing
   :config
@@ -413,7 +424,14 @@ use it to continue completion."
   (setq nxml-child-indent 2
         nxml-attribute-indent 2))
 
+(use-package back-button
+  :bind
+  (("<M-left>" . #'back-button-local-backward)
+   ("<M-right>" . #'back-button-local-forward)))
+
+;;
 ;; PIKA WIP
+;;
 
 (defun insert-current-hhmm ()
   (interactive)
@@ -424,10 +442,25 @@ use it to continue completion."
   (insert (format-time-string "%Y-%m-%d" (current-time))))
 (global-set-key (kbd "C-c t") #'insert-current-date)
 
+(defun pika-here ()
+  (interactive)
+  (let ((pika-buffer "pikatock-output")
+        (f (buffer-file-name)))
+    (switch-to-buffer-other-window pika-buffer)
+    (fundamental-mode)
+    (erase-buffer)
+    (shell-command (string-join (list "pikatock -dd" f) " ") t)
+    (end-of-buffer)
+    (insert "\n\nWeek summary:\n")
+    (shell-command (string-join (list "pikatock " f) " ") t)
+    (view-mode)
+    (end-of-buffer)))
+
 (defvar pikatock-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<S-return>") 'insert-current-hhmm)
-    (define-key map (kbd "C-c t") 'insert-current-date)
+    (define-key map (kbd "C-c t") #'insert-current-date)
+    (define-key map (kbd "C-c k") #'pika-here)
     map))
 
 (defun pika-indent-function ()
@@ -529,8 +562,18 @@ arguments and joined with ARGS. ARGS are not split on spaces."
    (find-lisp-find-files default-directory ".*")))
 
 ;; Common theme things
-(set-face-attribute 'mode-line nil
-                    :box '(:line-width 1 :style released-button))
-(set-face-attribute 'mode-line-inactive nil
-                    :box '(:line-width 1 :style released-button))
+;; (set-face-attribute 'mode-line nil
+;;                     :box '(:line-width 1 :style released-button))
+;; (set-face-attribute 'mode-line-inactive nil
+;;                     :box '(:line-width 1 :style released-button))
 (set-face-attribute 'cursor nil :background "red" :foreground "white")
+
+(defun rando-string ()
+  (interactive)
+  (let ((chars "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890![]{}()")
+        (len 15)
+        (p ""))
+    (while (< (length p) len)
+      (let ((random-char (string (elt chars (random (length chars))))))
+        (setf p (string-join (list p random-char)))))
+    (insert p)))
