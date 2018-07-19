@@ -48,7 +48,8 @@
               visible-bell nil
               frame-title-format '("%b")
               load-prefer-newer t
-              split-width-threshold 300)
+              split-width-threshold 200
+              even-window-heights nil)
 
 (advice-add 'help-window-display-message :around #'ignore)
 
@@ -81,8 +82,9 @@
 (global-hl-line-mode 0)
 (electric-indent-mode t)
 (fringe-mode 0)
+(global-subword-mode t)
 
- (cua-mode t)
+(cua-mode t)
 (setq cua-prefix-override-inhibit-delay 0.000001)
 
 (add-hook 'find-file-hook
@@ -105,6 +107,12 @@
   (fundamental-mode)
   (toggle-truncate-lines 0)
   (visual-line-mode t))
+
+(defun find-file-with-region-other-frame (start end)
+  (interactive "r")
+  (let ((f (buffer-substring-no-properties start end)))
+    (when (file-exists-p f)
+      (find-file-other-frame f))))
 
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
@@ -141,6 +149,7 @@ colon followed by the line number."
               (delete-frame f)))
         (frame-list)))
 
+;; FIXME Look at function TOP-LEVEL ??
 (defun keyboard-quit-sensible ()
   "Sensible quit.
 Quit the minibuffer or whatever else is going on, regardless of
@@ -207,6 +216,7 @@ window focus. Just let me hammer escape to get back to sanity!"
 ;; Built-ins
 ;;
 
+(require 'ffap)
 (require 'dired)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
@@ -364,6 +374,7 @@ use it to continue completion."
          ("<C-M-down>" . duplicate-thing-down)))
 
 (use-package magit
+  :disabled
   :config
   ;; Protect against accidental pushes to upstream
   (defadvice magit-push-current-to-upstream
@@ -408,6 +419,7 @@ use it to continue completion."
 (use-package yaml-mode)
 
 (use-package helpful
+  :disabled
   :bind (("<f1>" . #'helpful-at-point)
          ("C-h h" . #'helpful-at-point)
          ("C-h f" . #'helpful-function)

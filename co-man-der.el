@@ -1,5 +1,7 @@
 ;; TODO Some way to know which jobs are running and kill them
 ;; TODO Kill all buffers which are ouput buffers.
+;; TODO Don't show new buffer until output occurs?
+
 
 (defun backward-find-default-dir ()
   "Get the last line which started with a non-blank character."
@@ -14,6 +16,7 @@
   (= 32 (char-syntax c)))
 
 (defun shell-mouse-line (e)
+  "Move cursor to click position and execute the command on that line."
   (interactive "e")
   (mouse-set-point e)
   (shell-this-line-in-dir-context))
@@ -24,28 +27,49 @@
       (message "Line is not a command! (Needs to be indented.)")
     (progn
       (let* ((cmd-line (current-line)))
-        (display-buffer-pop-up-window
+        ;;(display-buffer-pop-up-window
+        (display-buffer
          (do-a-command cmd-line (backward-find-default-dir)) nil)))))
 
-(defun do-a-command (command directory)
-  (let ((buf (get-buffer-create (string-join (list "moss:" directory command) " "))))
-    (with-current-buffer buf
-      (setq-local default-directory directory)
-      (async-shell-command command (current-buffer))
-      (co-man-der-view-mode t)
-      (setq-local show-trailing-whitespace nil)
-      (setq-local co-man-der-dir directory)
-      (setq-local co-man-der-command command))
-    buf))
+(defvar command-ticker 1)
+
+(defun reuse-command-buffer ()
+  )
+
+(defun co-man-der-kill-process ()
+  (interactive)
+  (kill-process (get-buffer-process (current-buffer))))
+
+(defun do-a-command (buf command directory)
+  ;;(let ((buf (get-buffer-create (string-join (list "moss:" directory command) " "))))
+  (let ((buf
+         (with-current-buffer buf
+           (setq-local default-directory directory)
+           (async-shell-command command (current-buffer))
+           (co-man-der-view-mode t)
+           (setq-local show-trailing-whitespace nil)
+           (setq-local co-man-der-dir directory)
+           (setq-local co-man-der-command command))
+         buf))))
 
 (defun co-man-der-maybe-refresh ()
+  "Re-run the command which was used to generate the contents of this buffer."
   ;; FIXME Check if still running??
   (interactive)
   (if (and (boundp 'co-man-der-command) (boundp 'co-man-der-dir))
       (let ((original-point (point)))
-        (do-a-command co-man-der-command co-man-der-dir))
+        (do-a-command (current-buffer) co-man-der-command co-man-der-dir))
     ;; (goto-char original-point)) ;; Need to wait till after
     (message "No command to re-run.")))
+
+;; FIXME Is this really useful?
+(defun use-selection-for-new-command (start end)
+  (interactive "r")
+  (when (region-active-p)
+    (let ((text (buffer-substring-no-properties start end)))
+      (pop-to-buffer "commands.moss")
+      (co-man-new-command)
+      (insert text))))
 
 (defun co-man-new-command ()
   (interactive)
@@ -56,6 +80,7 @@
 (defvar co-man-der-view-mode-map (make-sparse-keymap))
 (define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
 (define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
+(define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
 ;; Provide key to kill process
 (define-minor-mode co-man-der-view-mode
   "Minor mode to add some shortcuts for command views."
