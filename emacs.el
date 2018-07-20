@@ -48,7 +48,8 @@
               visible-bell nil
               frame-title-format '("%b")
               load-prefer-newer t
-              split-width-threshold 200
+              split-height-threshold 40
+              split-width-threshold 100
               even-window-heights nil)
 
 (advice-add 'help-window-display-message :around #'ignore)
@@ -159,18 +160,22 @@ window focus. Just let me hammer escape to get back to sanity!"
       (minibuffer-keyboard-quit)
     (keyboard-quit)))
 
+(global-set-key (kbd "C-0") #'delete-window)
+(global-set-key (kbd "C-1") #'delete-other-windows)
+(global-set-key (kbd "C-2") #'split-window-vertically)
+(global-set-key (kbd "C-3") #'split-window-horizontally)
 (global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<C-SPC>") #'company-complete)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
-(global-set-key (kbd "<escape>") #'keyboard-quit-sensible)
+(global-set-key (kbd "<escape>") #'ivy-switch-buffer)
 (global-set-key (kbd "<f5>") #'revert-buffer)
 (global-set-key (kbd "<wheel-left>") #'small-scroll-right)
 (global-set-key (kbd "<wheel-right>") #'small-scroll-left)
 (global-set-key (kbd "C--") #'text-scale-decrease)
 (global-set-key (kbd "C-=") #'text-scale-increase)
 (global-set-key (kbd "C-\\") #'replace-string)
-(global-set-key (kbd "C-b") #'switch-to-buffer)
+(global-set-key (kbd "C-b") #'ibuffer)
 (global-set-key (kbd "C-c b b") #'copy-buffer-path)
 (global-set-key (kbd "C-c b l") #'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c f c") #'make-frame)
@@ -223,6 +228,8 @@ window focus. Just let me hammer escape to get back to sanity!"
 (define-keys dired-mode-map
   "<backspace>" #'dired-up-directory
   "C-t" nil)
+
+(add-hook 'ibuffer-mode-hook #'hl-line-mode)
 
 (require 'dired-x)
 (global-set-key (kbd "M-j") #'dired-jump)
@@ -319,7 +326,6 @@ use it to continue completion."
          ("<tab>" . ivy-insert-or-expand-dir)))
 
 (use-package swiper
-  :disabled
   :bind (("C-f" . swiper)
          ("C-s" . isearch-forward)))
 
@@ -343,9 +349,9 @@ use it to continue completion."
   :demand
   :config
   (projectile-mode)
-  (setq ;; projectile-completion-system 'ivy
-   projectile-indexing-method 'alien
-   projectile-switch-project-action 'projectile-dired)
+  (setq projectile-completion-system 'ivy
+        projectile-indexing-method 'alien
+        projectile-switch-project-action 'projectile-dired)
   (add-to-list 'projectile-globally-ignored-directories "build")
   (add-to-list 'projectile-globally-ignored-directories "bin"))
 
@@ -589,3 +595,13 @@ arguments and joined with ARGS. ARGS are not split on spaces."
       (let ((random-char (string (elt chars (random (length chars))))))
         (setf p (string-join (list p random-char)))))
     (insert p)))
+
+(setq ibuffer-formats
+      '((mark modified read-only locked " "
+              (name 40 40 :left :elide)
+              " "
+              (mode 16 16 :left :elide)
+              " " filename-and-process)
+        (mark " "
+              (name 16 -1)
+              " " filename)))

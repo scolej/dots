@@ -26,31 +26,24 @@
   (if (not (char-is-whitespace (char-after (point-at-bol))))
       (message "Line is not a command! (Needs to be indented.)")
     (progn
-      (let* ((cmd-line (current-line)))
-        ;;(display-buffer-pop-up-window
-        (display-buffer
-         (do-a-command cmd-line (backward-find-default-dir)) nil)))))
-
-(defvar command-ticker 1)
-
-(defun reuse-command-buffer ()
-  )
+      (let* ((command (current-line))
+             (directory (backward-find-default-dir))
+             (buf (get-buffer-create (string-join (list "moss:" directory command) " "))))
+        (do-a-command buf command directory)
+        (display-buffer buf)))))
 
 (defun co-man-der-kill-process ()
   (interactive)
   (kill-process (get-buffer-process (current-buffer))))
 
 (defun do-a-command (buf command directory)
-  ;;(let ((buf (get-buffer-create (string-join (list "moss:" directory command) " "))))
-  (let ((buf
-         (with-current-buffer buf
-           (setq-local default-directory directory)
-           (async-shell-command command (current-buffer))
-           (co-man-der-view-mode t)
-           (setq-local show-trailing-whitespace nil)
-           (setq-local co-man-der-dir directory)
-           (setq-local co-man-der-command command))
-         buf))))
+  (with-current-buffer buf
+    (setq-local default-directory directory)
+    (async-shell-command command (current-buffer))
+    (co-man-der-view-mode t)
+    (setq-local show-trailing-whitespace nil)
+    (setq-local co-man-der-dir directory)
+    (setq-local co-man-der-command command)))
 
 (defun co-man-der-maybe-refresh ()
   "Re-run the command which was used to generate the contents of this buffer."
@@ -69,7 +62,7 @@
     (let ((text (buffer-substring-no-properties start end)))
       (pop-to-buffer "commands.moss")
       (co-man-new-command)
-      (insert text))))
+      (save-excursion (insert text)))))
 
 (defun co-man-new-command ()
   (interactive)
@@ -81,6 +74,7 @@
 (define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
 (define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
 (define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
+(define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
 ;; Provide key to kill process
 (define-minor-mode co-man-der-view-mode
   "Minor mode to add some shortcuts for command views."
