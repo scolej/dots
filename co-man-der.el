@@ -2,6 +2,7 @@
 ;; TODO Kill all buffers which are ouput buffers.
 ;; TODO Don't show new buffer until output occurs?
 
+(require 'subr-x)
 
 (defun backward-find-default-dir ()
   "Get the last line which started with a non-blank character."

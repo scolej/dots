@@ -17,6 +17,7 @@
               dired-auto-revert-buffer t
               dired-dwim-target nil
               dired-recursive-deletes 'always
+              dired-clean-confirm-killing-deleted-buffers nil
               hi-lock-auto-select-face t
               indent-tabs-mode nil
               inhibit-startup-message t
@@ -49,7 +50,7 @@
               frame-title-format '("%b")
               load-prefer-newer t
               split-height-threshold 40
-              split-width-threshold 100
+              split-width-threshold 200
               even-window-heights nil)
 
 (advice-add 'help-window-display-message :around #'ignore)
@@ -136,6 +137,7 @@ colon followed by the line number."
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
 (add-hook 'next-error-hook #'recenter) ;; TODO Does this actually work?
+(remove-hook 'next-error-hook #'recenter) ;; TODO Does this actually work?
 (add-hook 'archive-mode-hook #'hl-line-mode)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
@@ -221,7 +223,7 @@ window focus. Just let me hammer escape to get back to sanity!"
 ;; Built-ins
 ;;
 
-(require 'ffap)
+;; (require 'ffap)
 (require 'dired)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
@@ -233,19 +235,6 @@ window focus. Just let me hammer escape to get back to sanity!"
 
 (require 'dired-x)
 (global-set-key (kbd "M-j") #'dired-jump)
-
-(require 'org)
-(setq org-support-shift-select t)
-(define-keys org-mode-map
-  "<S-left>" nil
-  "<S-right>" nil)
-
-;; (require 'org-table)
-;; (define-keys orgtbl-mode-map
-;;   "RET" nil
-;;   "<backspace>" nil
-;;   "<DEL>" nil
-;;   "<tab>" #'orgtbl-tab)
 
 ;;
 ;; Misfits
@@ -261,24 +250,6 @@ window focus. Just let me hammer escape to get back to sanity!"
 (use-package mwim
   :bind (("C-a" . mwim-beginning-of-code-or-line)))
 
-(use-package multiple-cursors
-  :config
-  (add-to-list 'mc/cmds-to-run-once 'forward-whitespace)
-  :bind (("C-S-n" . mc/mark-next-like-this)
-         ("<M-S-down>" . mc/mark-next-lines)
-         ("<M-S-up>" . mc/mark-previous-lines)))
-
-(use-package flycheck)
-
-(use-package flycheck-rust :disabled)
-
-(use-package haskell-mode)
-
-(use-package intero
-  :disabled
-  :config
-  (add-hook 'haskell-mode-hook #'intero-mode))
-
 (defun google (term)
   (interactive "M")
   (browse-url
@@ -286,26 +257,7 @@ window focus. Just let me hammer escape to get back to sanity!"
            (url-encode-url term))))
 (global-set-key (kbd "C-c g") #'google)
 
-(defun hackage (term)
-  (interactive "M")
-  (browse-url
-   (concat "https://hackage.haskell.org/packages/search?terms="
-           (url-encode-url term))))
-
-(use-package hindent
-  :disabled
-  :config
-  (add-hook 'haskell-mode-hook #'hindent-mode))
-
-(use-package bm
-  :bind (("<M-SPC>" . bm-toggle)
-         ("M-." . bm-next)
-         ("M-," . bm-previous)))
-
-(use-package markdown-mode)
-
 (use-package ivy
-  :disabled
   :demand
   :config
   (defun ivy-insert-or-expand-dir ()
@@ -316,7 +268,6 @@ use it to continue completion."
     (ivy-insert-current)
     (when (setq dir (ivy-expand-file-if-directory (ivy--input)))
       (ivy--cd dir)))
-  (ivy-mode)
   (setq-default ivy-use-virtual-buffers nil
                 ivy-do-completion-in-region nil
                 ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
@@ -328,43 +279,6 @@ use it to continue completion."
 (use-package swiper
   :bind (("C-f" . swiper)
          ("C-s" . isearch-forward)))
-
-(use-package counsel
-  :disabled
-  :demand
-  :config
-  (counsel-mode t))
-
-(use-package company
-  :demand
-  :config
-  (setq company-idle-delay nil)
-  (global-company-mode t)
-  :bind (:map company-active-map
-              ("C-n" . company-select-next)
-              ("C-p" . company-select-previous)
-              ("C-j" . company-complete-selection)))
-
-(use-package projectile
-  :demand
-  :config
-  (projectile-mode)
-  (setq projectile-completion-system 'ivy
-        projectile-indexing-method 'alien
-        projectile-switch-project-action 'projectile-dired)
-  (add-to-list 'projectile-globally-ignored-directories "build")
-  (add-to-list 'projectile-globally-ignored-directories "bin"))
-
-(use-package rust-mode
-  :disabled
-  :config
-  (add-hook 'rust-mode-hook #'racer-mode))
-
-(use-package racer
-  :disabled
-  :config
-  (add-hook 'racer-mode-hook #'eldoc-mode)
-  (add-hook 'racer-mode-hook #'company-mode))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -378,35 +292,6 @@ use it to continue completion."
     (next-line))
   :bind (("<C-M-up>" . duplicate-thing)
          ("<C-M-down>" . duplicate-thing-down)))
-
-(use-package magit
-  :disabled
-  :config
-  ;; Protect against accidental pushes to upstream
-  (defadvice magit-push-current-to-upstream
-      (around my-protect-accidental-magit-push-current-to-upstream)
-    (let ((my-magit-ask-before-push t))
-      ad-do-it))
-  (defadvice magit-git-push (around my-protect-accidental-magit-git-push)
-    (if (bound-and-true-p my-magit-ask-before-push)
-        ;; Arglist is (BRANCH TARGET ARGS)
-        (if (yes-or-no-p (format "Push %s branch upstream to %s? "
-                                 (ad-get-arg 0) (ad-get-arg 1)))
-            ad-do-it
-          (error "Push to upstream aborted by user"))
-      ad-do-it))
-  (ad-activate 'magit-push-current-to-upstream)
-  (ad-activate 'magit-git-push)
-  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  :bind (("C-c m" . magit-status)))
-
-(use-package feature-mode
-  ;; :bind (:map feature-mode-map
-  ;;             ("RET" . nil)
-  ;;             ("C-c g" . jump-to-step-definition-current-line)
-  ;;             ("M-." . nil)
-  ;;             ("M-," . nil))
-  )
 
 (use-package ag
   :config
@@ -422,30 +307,12 @@ use it to continue completion."
         highlight-thing-exclude-thing-under-point t)
   (global-highlight-thing-mode t))
 
-(use-package yaml-mode)
-
-(use-package helpful
-  :disabled
-  :bind (("<f1>" . #'helpful-at-point)
-         ("C-h h" . #'helpful-at-point)
-         ("C-h f" . #'helpful-function)
-         ("C-h v" . #'helpful-variable)))
-
-(use-package aggressive-indent
-  :config
-  (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode))
-
 (use-package groovy-mode)
 
 (use-package nxml-mode
   :config
-  (setq nxml-child-indent 2
-        nxml-attribute-indent 2))
-
-(use-package back-button
-  :bind
-  (("<M-left>" . #'back-button-local-backward)
-   ("<M-right>" . #'back-button-local-forward)))
+  (setq nxml-child-indent 4
+        nxml-attribute-indent 4))
 
 ;;
 ;; PIKA WIP
@@ -584,6 +451,8 @@ arguments and joined with ARGS. ARGS are not split on spaces."
 ;;                     :box '(:line-width 1 :style released-button))
 ;; (set-face-attribute 'mode-line-inactive nil
 ;;                     :box '(:line-width 1 :style released-button))
+(set-face-attribute 'mode-line nil :box nil)
+(set-face-attribute 'mode-line-inactive nil :box nil)
 (set-face-attribute 'cursor nil :background "red" :foreground "white")
 
 (defun rando-string ()
@@ -605,3 +474,12 @@ arguments and joined with ARGS. ARGS are not split on spaces."
         (mark " "
               (name 16 -1)
               " " filename)))
+
+(defun pop-region-to-new-frame (start end)
+  (interactive "r")
+  (if (region-active-p)
+      (let ((region (buffer-substring-no-properties start end)))
+        (select-frame (make-frame))
+        (switch-to-buffer (generate-new-buffer "region-pop-"))
+        (insert region))
+    (make-frame)))
