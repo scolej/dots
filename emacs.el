@@ -317,6 +317,26 @@ use it to continue completion."
   :bind (("<C-M-up>" . duplicate-thing)
          ("<C-M-down>" . duplicate-thing-down)))
 
+(use-package magit
+  :config
+  ;; Protect against accidental pushes to upstream
+  (defadvice magit-push-current-to-upstream
+      (around my-protect-accidental-magit-push-current-to-upstream)
+    (let ((my-magit-ask-before-push t))
+      ad-do-it))
+  (defadvice magit-git-push (around my-protect-accidental-magit-git-push)
+    (if (bound-and-true-p my-magit-ask-before-push)
+        ;; Arglist is (BRANCH TARGET ARGS)
+        (if (yes-or-no-p (format "Push %s branch upstream to %s? "
+                                 (ad-get-arg 0) (ad-get-arg 1)))
+            ad-do-it
+          (error "Push to upstream aborted by user"))
+      ad-do-it))
+  (ad-activate 'magit-push-current-to-upstream)
+  (ad-activate 'magit-git-push)
+  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  :bind (("C-c m" . magit-status)))
+
 (use-package ag
   :config
   (defun ag-here (str)
