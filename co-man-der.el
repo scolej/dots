@@ -30,8 +30,9 @@
       (let* ((command (current-line))
              (directory (backward-find-default-dir))
              (buf (get-buffer-create (string-join (list "moss:" directory command) " "))))
-        (do-a-command buf command directory)
-        (display-buffer buf)))))
+        (unless (string-empty-p command)
+          (do-a-command buf command directory)
+          (display-buffer buf))))))
 
 (defun co-man-der-kill-process ()
   (interactive)
@@ -61,7 +62,7 @@
   (interactive "r")
   (when (region-active-p)
     (let ((text (buffer-substring-no-properties start end)))
-      (pop-to-buffer "commands.moss")
+      (pop-to-buffer "commands.moss") ;; FIXME No guarantee for this name.
       (co-man-new-command)
       (save-excursion (insert text)))))
 
@@ -72,7 +73,8 @@
   (indent-for-tab-command))
 
 (defvar co-man-der-view-mode-map (make-sparse-keymap))
-(define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
+;; (define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
+(define-key co-man-der-view-mode-map (kbd "q") 'quit-window)
 (define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
 (define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
 (define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)

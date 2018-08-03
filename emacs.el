@@ -28,7 +28,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format '("%* %b:%l %f")
+              mode-line-format '("%* %b")
               mouse-autoselect-window 0.2
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -49,7 +49,7 @@
               visible-bell nil
               frame-title-format '("%b")
               load-prefer-newer t
-              split-height-threshold 40
+              split-height-threshold 150
               split-width-threshold 200
               even-window-heights nil)
 
@@ -162,6 +162,12 @@ window focus. Just let me hammer escape to get back to sanity!"
       (minibuffer-keyboard-quit)
     (keyboard-quit)))
 
+(defun maybe-try-open (start end)
+  (interactive "r")
+  (if (region-active-p) (find-file-with-region-other-frame start end)
+    (self-insert-command 1)))
+(global-set-key (kbd "o") #'maybe-try-open)
+
 (global-set-key (kbd "C-0") #'delete-window)
 (global-set-key (kbd "C-1") #'delete-other-windows)
 (global-set-key (kbd "C-2") #'split-window-vertically)
@@ -247,6 +253,10 @@ window focus. Just let me hammer escape to get back to sanity!"
 ;; Packages
 ;;
 
+(use-package back-button
+  :bind (("<M-left>" . #'back-button-local-backward)
+         ("<M-right>" . #'back-button-local-forward)))
+
 (use-package mwim
   :bind (("C-a" . mwim-beginning-of-code-or-line)))
 
@@ -320,6 +330,7 @@ use it to continue completion."
 
 (defun insert-current-hhmm ()
   (interactive)
+  (when (region-active-p) (delete-region (point) (mark)))
   (insert (format-time-string "%H%M" (current-time))))
 
 (defun insert-current-date ()
@@ -369,6 +380,7 @@ use it to continue completion."
 (define-derived-mode pikatock-mode
   text-mode "Pikatock" "Major mode for time logs."
   (setq-local indent-line-function #'pika-indent-function)
+  (setq-local electric-indent-chars '(?- ?\n))
   (setq-local require-final-newline t)
   (setq-local font-lock-defaults '(pikatock-highlights)))
 
@@ -447,13 +459,20 @@ arguments and joined with ARGS. ARGS are not split on spaces."
    (find-lisp-find-files default-directory ".*")))
 
 ;; Common theme things
-;; (set-face-attribute 'mode-line nil
-;;                     :box '(:line-width 1 :style released-button))
-;; (set-face-attribute 'mode-line-inactive nil
-;;                     :box '(:line-width 1 :style released-button))
-(set-face-attribute 'mode-line nil :box nil)
-(set-face-attribute 'mode-line-inactive nil :box nil)
+(setq solarized-use-less-bold t)
+(load-theme 'solarized-light)
+(set-face-attribute 'mode-line nil
+                    :underline nil
+                    :overline nil
+                    :box '(:line-width 1 :style released-button))
+(set-face-attribute 'mode-line-inactive nil
+                    :overline nil
+                    :underline nil
+                    :box '(:line-width 1 :style released-button))
 (set-face-attribute 'cursor nil :background "red" :foreground "white")
+(set-face-attribute 'trailing-whitespace nil :background "#993333")
+;; (set-face-attribute 'mode-line nil :box nil)
+;; (set-face-attribute 'mode-line-inactive nil :box nil)
 
 (defun rando-string ()
   (interactive)
