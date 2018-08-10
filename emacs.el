@@ -51,7 +51,8 @@
               load-prefer-newer t
               split-height-threshold 150
               split-width-threshold 200
-              even-window-heights nil)
+              even-window-heights nil
+              next-error-recenter t)
 
 (advice-add 'help-window-display-message :around #'ignore)
 
@@ -113,8 +114,9 @@
 (defun find-file-with-region-other-frame (start end)
   (interactive "r")
   (let ((f (buffer-substring-no-properties start end)))
-    (when (file-exists-p f)
-      (find-file-other-frame f))))
+    (if (file-exists-p f)
+        (find-file-other-frame f)
+      (message "Region does not name a file."))))
 
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
@@ -136,8 +138,6 @@ colon followed by the line number."
 
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
-(add-hook 'next-error-hook #'recenter) ;; TODO Does this actually work?
-(remove-hook 'next-error-hook #'recenter) ;; TODO Does this actually work?
 (add-hook 'archive-mode-hook #'hl-line-mode)
 
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
@@ -164,7 +164,7 @@ window focus. Just let me hammer escape to get back to sanity!"
 
 (defun maybe-try-open (start end)
   (interactive "r")
-  (if (region-active-p) (find-file-with-region-other-frame start end)
+  (if (use-region-p) (find-file-with-region-other-frame start end)
     (self-insert-command 1)))
 (global-set-key (kbd "o") #'maybe-try-open)
 

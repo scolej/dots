@@ -66,6 +66,18 @@
       (co-man-new-command)
       (save-excursion (insert text)))))
 
+(defun append-selection-at-point (start end)
+  (interactive "r")
+  (when (region-active-p)
+    (let* ((text (buffer-substring-no-properties start end))
+           (need-quotes? (s-contains? " " text)))
+      (with-current-buffer "commands.moss" ;; FIXME No guarantee for this name.
+        (move-end-of-line nil)
+        (unless (equal (char-before) ?\s) (insert " "))
+        (when need-quotes? (insert "\""))
+        (insert text) ;; FIXME Point doesn't move?
+        (when need-quotes? (insert "\""))))))
+
 (defun co-man-new-command ()
   (interactive)
   (move-end-of-line nil)
@@ -78,6 +90,8 @@
 (define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
 (define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
 (define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
+(define-key co-man-der-view-mode-map (kbd "a") 'append-selection-at-point)
+
 ;; Provide key to kill process
 (define-minor-mode co-man-der-view-mode
   "Minor mode to add some shortcuts for command views."
