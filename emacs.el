@@ -270,6 +270,11 @@ window focus. Just let me hammer escape to get back to sanity!"
   :bind (("<M-left>" . #'back-button-local-backward)
          ("<M-right>" . #'back-button-local-forward)))
 
+(use-package smartparens
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
+  (add-hook 'lisp-mode-hook #'smartparens-mode))
+
 (use-package mwim
   :bind (("C-a" . mwim-beginning-of-code-or-line)))
 
@@ -418,6 +423,11 @@ use it to continue completion."
   (setq-local require-final-newline t)
   (setq-local font-lock-defaults '(pikatock-highlights)))
 
+(define-derived-mode wrapping-text-mode fundamental-mode
+  (toggle-truncate-lines -1)
+  (visual-line-mode t))
+
+(add-to-list 'auto-mode-alist '("\\.tx\\'" . wrapping-text-mode))
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
 (add-to-list 'auto-mode-alist '("\\.moss\\'" . co-man-der-mode))
 
@@ -492,22 +502,6 @@ arguments and joined with ARGS. ARGS are not split on spaces."
        (delete-trailing-whitespace)))
    (find-lisp-find-files default-directory ".*")))
 
-;; Common theme things
-;; (setq solarized-use-less-bold t)
-;; (load-theme 'solarized-light)
-;; (set-face-attribute 'mode-line nil
-;;                     :underline nil
-;;                     :overline nil
-;;                     :box '(:line-width 1 :style released-button))
-;; (set-face-attribute 'mode-line-inactive nil
-;;                     :overline nil
-;;                     :underline nil
-;;                     :box '(:line-width 1 :style released-button))
-(set-face-attribute 'cursor nil :background "red" :foreground "white")
-(set-face-attribute 'trailing-whitespace nil :background "#993333")
-(set-face-attribute 'mode-line nil :box nil)
-(set-face-attribute 'mode-line-inactive nil :box nil)
-
 (defun rando-string ()
   (interactive)
   (let ((chars "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890![]{}()")
@@ -517,16 +511,6 @@ arguments and joined with ARGS. ARGS are not split on spaces."
       (let ((random-char (string (elt chars (random (length chars))))))
         (setf p (string-join (list p random-char)))))
     (insert p)))
-
-(setq ibuffer-formats
-      '((mark modified read-only locked " "
-              (name 40 40 :left :elide)
-              " "
-              (mode 16 16 :left :elide)
-              " " filename-and-process)
-        (mark " "
-              (name 16 -1)
-              " " filename)))
 
 (defun pop-region-to-new-frame (start end)
   (interactive "r")
