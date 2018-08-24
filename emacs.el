@@ -79,13 +79,20 @@
 (blink-cursor-mode 0)
 (show-paren-mode t)
 (transient-mark-mode t)
-(recentf-mode t)
 (savehist-mode t)
 (delete-selection-mode t)
 (global-hl-line-mode 0)
-(electric-indent-mode t)
-(fringe-mode 0)
+(electric-indent-mode -1)
 (global-subword-mode t)
+(global-eldoc-mode -1)
+
+(fringe-mode 0)
+(setq window-divider-default-right-width 4
+      window-divider-default-bottom-width 4)
+(set-face-attribute 'window-divider nil :background "#888888" :foreground "#888888")
+(set-face-attribute 'window-divider-first-pixel nil :background "#888888" :foreground "#888888")
+(set-face-attribute 'window-divider-last-pixel nil :background "#888888" :foreground "#888888")
+(window-divider-mode t)
 
 (cua-mode t)
 (setq cua-prefix-override-inhibit-delay 0.000001)
@@ -162,18 +169,20 @@ window focus. Just let me hammer escape to get back to sanity!"
       (minibuffer-keyboard-quit)
     (keyboard-quit)))
 
-(defun maybe-try-open (start end)
-  (interactive "r")
-  (if (use-region-p) (find-file-with-region-other-frame start end)
+(defun maybe-try-open ()
+  (interactive)
+  (if (and (not (minibufferp))
+           (use-region-p))
+      (find-file-with-region-other-frame (point) (mark))
     (self-insert-command 1)))
 (global-set-key (kbd "o") #'maybe-try-open)
 
+(global-set-key (kbd "C-x s") (lambda (s) (interactive "M") (find-name-dired default-directory s)))
 (global-set-key (kbd "C-0") #'delete-window)
 (global-set-key (kbd "C-1") #'delete-other-windows)
 (global-set-key (kbd "C-2") #'split-window-vertically)
 (global-set-key (kbd "C-3") #'split-window-horizontally)
 (global-set-key (kbd "<C-tab>") #'other-window)
-(global-set-key (kbd "<C-SPC>") #'company-complete)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
 (global-set-key (kbd "<escape>") #'ivy-switch-buffer)
@@ -229,7 +238,6 @@ window focus. Just let me hammer escape to get back to sanity!"
 ;; Built-ins
 ;;
 
-;; (require 'ffap)
 (require 'dired)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
@@ -241,6 +249,9 @@ window focus. Just let me hammer escape to get back to sanity!"
 
 (require 'dired-x)
 (global-set-key (kbd "M-j") #'dired-jump)
+
+(require 'cc-mode)
+(define-key java-mode-map (kbd "C-d") nil)
 
 ;;
 ;; Misfits
@@ -254,6 +265,8 @@ window focus. Just let me hammer escape to get back to sanity!"
 ;;
 
 (use-package back-button
+  :config
+  (setq back-button-index-timeout nil)
   :bind (("<M-left>" . #'back-button-local-backward)
          ("<M-right>" . #'back-button-local-forward)))
 
@@ -281,6 +294,7 @@ use it to continue completion."
   (setq-default ivy-use-virtual-buffers nil
                 ivy-do-completion-in-region nil
                 ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (ivy-mode t)
   :bind (("C-b" . 'ivy-switch-buffer)
          :map ivy-minibuffer-map
          ("<escape>" . minibuffer-keyboard-quit)
@@ -459,20 +473,20 @@ arguments and joined with ARGS. ARGS are not split on spaces."
    (find-lisp-find-files default-directory ".*")))
 
 ;; Common theme things
-(setq solarized-use-less-bold t)
-(load-theme 'solarized-light)
-(set-face-attribute 'mode-line nil
-                    :underline nil
-                    :overline nil
-                    :box '(:line-width 1 :style released-button))
-(set-face-attribute 'mode-line-inactive nil
-                    :overline nil
-                    :underline nil
-                    :box '(:line-width 1 :style released-button))
+;; (setq solarized-use-less-bold t)
+;; (load-theme 'solarized-light)
+;; (set-face-attribute 'mode-line nil
+;;                     :underline nil
+;;                     :overline nil
+;;                     :box '(:line-width 1 :style released-button))
+;; (set-face-attribute 'mode-line-inactive nil
+;;                     :overline nil
+;;                     :underline nil
+;;                     :box '(:line-width 1 :style released-button))
 (set-face-attribute 'cursor nil :background "red" :foreground "white")
 (set-face-attribute 'trailing-whitespace nil :background "#993333")
-;; (set-face-attribute 'mode-line nil :box nil)
-;; (set-face-attribute 'mode-line-inactive nil :box nil)
+(set-face-attribute 'mode-line nil :box nil)
+(set-face-attribute 'mode-line-inactive nil :box nil)
 
 (defun rando-string ()
   (interactive)
