@@ -72,39 +72,22 @@
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
+(blink-cursor-mode 0)
+(delete-selection-mode t)
+(electric-indent-mode t)
+(fringe-mode nil)
+(global-eldoc-mode -1)
+(global-hl-line-mode 0)
+(global-subword-mode t)
+(menu-bar-mode 0)
 (scroll-bar-mode 0)
+(show-paren-mode t)
 (tool-bar-mode 0)
 (tooltip-mode 0)
-(menu-bar-mode 0)
-(blink-cursor-mode 0)
-(show-paren-mode t)
 (transient-mark-mode t)
-(savehist-mode t)
-(delete-selection-mode t)
-(global-hl-line-mode 0)
-(electric-indent-mode -1)
-(global-subword-mode t)
-(global-eldoc-mode -1)
-
-(fringe-mode 0)
-(setq window-divider-default-right-width 4
-      window-divider-default-bottom-width 4)
-(set-face-attribute 'window-divider nil :background "#888888" :foreground "#888888")
-(set-face-attribute 'window-divider-first-pixel nil :background "#888888" :foreground "#888888")
-(set-face-attribute 'window-divider-last-pixel nil :background "#888888" :foreground "#888888")
-(window-divider-mode t)
 
 (cua-mode t)
 (setq cua-prefix-override-inhibit-delay 0.000001)
-
-(add-hook 'find-file-hook
-          (lambda ()
-            (let ((ext (file-name-extension buffer-file-name)))
-              (when (or (string= ext "log")
-                        (string= ext "logga"))
-                (read-only-mode t)
-                (text-scale-set -1)
-                (hl-line-mode)))))
 
 (defun save-all ()
   "Save every buffer."
@@ -159,47 +142,45 @@ colon followed by the line number."
               (delete-frame f)))
         (frame-list)))
 
-;; FIXME Look at function TOP-LEVEL ??
-(defun keyboard-quit-sensible ()
-  "Sensible quit.
-Quit the minibuffer or whatever else is going on, regardless of
-window focus. Just let me hammer escape to get back to sanity!"
+
+(defun please-help-me ()
   (interactive)
-  (if (> (minibuffer-depth) 0)
-      (minibuffer-keyboard-quit)
-    (keyboard-quit)))
+  (let ((s (intern-soft (thing-at-point 'symbol t))))
+    (cond ((null s) (message "Nothing :("))
+          ((fboundp s) (describe-function s))
+          ((boundp s) (describe-variable s))
+          (t (message "Don't know what the thing is :(")))))
+(global-set-key (kbd "C-h") #'please-help-me)
 
 (defun maybe-try-open ()
   (interactive)
-  (if (and (not (minibufferp))
-           (use-region-p))
+  (if (and (use-region-p)
+           (not (minibufferp)))
       (find-file-with-region-other-frame (point) (mark))
     (self-insert-command 1)))
 (global-set-key (kbd "o") #'maybe-try-open)
 
-(global-set-key (kbd "C-x s") (lambda (s) (interactive "M") (find-name-dired default-directory s)))
-(global-set-key (kbd "C-0") #'delete-window)
-(global-set-key (kbd "C-1") #'delete-other-windows)
-(global-set-key (kbd "C-2") #'split-window-vertically)
-(global-set-key (kbd "C-3") #'split-window-horizontally)
 (global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
-(global-set-key (kbd "<escape>") #'ivy-switch-buffer)
 (global-set-key (kbd "<f5>") #'revert-buffer)
 (global-set-key (kbd "<wheel-left>") #'small-scroll-right)
 (global-set-key (kbd "<wheel-right>") #'small-scroll-left)
 (global-set-key (kbd "C--") #'text-scale-decrease)
+(global-set-key (kbd "C-0") #'delete-window)
+(global-set-key (kbd "C-1") #'delete-other-windows)
+(global-set-key (kbd "C-2") #'split-window-vertically)
+(global-set-key (kbd "C-3") #'split-window-horizontally)
 (global-set-key (kbd "C-=") #'text-scale-increase)
 (global-set-key (kbd "C-\\") #'replace-string)
-(global-set-key (kbd "C-b") #'ibuffer)
 (global-set-key (kbd "C-c b b") #'copy-buffer-path)
 (global-set-key (kbd "C-c b l") #'copy-buffer-path-and-line)
 (global-set-key (kbd "C-c f c") #'make-frame)
 (global-set-key (kbd "C-c f d") #'delete-frame)
 (global-set-key (kbd "C-c l") #'list-processes)
 (global-set-key (kbd "C-c r") #'revert-buffer)
-(global-set-key (kbd "C-d") #'kill-whole-line)
+(global-set-key (kbd "C-g") #'top-level)
+(global-set-key (kbd "C-q") #'quit-window)
 (global-set-key (kbd "C-x 2") (lambda () (interactive) (split-window-vertically) (other-window 1)))
 (global-set-key (kbd "C-x 3") (lambda () (interactive) (split-window-horizontally) (other-window 1)))
 (global-set-key (kbd "C-x <down>") #'windmove-down)
@@ -218,7 +199,6 @@ window focus. Just let me hammer escape to get back to sanity!"
 
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
-(global-set-key (kbd "C-h h") nil)
 
 (defun close-window-or-frame ()
   (interactive)
@@ -231,8 +211,33 @@ window focus. Just let me hammer escape to get back to sanity!"
 (global-set-key (kbd "M-S-y") 'yank-pop-forwards)
 
 (defun define-keys (keymap &rest keys)
+  "Make multiple bindings in a map."
   (cl-loop for (key binding) on keys by #'cddr do
            (define-key keymap (kbd key) binding)))
+
+(defun keymap (&rest bindings)
+  "Make a new keymap with bindings. Return that map."
+  (let ((map (make-sparse-keymap)))
+    (apply #'define-keys map bindings)
+    map))
+
+(define-keys minibuffer-local-map
+  "<escape>" #'top-level
+  "\\" #'self-insert-command)
+
+(global-set-key
+ (kbd "\\")
+ (keymap "\\" #'self-insert-command
+         "e" #'eval-last-sexp
+         "E" #'eval-print-last-sexp
+         "c" #'new-frame
+         "q" #'delete-frame
+         "f" #'find-file
+         "g" #'google
+         "w" #'delete-trailing-whitespace
+         "h" (keymap "f" #'describe-function
+                     "v" #'describe-variable
+                     "k" #'describe-key)))
 
 ;;
 ;; Built-ins
@@ -264,34 +269,25 @@ window focus. Just let me hammer escape to get back to sanity!"
 ;; Packages
 ;;
 
-(use-package back-button
-  :config
-  (setq back-button-index-timeout nil)
-  :bind (("<M-left>" . #'back-button-local-backward)
-         ("<M-right>" . #'back-button-local-forward)))
+;; TODO Indent defun?
 
-(use-package smartparens
-  :config
-  (add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
-  (add-hook 'lisp-mode-hook #'smartparens-mode))
+(use-package slow-keys
+  :init
+  (slow-keys-mode t))
 
 (use-package mwim
-  :bind (("C-a" . mwim-beginning-of-code-or-line)))
-
-(defun google (term)
-  (interactive "M")
-  (browse-url
-   (concat "https://google.com/search?query="
-           (url-encode-url term))))
-(global-set-key (kbd "C-c g") #'google)
+  ;; TODO how to make this work with visual line mode??
+  :bind (("C-a" . #'mwim-beginning-of-code-or-line)))
 
 (use-package ivy
   :demand
   :config
+  (ivy-mode t)
   (defun ivy-insert-or-expand-dir ()
     "Insert the current candidate into current input.
 Don't finish completion. If input matches is a directory,
-use it to continue completion."
+use it to continue completion.
+FIXME Do we really need this? Is it not the default?"
     (interactive)
     (ivy-insert-current)
     (when (setq dir (ivy-expand-file-if-directory (ivy--input)))
@@ -301,6 +297,7 @@ use it to continue completion."
                 ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
   (ivy-mode t)
   :bind (("C-b" . 'ivy-switch-buffer)
+         ("<escape>" . 'ivy-switch-buffer)
          :map ivy-minibuffer-map
          ("<escape>" . minibuffer-keyboard-quit)
          ("<tab>" . ivy-insert-or-expand-dir)))
@@ -314,6 +311,8 @@ use it to continue completion."
          ("<M-down>" . drag-stuff-down)))
 
 (use-package duplicate-thing
+  ;; FIXME at end of file :(
+  ;; FIXME don't save region, I almost never want to paste again what I just duplicated.
   :init
   (defun duplicate-thing-down ()
     (interactive)
