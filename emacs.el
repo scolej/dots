@@ -52,9 +52,14 @@
               split-height-threshold 150
               split-width-threshold 200
               even-window-heights nil
-              next-error-recenter t)
+              next-error-recenter nil)
 
 (advice-add 'help-window-display-message :around #'ignore)
+
+(defadvice yank (before yank-if-overwrite)
+  (if (bound-and-true-p overwrite-mode)
+      (delete-char (length (current-kill 0)))))
+(ad-activate 'yank)
 
 ;; Backup set up.
 (setq backup-by-copying t
@@ -126,6 +131,7 @@ colon followed by the line number."
     (kill-new s)
     (message (format "Copied %s" s))))
 
+(add-hook 'comint-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
 (add-hook 'occur-hook #'occur-rename-buffer)
 (add-hook 'occur-hook #'hl-line-mode)
 (add-hook 'archive-mode-hook #'hl-line-mode)
@@ -163,6 +169,9 @@ colon followed by the line number."
                   (error "Not a file :("))))
     (find-file str)))
 
+(defun really-kill-buffer ()
+  (interactive) (kill-buffer nil))
+
 (global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
@@ -189,7 +198,7 @@ colon followed by the line number."
 (global-set-key (kbd "C-x <right>") #'windmove-right)
 (global-set-key (kbd "C-x <up>") #'windmove-up)
 (global-set-key (kbd "C-x C-b") #'ibuffer)
-(global-set-key (kbd "C-x k") (lambda () (interactive) (kill-buffer nil)))
+(global-set-key (kbd "C-x k") #'really-kill-buffer)
 (global-set-key (kbd "C-z") #'undo)
 (global-set-key (kbd "M-g") #'goto-line)
 (global-set-key (kbd "M-s d") #'delete-trailing-whitespace)
@@ -250,6 +259,7 @@ colon followed by the line number."
 
 (require 'co-man-der)
 (add-to-list 'auto-mode-alist '("\\.moss\\'" . co-man-der-mode))
+(global-set-key (kbd "C-c m") #'jump-to-commands)
 
 ;;
 ;; Packages
@@ -294,7 +304,14 @@ FIXME Do we really need this? Is it not the default?"
          ("<escape>" . minibuffer-keyboard-quit)
          ("<tab>" . ivy-insert-or-expand-dir)))
 
-(use-package swiper)
+(use-package swiper
+  :config
+  (defun smart-swiper ()
+    (interactive)
+    (let ((initial (if (region-active-p) (buffer-substring-no-properties (mark) (point)) "")))
+      (deactivate-mark)
+      (swiper initial)))
+  :bind (("C-f" . #'smart-swiper)))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -310,26 +327,6 @@ FIXME Do we really need this? Is it not the default?"
     (next-line))
   :bind (("<C-M-up>" . duplicate-thing)
          ("<C-M-down>" . duplicate-thing-down)))
-
-(use-package magit
-  :config
-  ;; Protect against accidental pushes to upstream
-  (defadvice magit-push-current-to-upstream
-      (around my-protect-accidental-magit-push-current-to-upstream)
-    (let ((my-magit-ask-before-push t))
-      ad-do-it))
-  (defadvice magit-git-push (around my-protect-accidental-magit-git-push)
-    (if (bound-and-true-p my-magit-ask-before-push)
-        ;; Arglist is (BRANCH TARGET ARGS)
-        (if (yes-or-no-p (format "Push %s branch upstream to %s? "
-                                 (ad-get-arg 0) (ad-get-arg 1)))
-            ad-do-it
-          (error "Push to upstream aborted by user"))
-      ad-do-it))
-  (ad-activate 'magit-push-current-to-upstream)
-  (ad-activate 'magit-git-push)
-  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  :bind (("C-c m" . magit-status)))
 
 (use-package ag
   :config
@@ -352,9 +349,51 @@ FIXME Do we really need this? Is it not the default?"
   (setq nxml-child-indent 4
         nxml-attribute-indent 4))
 
+(use-package projectile
+  :demand
+  :config
+  (projectile-mode +1)
+  (setq projectile-completion-system 'ivy
+        projectile-indexing-method 'alien
+        projectile-switch-project-action 'projectile-dired)
+  (add-to-list 'projectile-globally-ignored-directories "build")
+  (add-to-list 'projectile-globally-ignored-directories "bin")
+  :bind (("C-c p" . 'projectile-command-map)
+         ("<S-escape>" . 'projectile-find-file)))
+
 ;;
 ;; Super awesome nested handy-map.
 ;;
+
+(define-keys minibuffer-local-map
+  "<escape>" #'top-level
+  "\\" #'self-insert-command)
+
+;; TODO eval-sexp-or-region
+
+;; Conflict?
+;; (defun google (term)
+;;   (interactive "M")
+;;   (browse-url
+;;    (concat "https://google.com/search?query="
+;;            (url-encode-url term))))
+
+;; (global-set-key
+;;  (kbd "\\")
+;;  (keymap "\\" #'self-insert-command
+;;          "k" #'really-kill-buffer
+;;          "e" #'eval-last-sexp
+;;          "E" #'eval-print-last-sexp
+;;          "c" #'new-frame
+;;          "q" #'delete-frame
+;;          "f" #'find-file
+;;          "o" #'try-find-file
+;;          "g" #'google
+;;          "w" #'delete-trailing-whitespace
+;;          "h" (keymap "f" #'describe-function
+;;                      "v" #'describe-variable
+;;                      "k" #'describe-key)))
+
 
 (define-keys minibuffer-local-map
   "<escape>" #'top-level
@@ -396,6 +435,7 @@ FIXME Do we really need this? Is it not the default?"
     (switch-to-buffer-other-window pika-buffer)
     (fundamental-mode)
     (erase-buffer)
+    (setq-local show-trailing-whitespace nil)
     (shell-command (string-join (list "pikatock -dd" f) " ") t)
     (end-of-buffer)
     (insert "\n\nWeek summary:\n")
@@ -411,6 +451,7 @@ FIXME Do we really need this? Is it not the default?"
     map))
 
 (defun pika-indent-function ()
+  ;; FIXME What am I smoking?
   (let ((before-column (- (point) (point-at-bol) (current-indentation))) ;; Current column, relative to indentation
         (c (char-after (+ (current-indentation) (point-at-bol))))) ;; First character on line
     (indent-line-to
@@ -531,3 +572,14 @@ arguments and joined with ARGS. ARGS are not split on spaces."
         (switch-to-buffer (generate-new-buffer "region-pop-"))
         (insert region))
     (make-frame)))
+
+;; WIP
+
+(require 'compile)
+(add-to-list 'compilation-error-regexp-alist-alist '(groovy "^\\([^:]+\\): *\\([0-9]+\\):" 1 2))
+(add-to-list 'compilation-error-regexp-alist 'groovy)
+(add-to-list 'compilation-error-regexp-alist-alist '(gradle1 "^ *build file '\\([^']+\\)': *\\([0-9]+\\)" 1 2))
+(add-to-list 'compilation-error-regexp-alist 'gradle1)
+(add-to-list 'compilation-error-regexp-alist-alist '(gradle2 "^Build file '\\([^']+\\)' line: *\\([0-9]+\\)$" 1 2))
+(add-to-list 'compilation-error-regexp-alist 'gradle2)
+(add-hook 'compilation-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))

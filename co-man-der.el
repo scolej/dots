@@ -1,6 +1,7 @@
 ;; TODO Some way to know which jobs are running and kill them
 ;; TODO Kill all buffers which are ouput buffers.
 ;; TODO Don't show new buffer until output occurs?
+;; TODO Could fade commands by frequency of use, and then have a cull function which removes infrequent ones.
 
 (require 'subr-x)
 
@@ -53,6 +54,7 @@
   (interactive)
   (if (and (boundp 'co-man-der-command) (boundp 'co-man-der-dir))
       (let ((original-point (point)))
+        (deactivate-mark)
         (do-a-command (current-buffer) co-man-der-command co-man-der-dir))
     ;; (goto-char original-point)) ;; Need to wait till after
     (message "No command to re-run.")))
@@ -84,6 +86,22 @@
   (newline)
   (indent-for-tab-command))
 
+(defvar moss-speedy-buffer nil)
+
+(defun moss-this-is-the-speedy-buffer ()
+  (interactive)
+  (setq moss-speedy-buffer (current-buffer)))
+
+(defun moss-speedy-rerun ()
+  (interactive)
+  (if moss-speedy-buffer
+      (progn
+        (with-current-buffer moss-speedy-buffer
+          (co-man-der-maybe-refresh)))
+    (message "No speedy buffer chosen.")))
+
+(global-set-key (kbd "<kp-enter>") #'moss-speedy-rerun)
+
 (defvar co-man-der-view-mode-map (make-sparse-keymap))
 ;; (define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
 (define-key co-man-der-view-mode-map (kbd "q") 'quit-window)
@@ -103,9 +121,20 @@
 (define-key co-man-der-mode-map (kbd "<return>") 'shell-this-line-in-dir-context)
 (define-key co-man-der-mode-map (kbd "<S-return>") 'co-man-new-command)
 
-(defvar moss-highlights '(("^[^[:space:]].*$" . font-lock-function-name-face)))
+(defvar moss-highlights '(("^[^[:space:]].*$" . font-lock-keyword-face)))
+
+(defun shellbow-indent ()
+  (indent-line-to (pcase (current-indentation)
+                    (1 0) (t 1))))
 
 (define-derived-mode co-man-der-mode fundamental-mode " cmd"
+  (setq-local indent-line-function #'shellbow-indent)
   (setq font-lock-defaults '(moss-highlights)))
+
+(defun jump-to-commands ()
+  (interactive)
+  ;; FIXME It would be nice if this jumped intelligently to a matching
+  ;; existing directory in the buffer to.
+  (pop-to-buffer "commands.moss"))
 
 (provide 'co-man-der)

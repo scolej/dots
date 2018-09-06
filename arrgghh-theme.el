@@ -11,7 +11,7 @@
    `(default ((t (:foreground ,normal-fg :background ,background))))
    `(hl-line ((t (:background "#deeff9"))))
 
-   `(mode-line ((t (:box nil :foreground ,i-dont-care-grey :background "#f5f5f5"))))
+   `(mode-line ((t (:box nil :foreground ,i-dont-care-grey :background "#dddddd"))))
    `(mode-line-inactive ((t (:inherit mode-line))))
 
    `(trailing-whitespace ((t (:background "#ffdddd"))))
@@ -28,15 +28,15 @@
    `(font-lock-variable-name-face ((t (:inherit default))))
    `(font-lock-function-name-face ((t (:inherit default))))
    `(font-lock-builtin-face ((t (:inherit default))))
-   `(font-lock-keyword-face ((t (:inherit default))))
+   `(font-lock-keyword-face ((t (:inherit default :weight bold))))
    `(font-lock-type-face ((t (:inherit default))))
    `(font-lock-string-face ((t (:foreground "#550055"))))
    `(font-lock-comment-face ((t (:foreground "#999999"))))
 
    `(fringe ((t (:inherit default :foreground ,i-dont-care-grey))))
-   `(vertical-border ((t :foreground ,background)))
+   `(vertical-border ((t :foreground "#dddddd")))
 
-   `(header-line ((t :inherit default)))
+   `(header-line ((t :inherit default :weight bold)))
    `(minibuffer-prompt ((t :inherit default)))
 
    `(ivy-current-match ((t :inherit region)))
@@ -48,6 +48,11 @@
 
    `(isearch ((t :inherit match)))
    `(lazy-highlight ((t :inherit match)))
+
+   `(dired-directory ((t :weight bold)))
+   `(dired-header ((t :inherit header-line)))
+
+   `(ag-hit-face ((t :underline t)))
    ))
 
 (provide-theme 'arrgghh)
