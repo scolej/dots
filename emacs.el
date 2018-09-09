@@ -179,7 +179,7 @@ colon followed by the line number."
 (global-set-key (kbd "C-c f d") #'delete-frame)
 (global-set-key (kbd "C-c l") #'list-processes)
 (global-set-key (kbd "C-c r") #'revert-buffer)
-(global-set-key (kbd "C-g") #'top-level)
+;; (global-set-key (kbd "C-g") #'top-level)
 (global-set-key (kbd "C-q") #'quit-window)
 (global-set-key (kbd "C-x 2") (lambda () (interactive) (split-window-vertically) (other-window 1)))
 (global-set-key (kbd "C-x 3") (lambda () (interactive) (split-window-horizontally) (other-window 1)))
@@ -265,15 +265,14 @@ colon followed by the line number."
 (require 'save-all-the-things)
 (add-hook 'find-file-hook #'save-all-the-things-mode)
 
+(require 'co-man-der)
+(add-to-list 'auto-mode-alist '("\\.moss\\'" . co-man-der-mode))
+
 ;;
 ;; Packages
 ;;
 
 ;; TODO Indent defun?
-
-(use-package slow-keys
-  :init
-  (slow-keys-mode t))
 
 (use-package mwim
   ;; TODO how to make this work with visual line mode??
@@ -428,7 +427,6 @@ FIXME Do we really need this? Is it not the default?"
 
 (add-to-list 'auto-mode-alist '("\\.tx\\'" . wrapping-text-mode))
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
-(add-to-list 'auto-mode-alist '("\\.moss\\'" . co-man-der-mode))
 
 ;;
 
