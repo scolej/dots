@@ -101,11 +101,11 @@
   (toggle-truncate-lines 0)
   (visual-line-mode t))
 
-(defun find-file-with-region-other-frame (start end)
+(defun find-file-with-region (start end)
   (interactive "r")
   (let ((f (buffer-substring-no-properties start end)))
     (if (file-exists-p f)
-        (find-file-other-frame f)
+        (find-file f)
       (message "Region does not name a file."))))
 
 (defun copy-buffer-path ()
@@ -156,7 +156,7 @@ colon followed by the line number."
   (interactive)
   (if (and (use-region-p)
            (not (minibufferp)))
-      (find-file-with-region-other-frame (point) (mark))
+      (find-file-with-region (point) (mark))
     (self-insert-command 1)))
 (global-set-key (kbd "o") #'maybe-try-open)
 
@@ -274,6 +274,9 @@ colon followed by the line number."
 
 ;; TODO Indent defun?
 
+(use-package expand-region
+  :bind (("M-u" . #'er/expand-region)))
+
 (use-package mwim
   ;; TODO how to make this work with visual line mode??
   :bind (("C-a" . #'mwim-beginning-of-code-or-line)))
@@ -281,7 +284,6 @@ colon followed by the line number."
 (use-package ivy
   :demand
   :config
-  (ivy-mode t)
   (defun ivy-insert-or-expand-dir ()
     "Insert the current candidate into current input.
 Don't finish completion. If input matches is a directory,
