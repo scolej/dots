@@ -152,13 +152,16 @@ colon followed by the line number."
           (t (message "Don't know what the thing is :(")))))
 (global-set-key (kbd "C-h") #'please-help-me)
 
-(defun maybe-try-open ()
+(defun try-find-file ()
   (interactive)
-  (if (and (use-region-p)
-           (not (minibufferp)))
-      (find-file-with-region (point) (mark))
-    (self-insert-command 1)))
-(global-set-key (kbd "o") #'maybe-try-open)
+  (let* ((region (buffer-substring-no-properties (point) (mark)))
+         (str (or (when (and (use-region-p)
+                             (not (minibufferp))
+                             (file-exists-p region))
+                    region)
+                  (ffap-file-at-point)
+                  (error "Not a file :("))))
+    (find-file str)))
 
 (global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
@@ -233,6 +236,7 @@ colon followed by the line number."
          "c" #'new-frame
          "q" #'delete-frame
          "f" #'find-file
+         "o" #'try-find-file
          "g" #'google
          "w" #'delete-trailing-whitespace
          "h" (keymap "f" #'describe-function
