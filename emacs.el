@@ -182,8 +182,6 @@ colon followed by the line number."
 (global-set-key (kbd "C-c f d") #'delete-frame)
 (global-set-key (kbd "C-c l") #'list-processes)
 (global-set-key (kbd "C-c r") #'revert-buffer)
-;; (global-set-key (kbd "C-g") #'top-level)
-(global-set-key (kbd "C-q") #'quit-window)
 (global-set-key (kbd "C-x 2") (lambda () (interactive) (split-window-vertically) (other-window 1)))
 (global-set-key (kbd "C-x 3") (lambda () (interactive) (split-window-horizontally) (other-window 1)))
 (global-set-key (kbd "C-x <down>") #'windmove-down)
@@ -223,25 +221,6 @@ colon followed by the line number."
   (let ((map (make-sparse-keymap)))
     (apply #'define-keys map bindings)
     map))
-
-(define-keys minibuffer-local-map
-  "<escape>" #'top-level
-  "\\" #'self-insert-command)
-
-(global-set-key
- (kbd "\\")
- (keymap "\\" #'self-insert-command
-         "e" #'eval-last-sexp
-         "E" #'eval-print-last-sexp
-         "c" #'new-frame
-         "q" #'delete-frame
-         "f" #'find-file
-         "o" #'try-find-file
-         "g" #'google
-         "w" #'delete-trailing-whitespace
-         "h" (keymap "f" #'describe-function
-                     "v" #'describe-variable
-                     "k" #'describe-key)))
 
 ;;
 ;; Built-ins
@@ -288,6 +267,7 @@ colon followed by the line number."
 (use-package ivy
   :demand
   :config
+
   (defun ivy-insert-or-expand-dir ()
     "Insert the current candidate into current input.
 Don't finish completion. If input matches is a directory,
@@ -297,19 +277,24 @@ FIXME Do we really need this? Is it not the default?"
     (ivy-insert-current)
     (when (setq dir (ivy-expand-file-if-directory (ivy--input)))
       (ivy--cd dir)))
+
+  (defun cancel-region-or-switch-buffer ()
+    (interactive)
+    (if (region-active-p) (keyboard-quit)
+      (ivy-switch-buffer)))
+
   (setq-default ivy-use-virtual-buffers nil
                 ivy-do-completion-in-region nil
                 ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+
   (ivy-mode t)
-  :bind (("C-b" . 'ivy-switch-buffer)
-         ("<escape>" . 'ivy-switch-buffer)
+
+  :bind (("<escape>" . 'cancel-region-or-switch-buffer)
          :map ivy-minibuffer-map
          ("<escape>" . minibuffer-keyboard-quit)
          ("<tab>" . ivy-insert-or-expand-dir)))
 
-(use-package swiper
-  :bind (("C-f" . swiper)
-         ("C-s" . isearch-forward)))
+(use-package swiper)
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -366,6 +351,29 @@ FIXME Do we really need this? Is it not the default?"
   :config
   (setq nxml-child-indent 4
         nxml-attribute-indent 4))
+
+;;
+;; Super awesome nested handy-map.
+;;
+
+(define-keys minibuffer-local-map
+  "<escape>" #'top-level
+  "\\" #'self-insert-command)
+
+(global-set-key
+ (kbd "\\")
+ (keymap "\\" #'swiper
+         "e" #'eval-last-sexp
+         "E" #'eval-print-last-sexp
+         "c" #'new-frame
+         "q" #'quit-window
+         "f" #'find-file
+         "o" #'try-find-file
+         "g" #'google
+         "w" #'delete-trailing-whitespace
+         "h" (keymap "f" #'describe-function
+                     "v" #'describe-variable
+                     "k" #'describe-key)))
 
 ;;
 ;; PIKA WIP
