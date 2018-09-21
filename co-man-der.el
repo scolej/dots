@@ -52,6 +52,7 @@
   "Re-run the command which was used to generate the contents of this buffer."
   ;; FIXME Check if still running??
   (interactive)
+  (when (get-buffer-process (current-buffer)) (error "Process is already running."))
   (if (and (boundp 'co-man-der-command) (boundp 'co-man-der-dir))
       (let ((original-point (point)))
         (deactivate-mark)
@@ -95,9 +96,8 @@
 (defun moss-speedy-rerun ()
   (interactive)
   (if moss-speedy-buffer
-      (progn
-        (with-current-buffer moss-speedy-buffer
-          (co-man-der-maybe-refresh)))
+      (with-current-buffer moss-speedy-buffer
+        (co-man-der-maybe-refresh))
     (message "No speedy buffer chosen.")))
 
 (global-set-key (kbd "<kp-enter>") #'moss-speedy-rerun)
@@ -121,11 +121,15 @@
 (define-key co-man-der-mode-map (kbd "<return>") 'shell-this-line-in-dir-context)
 (define-key co-man-der-mode-map (kbd "<S-return>") 'co-man-new-command)
 
-(defvar moss-highlights '(("^[^[:space:]].*$" . font-lock-keyword-face)))
+(defvar moss-highlights
+  '(
+    ("^ *#.*$" . font-lock-comment-face)
+    ("^[^[:space:]].*$" . font-lock-keyword-face)
+    ))
 
 (defun shellbow-indent ()
   (indent-line-to (pcase (current-indentation)
-                    (1 0) (t 1))))
+                    (1 0) (_ 1))))
 
 (define-derived-mode co-man-der-mode fundamental-mode " cmd"
   (setq-local indent-line-function #'shellbow-indent)

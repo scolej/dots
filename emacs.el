@@ -28,7 +28,7 @@
               lazy-highlight-cleanup t
               lazy-highlight-max-at-a-time nil
               linum-format "%4d"
-              mode-line-format '("%* %b")
+              mode-line-format '((:eval (if (get-buffer-process (current-buffer)) '(:propertize ">>>" face success) "%*"))  " %b")
               mouse-autoselect-window 0.2
               mouse-wheel-progressive-speed nil
               mouse-wheel-scroll-amount '(4 ((shift) . 4))
@@ -93,6 +93,10 @@
 
 (cua-mode t)
 (setq cua-prefix-override-inhibit-delay 0.000001)
+
+(defun set-default-directory (d)
+  (interactive "D")
+  (setq-local default-directory d))
 
 (defun save-all ()
   "Save every buffer."
@@ -160,11 +164,11 @@ colon followed by the line number."
 
 (defun try-find-file ()
   (interactive)
-  (let* ((region (buffer-substring-no-properties (point) (mark)))
+  (let* (
          (str (or (when (and (use-region-p)
-                             (not (minibufferp))
-                             (file-exists-p region))
-                    region)
+                             (not (minibufferp)))
+                    (let ((region (buffer-substring-no-properties (point) (mark))))
+                      (if (file-exists-p region) region nil)))
                   (ffap-file-at-point)
                   (error "Not a file :("))))
     (find-file str)))
@@ -172,6 +176,12 @@ colon followed by the line number."
 (defun really-kill-buffer ()
   (interactive) (kill-buffer nil))
 
+;; (global-set-key (kbd "<left>") #'left-char)
+;; (global-set-key (kbd "<right>") #'right-char)
+;; (global-set-key (kbd "<up>") #'previous-line)
+;; (global-set-key (kbd "<down>") #'next-line)
+
+(global-set-key (kbd "C-S-q") #'quoted-insert)
 (global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
@@ -311,7 +321,10 @@ FIXME Do we really need this? Is it not the default?"
     (let ((initial (if (region-active-p) (buffer-substring-no-properties (mark) (point)) "")))
       (deactivate-mark)
       (swiper initial)))
-  :bind (("C-f" . #'smart-swiper)))
+  :bind (("C-f" . #'smart-swiper)
+         :map swiper-map
+         ("`" . #'ivy-next-line-or-history)
+         ("\\" . #'ivy-next-line-or-history)))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)

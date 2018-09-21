@@ -29,12 +29,13 @@
    `(font-lock-function-name-face ((t (:inherit default))))
    `(font-lock-builtin-face ((t (:inherit default))))
    `(font-lock-keyword-face ((t (:inherit default :weight bold))))
+   `(font-lock-warning-face ((t (:inherit font-lock-keyword-face))))
    `(font-lock-type-face ((t (:inherit default))))
    `(font-lock-string-face ((t (:foreground "#550055"))))
    `(font-lock-comment-face ((t (:foreground "#999999"))))
 
-   `(fringe ((t (:inherit default :foreground ,i-dont-care-grey))))
-   `(vertical-border ((t :foreground "#dddddd")))
+   `(fringe ((t (:inherit mode-line :background "#eeeeee"))))
+   `(vertical-border ((t :foreground ,i-dont-care-grey)))
 
    `(header-line ((t :inherit default :weight bold)))
    `(minibuffer-prompt ((t :inherit default)))
