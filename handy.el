@@ -1,5 +1,5 @@
 (package-refresh-contents)
-(package-install 'swank)
+(package-install 'expand-region)
 (package-install 'slime)
 
 (require 'slime)

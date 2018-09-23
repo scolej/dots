@@ -1,7 +1,7 @@
 ;; TODO
+;; eval-sexp-or-region
 ;; Minor mode key map
 ;; C-up/down to fight Cabal-version
-;; C-d
 
 (require 'package)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -40,7 +40,6 @@
               set-mark-command-repeat-pop t
               scroll-conservatively 9999
               scroll-margin 0
-              show-help-function nil
               show-paren-style 'parenthesis
               show-trailing-whitespace t
               tab-width 4
@@ -88,8 +87,10 @@
 (scroll-bar-mode 0)
 (show-paren-mode t)
 (tool-bar-mode 0)
-(tooltip-mode 0)
 (transient-mark-mode t)
+
+(tooltip-mode 0)
+(setq show-help-function nil)
 
 (cua-mode t)
 (setq cua-prefix-override-inhibit-delay 0.000001)
@@ -97,6 +98,14 @@
 (defun set-default-directory (d)
   (interactive "D")
   (setq-local default-directory d))
+
+(defun switch-theme (theme)
+  "Disable all other themes and enable THEME."
+  (interactive
+   (list (intern (completing-read "Switch to custom theme: "
+			                      (mapcar 'symbol-name (custom-available-themes))))))
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme theme))
 
 (defun save-all ()
   "Save every buffer."
@@ -176,12 +185,6 @@ colon followed by the line number."
 (defun really-kill-buffer ()
   (interactive) (kill-buffer nil))
 
-;; (global-set-key (kbd "<left>") #'left-char)
-;; (global-set-key (kbd "<right>") #'right-char)
-;; (global-set-key (kbd "<up>") #'previous-line)
-;; (global-set-key (kbd "<down>") #'next-line)
-
-(global-set-key (kbd "C-S-q") #'quoted-insert)
 (global-set-key (kbd "<C-tab>") #'other-window)
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
@@ -275,8 +278,6 @@ colon followed by the line number."
 ;; Packages
 ;;
 
-;; TODO Indent defun?
-
 (use-package expand-region
   :bind (("M-u" . #'er/expand-region)))
 
@@ -321,10 +322,9 @@ FIXME Do we really need this? Is it not the default?"
     (let ((initial (if (region-active-p) (buffer-substring-no-properties (mark) (point)) "")))
       (deactivate-mark)
       (swiper initial)))
-  :bind (("C-f" . #'smart-swiper)
+  :bind (("`" . #'smart-swiper)
          :map swiper-map
-         ("`" . #'ivy-next-line-or-history)
-         ("\\" . #'ivy-next-line-or-history)))
+         ("`" . #'ivy-next-line-or-history)))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -374,39 +374,16 @@ FIXME Do we really need this? Is it not the default?"
   :bind (("C-c p" . 'projectile-command-map)
          ("<S-escape>" . 'projectile-find-file)))
 
+
+(defun google (term)
+  (interactive "M")
+  (browse-url
+   (concat "https://google.com/search?query="
+           (url-encode-url term))))
+
 ;;
 ;; Super awesome nested handy-map.
 ;;
-
-(define-keys minibuffer-local-map
-  "<escape>" #'top-level
-  "\\" #'self-insert-command)
-
-;; TODO eval-sexp-or-region
-
-;; Conflict?
-;; (defun google (term)
-;;   (interactive "M")
-;;   (browse-url
-;;    (concat "https://google.com/search?query="
-;;            (url-encode-url term))))
-
-;; (global-set-key
-;;  (kbd "\\")
-;;  (keymap "\\" #'self-insert-command
-;;          "k" #'really-kill-buffer
-;;          "e" #'eval-last-sexp
-;;          "E" #'eval-print-last-sexp
-;;          "c" #'new-frame
-;;          "q" #'delete-frame
-;;          "f" #'find-file
-;;          "o" #'try-find-file
-;;          "g" #'google
-;;          "w" #'delete-trailing-whitespace
-;;          "h" (keymap "f" #'describe-function
-;;                      "v" #'describe-variable
-;;                      "k" #'describe-key)))
-
 
 (define-keys minibuffer-local-map
   "<escape>" #'top-level
@@ -424,6 +401,7 @@ FIXME Do we really need this? Is it not the default?"
          "g" #'google
          "w" #'delete-trailing-whitespace
          "h" (keymap "f" #'describe-function
+                     "m" #'describe-mode
                      "v" #'describe-variable
                      "k" #'describe-key)))
 
@@ -491,7 +469,8 @@ FIXME Do we really need this? Is it not the default?"
 
 (define-derived-mode wrapping-text-mode fundamental-mode
   (toggle-truncate-lines -1)
-  (visual-line-mode t))
+  (visual-line-mode t)
+  (show-paren-mode -1))
 
 (add-to-list 'auto-mode-alist '("\\.tx\\'" . wrapping-text-mode))
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))

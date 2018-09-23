@@ -2,7 +2,8 @@
 
 (let ((i-dont-care-grey "#888888")
       (normal-fg "#000000")
-      (background "#ffffff"))
+      (background "#ffffff")
+      (dark-background "#eeeeee"))
   (custom-theme-set-faces
    'arrgghh
 
@@ -31,7 +32,7 @@
    `(font-lock-keyword-face ((t (:inherit default :weight bold))))
    `(font-lock-warning-face ((t (:inherit font-lock-keyword-face))))
    `(font-lock-type-face ((t (:inherit default))))
-   `(font-lock-string-face ((t (:foreground "#550055"))))
+   `(font-lock-string-face ((t (:foreground "#552299"))))
    `(font-lock-comment-face ((t (:foreground "#999999"))))
 
    `(fringe ((t (:inherit mode-line :background "#eeeeee"))))
