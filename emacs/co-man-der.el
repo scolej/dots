@@ -104,11 +104,11 @@
 
 (defvar co-man-der-view-mode-map (make-sparse-keymap))
 ;; (define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
-(define-key co-man-der-view-mode-map (kbd "q") 'quit-window)
-(define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
-(define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
-(define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
-(define-key co-man-der-view-mode-map (kbd "a") 'append-selection-at-point)
+;;(define-key co-man-der-view-mode-map (kbd "q") 'quit-window)
+;;(define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
+;;(define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
+;;(define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
+;;(define-key co-man-der-view-mode-map (kbd "a") 'append-selection-at-point)
 
 ;; Provide key to kill process
 (define-minor-mode co-man-der-view-mode
@@ -140,5 +140,7 @@
   ;; FIXME It would be nice if this jumped intelligently to a matching
   ;; existing directory in the buffer to.
   (pop-to-buffer "commands.moss"))
+
+(add-to-list 'auto-mode-alist '("\\.moss\\'" . co-man-der-mode))
 
 (provide 'co-man-der)
