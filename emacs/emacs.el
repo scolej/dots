@@ -219,9 +219,10 @@ FIXME Do we really need this? Is it not the default?"
 
   (ivy-mode t)
 
-  :bind (("<f1>" . 'cancel-region-or-switch-buffer)
+  :bind (("<f1>" . 'ivy-switch-buffer)
          ("<f3>" . 'ace-jump-buffer)
          :map ivy-minibuffer-map
+         ("<f1>" . 'ivy-next-line)
          ("<escape>" . minibuffer-keyboard-quit)
          ("<tab>" . ivy-insert-or-expand-dir)))
 
@@ -297,20 +298,22 @@ FIXME Do we really need this? Is it not the default?"
 (global-set-key
  (kbd "\\")
  (keymap
-  "\\" #'self-insert-command
   "E" #'eval-print-last-sexp
+  "\\" #'self-insert-command
   "c" #'new-frame
   "e" #'eval-last-sexp
   "f" #'find-file
   "g" #'google
   "h" #'please-help-me
-  ;; "i" quick-sites-map
   "k" #'really-kill-buffer
   "m" #'jump-to-commands
+  "m" #'quickbuf-commands
   "o" #'try-find-file
   "q" #'quit-window
   "r" #'moss-speedy-rerun
+  "s" #'quickbuf-handy
   "w" #'delete-trailing-whitespace
+  ;; "i" quick-sites-map
   ))
 
 

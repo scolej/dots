@@ -40,6 +40,7 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
 set wildmode=longest:full,full
 set incsearch
 set fo-=o
+set hidden
 
 autocmd BufNewFile,BufRead Jenkinsfile set syntax=groovy
 

@@ -2,8 +2,16 @@
 ;; TODO Kill all buffers which are ouput buffers.
 ;; TODO Don't show new buffer until output occurs?
 ;; TODO Could fade commands by frequency of use, and then have a cull function which removes infrequent ones.
+;; Would be cool if default-dir changed based on where your cursor was
 
 (require 'subr-x)
+
+(defun shellbow-kill-output-buffers ()
+  (interactive)
+  (let* ((shellbow-buffer-p (lambda (b) (string-prefix-p "moss: " (buffer-name b))))
+         (bufs (seq-filter shellbow-buffer-p (buffer-list))))
+    (mapc #'kill-buffer bufs)
+    (message "Killed %s output buffers" (length bufs))))
 
 (defun backward-find-default-dir ()
   "Get the last line which started with a non-blank character."
@@ -103,12 +111,13 @@
 (global-set-key (kbd "<kp-enter>") #'moss-speedy-rerun)
 
 (defvar co-man-der-view-mode-map (make-sparse-keymap))
-;; (define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
-;;(define-key co-man-der-view-mode-map (kbd "q") 'quit-window)
-;;(define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
-;;(define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
-;;(define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
-;;(define-key co-man-der-view-mode-map (kbd "a") 'append-selection-at-point)
+(define-key co-man-der-view-mode-map (kbd "<f5>") #'co-man-der-maybe-refresh)
+(define-key co-man-der-view-mode-map (kbd "q") 'delete-window)
+(define-key co-man-der-view-mode-map (kbd "q") 'quit-window)
+(define-key co-man-der-view-mode-map (kbd "g") 'co-man-der-maybe-refresh)
+(define-key co-man-der-view-mode-map (kbd "d") 'co-man-der-kill-process)
+(define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
+(define-key co-man-der-view-mode-map (kbd "a") 'append-selection-at-point)
 
 ;; Provide key to kill process
 (define-minor-mode co-man-der-view-mode

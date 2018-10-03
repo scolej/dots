@@ -47,7 +47,7 @@
       (concat "https://google.com/search?query="
               (url-encode-url
                (string-join (list "site:http://docs.groovy-lang.org/docs/latest/html/" q) " "))))
-     (t (error (string-join (list "Unknown engine: " e)))))))
+     (_ (error (string-join (list "Unknown engine: " e)))))))
 
 (defvar le-googly-mode-map (make-sparse-keymap))
 (define-key le-googly-mode-map (kbd "<return>") 'search-this-line-in-context)
@@ -57,7 +57,7 @@
 
 (defun le-googly-indent ()
   (indent-line-to (pcase (current-indentation)
-                    (0 1) (t 0))))
+                    (0 1) (_ 0))))
 
 (define-derived-mode le-googly-mode fundamental-mode " g"
   (setq-local indent-line-function #'le-googly-indent)
