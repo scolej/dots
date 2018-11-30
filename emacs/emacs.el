@@ -2,6 +2,14 @@
 ;; eval-sexp-or-region
 ;; Minor mode key map
 ;; C-up/down to fight Cabal-version
+;; C-` toggle case
+
+;; It would be really cool if when finding files with ivy, suggestions
+;; went N deep from the current folder; counsel-jump* is fine, but no
+;; good for large dirs.
+
+;; What about, when ever you make a selection, it gets copied; then,
+;; only if you delete it, that entry is popped off.
 
 (load "handy.el")
 
@@ -40,7 +48,7 @@
               save-interprogram-paste-before-kill t
               sentence-end-double-space nil
               set-mark-command-repeat-pop t
-              scroll-conservatively 9999
+              scroll-conservatively 0
               scroll-margin 0
               show-paren-style 'parenthesis
               show-trailing-whitespace t
@@ -73,6 +81,15 @@
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
+(winner-mode t)
+(global-set-key (kbd "<M-left>") 'winner-undo)
+(global-set-key (kbd "<M-right>") 'winner-redo)
+
+;; FIXME Does anything?
+;; (setq display-buffer-alist '((".*" . (display-buffer-pop-up-window . ((inhibit-same-window . t) ;
+;;                                                                       (inhibit-switch-frame . t))))))
+(setq display-buffer-alist nil)
+
 (blink-cursor-mode 0)
 (delete-selection-mode t)
 (electric-indent-mode t)
@@ -94,7 +111,9 @@
 (add-hook 'occur-hook #'hl-line-mode)
 (add-hook 'archive-mode-hook #'hl-line-mode)
 
+;; (global-set-key (kbd "<escape>") #'top-level)
 (global-set-key (kbd "<tab>") #'other-window)
+(global-set-key (kbd "<S-tab>") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
 (global-set-key (kbd "<f5>") #'revert-buffer)
@@ -157,6 +176,8 @@
 ;; Built-ins
 ;;
 
+(cua-mode)
+
 (require 'dired)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
@@ -180,10 +201,17 @@
 (add-hook 'find-file-hook #'save-all-the-things-mode)
 
 (require 'co-man-der)
+(require 'pikatock)
 
 ;;
 ;; Packages
 ;;
+
+(use-package bm
+  :config
+  (setq bm-wrap-search nil)
+  :bind (("<C-next>" . #'bm-next)
+         ("<C-prior>" . #'bm-previous)))
 
 (use-package counsel)
 
@@ -233,7 +261,7 @@ FIXME Do we really need this? Is it not the default?"
     (let ((initial (if (region-active-p) (buffer-substring-no-properties (mark) (point)) "")))
       (deactivate-mark)
       (swiper initial)))
-  :bind (("C-f" . #'smart-swiper)))
+  :bind (("C-o" . #'smart-swiper)))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
@@ -288,11 +316,11 @@ FIXME Do we really need this? Is it not the default?"
 ;; Super awesome nested handy-map.
 ;;
 
-;; (defvar quick-sites-map (make-sparse-keymap)
-;;   "Keymap for quickly opening URLs.")
+(defvar quick-sites-map (make-sparse-keymap)
+  "Keymap for quickly opening URLs.")
 
 (define-keys minibuffer-local-map
-  "<escape>" #'top-level
+  ;; Need this? "<escape>" #'top-level
   "\\" #'self-insert-command)
 
 (global-set-key
@@ -303,6 +331,7 @@ FIXME Do we really need this? Is it not the default?"
   "c" #'new-frame
   "e" #'eval-last-sexp
   "f" #'find-file
+  "F" #'counsel-file-jump
   "g" #'google
   "h" #'please-help-me
   "k" #'really-kill-buffer
@@ -313,12 +342,11 @@ FIXME Do we really need this? Is it not the default?"
   "r" #'moss-speedy-rerun
   "s" #'quickbuf-handy
   "w" #'delete-trailing-whitespace
-  ;; "i" quick-sites-map
+  "i" quick-sites-map
   ))
 
 
 (define-derived-mode wrapping-text-mode fundamental-mode
   (toggle-truncate-lines -1)
-  (visual-line-mode t)
-  (show-paren-mode -1))
+  (visual-line-mode t))
 (add-to-list 'auto-mode-alist '("\\.tx\\'" . wrapping-text-mode))

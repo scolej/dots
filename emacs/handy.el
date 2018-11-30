@@ -100,3 +100,19 @@ colon followed by the line number."
                    (number-to-string (line-number-at-pos (point))))))
     (kill-new s)
     (message (format "Copied %s" s))))
+
+(defun pop-region ()
+  "Take the active region to a new buffer."
+  (interactive)
+  (when (region-active-p)
+    (let ((b1 (current-buffer))
+          (b2 (generate-new-buffer "pop")))
+      (with-current-buffer b2
+        (insert (with-current-buffer b1
+                  (buffer-substring-no-properties (point) (mark)))))
+      (switch-to-buffer b2))))
+
+(defun pop-region-to-new-file (new-file)
+  (interactive "G")
+  (pop-region)
+  (write-file new-file))

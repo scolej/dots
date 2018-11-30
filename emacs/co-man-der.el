@@ -3,6 +3,8 @@
 ;; TODO Don't show new buffer until output occurs?
 ;; TODO Could fade commands by frequency of use, and then have a cull function which removes infrequent ones.
 ;; Would be cool if default-dir changed based on where your cursor was
+;; Need a way to jump from a buffer to the command which produced it so you can easily edit it.
+;; What about a list of commands whose output should not be shown - perhaps `add`, `rm` ?
 
 (require 'subr-x)
 
@@ -91,9 +93,12 @@
 
 (defun co-man-new-command ()
   (interactive)
-  (move-end-of-line nil)
-  (newline)
-  (indent-for-tab-command))
+  (let ((prefix (when (region-active-p) (buffer-substring-no-properties (point) (mark)))))
+    (deactivate-mark)
+    (move-end-of-line nil)
+    (newline)
+    (indent-for-tab-command)
+    (when prefix (insert prefix))))
 
 (defvar moss-speedy-buffer nil)
 

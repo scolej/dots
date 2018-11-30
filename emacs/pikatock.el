@@ -34,6 +34,8 @@
     (define-key map (kbd "C-c k") #'pika-here)
     map))
 
+;; (defun pika-indent-function ()
+  
 (defun pika-indent-function ()
   ;; FIXME What am I smoking?
   (let ((before-column (- (point) (point-at-bol) (current-indentation))) ;; Current column, relative to indentation
@@ -61,3 +63,5 @@
   (setq-local font-lock-defaults '(pikatock-highlights)))
 
 (add-to-list 'auto-mode-alist '("\\.time\\'" . pikatock-mode))
+
+(provide 'pikatock)
