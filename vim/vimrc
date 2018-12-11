@@ -1,14 +1,10 @@
 syntax on
 filetype on
-map Down gj
-map Up gk
 map Y y$
-map j gj
-map k gk
-nmap <silent> <S-Down> :wincmd j<CR>
-nmap <silent> <S-Left> :wincmd h<CR>
-nmap <silent> <S-Right> :wincmd l<CR>
-nmap <silent> <S-Up> :wincmd k<CR>
+nmap <silent> <Down> :wincmd j<CR>
+nmap <silent> <Left> :wincmd h<CR>
+nmap <silent> <Right> :wincmd l<CR>
+nmap <silent> <Up> :wincmd k<CR>
 nore , ;
 nore ; :
 nore <leader>h :set hls!<CR>
@@ -52,6 +48,8 @@ set completeopt+=longest
 
 :noremap Q <Nop>
 
-map <silent> <Leader>t :CtrlP()<CR>
-noremap <leader>b :CtrlPBuffer<cr>
+map <silent> <f1> :CtrlP()<CR>
+noremap <leader>b :CtrlPBuffer<CR>
 let g:ctrlp_custom_ignore = '\v[\/]dist$'
+
+noremap <f12> :w<CR>
