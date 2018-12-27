@@ -148,6 +148,8 @@
 (global-set-key [S-wheel-down] #'chunky-scroll-left)
 (global-set-key [S-wheel-up] #'chunky-scroll-right)
 
+(global-set-key (kbd "<f12>") #'recompile)
+
 ;; Unmap shenanigans.
 (global-set-key (kbd "<f2>") nil)
 
@@ -251,8 +253,13 @@ FIXME Do we really need this? Is it not the default?"
          ("<f3>" . 'ace-jump-buffer)
          :map ivy-minibuffer-map
          ("<f1>" . 'ivy-next-line)
+         ("<f2>" . 'ivy-previous-line)
+         ("<f3>" . 'ivy-done)
          ("<escape>" . minibuffer-keyboard-quit)
          ("<tab>" . ivy-insert-or-expand-dir)))
+
+(use-package ace-jump-buffer
+  :bind (("<f1>" . 'ace-jump-buffer)))
 
 (use-package swiper
   :config
@@ -261,7 +268,8 @@ FIXME Do we really need this? Is it not the default?"
     (let ((initial (if (region-active-p) (buffer-substring-no-properties (mark) (point)) "")))
       (deactivate-mark)
       (swiper initial)))
-  :bind (("C-o" . #'smart-swiper)))
+  :bind (;; ("C-o" . #'smart-swiper)
+         ))
 
 (use-package drag-stuff
   :bind (("<M-up>" . drag-stuff-up)
