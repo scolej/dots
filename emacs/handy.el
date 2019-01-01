@@ -22,6 +22,12 @@
    (concat "https://google.com/search?query="
            (url-encode-url term))))
 
+(defun maybe-google-region ()
+  (interactive)
+  (if (region-active-p)
+      (google (buffer-substring-no-properties (mark) (point)))
+    (call-interactively 'google)))
+
 (defun chunky-scroll-left () (interactive) (scroll-left 20))
 (defun chunky-scroll-right () (interactive) (scroll-right 20))
 (defun small-scroll-left () (interactive) (scroll-left 10))

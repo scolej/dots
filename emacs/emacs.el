@@ -32,7 +32,7 @@
               indent-tabs-mode nil
               inhibit-startup-message t
               initial-scratch-message nil
-              isearch-allow-scroll t
+              isearch-allow-scroll nil
               isearch-wrap-function '(lambda nil)
               large-file-warning-threshold nil
               lazy-highlight-cleanup t
@@ -81,14 +81,30 @@
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
+(global-set-key (kbd "<escape>") 'execute-extended-command)
+
 (winner-mode t)
 (global-set-key (kbd "<M-left>") 'winner-undo)
 (global-set-key (kbd "<M-right>") 'winner-redo)
 
+;; FIXME
+(defun isearch-with-region ()
+  (interactive)
+  (if mark-active
+      (let ((region (funcall region-extract-function nil)))
+        (goto-char (region-beginning))
+        (deactivate-mark)
+        (isearch-update)
+        (isearch-yank-string region))
+    (call-interactively 'isearch-forward)))
+
+(global-set-key (kbd "C-s") 'isearch-forward)
+
+
 ;; FIXME Does anything?
 ;; (setq display-buffer-alist '((".*" . (display-buffer-pop-up-window . ((inhibit-same-window . t) ;
 ;;                                                                       (inhibit-switch-frame . t))))))
-(setq display-buffer-alist nil)
+;; (setq display-buffer-alist nil)
 
 (blink-cursor-mode 0)
 (delete-selection-mode t)
@@ -112,8 +128,13 @@
 (add-hook 'archive-mode-hook #'hl-line-mode)
 
 ;; (global-set-key (kbd "<escape>") #'top-level)
+
+;; (global-set-key "\t" #'other-window)
 (global-set-key (kbd "<tab>") #'other-window)
 (global-set-key (kbd "<S-tab>") (lambda () (interactive) (other-window -1)))
+;; (global-set-key (kbd "<S-tab>") nil)
+;; (global-set-key "S\t" #'other-window)
+
 (global-set-key (kbd "<S-next>") #'chunky-scroll-left)
 (global-set-key (kbd "<S-prior>") #'chunky-scroll-right)
 (global-set-key (kbd "<f5>") #'revert-buffer)
@@ -178,14 +199,31 @@
 ;; Built-ins
 ;;
 
+(require 'help-mode)
+(define-key help-mode-map (kbd "n") 'forward-button)
+(define-key help-mode-map (kbd "p") 'backward-button)
+
+(define-key occur-mode-map (kbd "n") 'occur-next)
+(define-key occur-mode-map (kbd "p") 'occur-prev)
+(define-key occur-mode-map (kbd "o") 'occur-mode-display-occurrence)
+
 (cua-mode)
+(define-key cua-global-keymap (kbd "C-x C-x") nil) ;; FIXME Doesn't work?
+(setq cua-auto-mark-last-change t)
 
 (require 'dired)
+(defun dired-display-end-of-file ()
+  (interactive)
+  (with-selected-window (dired-display-file)
+    (end-of-buffer)))
+
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
 (define-keys dired-mode-map
   "<backspace>" #'dired-up-directory
-  "C-t" nil)
+  "C-t" nil
+  "o" 'dired-display-file
+  "O" 'dired-display-end-of-file)
 
 (add-hook 'ibuffer-mode-hook #'hl-line-mode)
 
@@ -250,13 +288,22 @@ FIXME Do we really need this? Is it not the default?"
   (ivy-mode t)
 
   :bind (("<f1>" . 'ivy-switch-buffer)
-         ("<f3>" . 'ace-jump-buffer)
+         ;;("<f3>" . 'ace-jump-buffer)
+         ("C-c C-r" . 'ivy-resume)
          :map ivy-minibuffer-map
          ("<f1>" . 'ivy-next-line)
          ("<f2>" . 'ivy-previous-line)
          ("<f3>" . 'ivy-done)
          ("<escape>" . minibuffer-keyboard-quit)
-         ("<tab>" . ivy-insert-or-expand-dir)))
+         ;; This is the default binding but global tab binding elsewhere means we need this.
+         ("<tab>" . 'ivy-partial-or-done)
+         ))
+
+(use-package avy
+  :bind (("<f13>" . 'avy-goto-char)))
+
+;; (use-package ace-jump-buffer
+;;   :bind (("<f1>" . 'ace-jump-buffer)))
 
 (use-package ace-jump-buffer
   :bind (("<f1>" . 'ace-jump-buffer)))
@@ -291,7 +338,9 @@ FIXME Do we really need this? Is it not the default?"
   (defun ag-here (str)
     (interactive "M")
     (ag str default-directory))
-  :bind (("C-x a" . #'ag-here)))
+  :bind (("C-x a" . #'ag-here)
+         :map ag-mode-map
+         ("o" . 'compilation-display-error)))
 
 (use-package highlight-thing
   :config
@@ -318,7 +367,8 @@ FIXME Do we really need this? Is it not the default?"
   (add-to-list 'projectile-globally-ignored-directories "bin")
   :bind (("C-c p" . 'projectile-command-map)
          ("<S-escape>" . 'projectile-find-file)
-         ("<f2>" . 'projectile-find-file)))
+         ("<f2>" . 'projectile-find-file)
+         ("<S-f2>" . 'projectile-switch-to-buffer)))
 
 ;;
 ;; Super awesome nested handy-map.
@@ -336,11 +386,11 @@ FIXME Do we really need this? Is it not the default?"
  (keymap
   "E" #'eval-print-last-sexp
   "\\" #'self-insert-command
-  "c" #'new-frame
+  "c" #'make-frame
   "e" #'eval-last-sexp
   "f" #'find-file
   "F" #'counsel-file-jump
-  "g" #'google
+  "g" #'maybe-google-region
   "h" #'please-help-me
   "k" #'really-kill-buffer
   "m" #'jump-to-commands

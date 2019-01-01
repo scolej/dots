@@ -6,6 +6,9 @@
 ;; Need a way to jump from a buffer to the command which produced it so you can easily edit it.
 ;; What about a list of commands whose output should not be shown - perhaps `add`, `rm` ?
 
+;; If on line change we changed default-directory instead of wnagling
+;; at command execution, projectile might work too?
+
 (require 'subr-x)
 
 (defun shellbow-kill-output-buffers ()
@@ -95,7 +98,8 @@
   (interactive)
   (let ((prefix (when (region-active-p) (buffer-substring-no-properties (point) (mark)))))
     (deactivate-mark)
-    (move-end-of-line nil)
+    ;; (move-end-of-line nil)
+    (end-of-buffer)
     (newline)
     (indent-for-tab-command)
     (when prefix (insert prefix))))
@@ -124,15 +128,21 @@
 (define-key co-man-der-view-mode-map (kbd "u") 'use-selection-for-new-command)
 (define-key co-man-der-view-mode-map (kbd "a") 'append-selection-at-point)
 
-;; Provide key to kill process
+(defvar shellbow-syntax-table
+  (let ((table (make-syntax-table text-mode-syntax-table)))
+    (modify-syntax-entry ?. "w" table)
+    table))
+
 (define-minor-mode co-man-der-view-mode
   "Minor mode to add some shortcuts for command views."
   :lighter " cmdv"
-  :keymap co-man-der-view-mode-map)
+  :keymap co-man-der-view-mode-map
+  (set-syntax-table shellbow-syntax-table))
 
 (defvar co-man-der-mode-map (make-sparse-keymap))
 (define-key co-man-der-mode-map (kbd "<mouse-3>") 'shell-mouse-line)
 (define-key co-man-der-mode-map (kbd "<return>") 'shell-this-line-in-dir-context)
+(define-key co-man-der-mode-map (kbd "C-m") 'shell-this-line-in-dir-context)
 (define-key co-man-der-mode-map (kbd "<S-return>") 'co-man-new-command)
 
 (defvar moss-highlights
@@ -147,7 +157,8 @@
 
 (define-derived-mode co-man-der-mode fundamental-mode " cmd"
   (setq-local indent-line-function #'shellbow-indent)
-  (setq font-lock-defaults '(moss-highlights)))
+  (setq font-lock-defaults '(moss-highlights))
+  (set-syntax-table shellbow-syntax-table))
 
 (defun jump-to-commands ()
   (interactive)
