@@ -65,6 +65,8 @@
    `(match ((t (:background "#ffc851"))))
    `(highlight ((t (:inherit match))))
 
+   `(success ((t (:foreground ,c47))))
+
    `(mode-line ((t (:inherit default :background ,c22))))
    `(mode-line-inactive ((t (:inherit mode-line))))
 

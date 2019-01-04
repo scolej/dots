@@ -82,6 +82,7 @@
       (co-man-new-command)
       (save-excursion (insert text)))))
 
+;; FIXME should use trimmed current line if no active region
 (defun append-selection-at-point (start end)
   (interactive "r")
   (when (region-active-p)
