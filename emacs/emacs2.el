@@ -21,13 +21,10 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq use-dialog-box nil)
 
-;; Still blasts Eldoc message :(
-(setq auto-save-visited-interval 1)
-(auto-save-visited-mode 1)
 (defun save-all ()
   (interactive)
   (save-some-buffers t))
-;; (global-set-key (kbd "C-x C-s") 'save-all)
+(global-set-key (kbd "<f12>") 'save-all)
 
 (setq-default sentence-end-double-space nil)
 
@@ -42,6 +39,7 @@
 (require 'dired)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
+(define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
 (define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
 (setq dired-recursive-deletes 'always
       dired-auto-revert-buffer t)
@@ -106,3 +104,5 @@ region into minibuffer if it is active."
       (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
     (remove-hook 'before-save-hook 'delete-trailing-whitespace t)))
 (add-hook 'groovy-mode-hook 'clean-trailing-whitespace-mode)
+(add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
+(add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
