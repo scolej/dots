@@ -102,7 +102,7 @@
 
 
 ;; FIXME Does anything?
-;; (setq display-buffer-alist '((".*" . (display-buffer-pop-up-window . ((inhibit-same-window . t) ;
+;; (setq display-buffer-alist '((".*" . (display-bufferup-window . ((inhibit-same-window . t) ;
 ;;                                                                       (inhibit-switch-frame . t))))))
 ;; (setq display-buffer-alist nil)
 

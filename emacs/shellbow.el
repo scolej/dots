@@ -16,6 +16,7 @@
 
 (require 'subr-x)
 (require 's)
+(require 'comint)
 
 (defvar-local shellbow-command nil "Command used to generate a buffer's contents.")
 

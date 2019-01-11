@@ -8,6 +8,8 @@
 (setq-default tab-width 4
               indent-tabs-mode nil)
 
+(setq revert-without-query '(".*"))
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -81,14 +83,29 @@ region into minibuffer if it is active."
 (global-set-key (kbd "M-g") #'goto-line)
 (setq mouse-autoselect-window 0.1)
 
-(global-set-key (kbd "<f1>") #'buffer-menu)
 (global-set-key (kbd "<mouse-5>") #'buffer-menu)
-(global-set-key (kbd "<escape>") #'other-window)
 (global-set-key (kbd "C-0") #'delete-window)
 (global-set-key (kbd "C-1") #'delete-other-windows)
 (global-set-key (kbd "C-2") #'split-window-vertically)
 (global-set-key (kbd "C-3") #'split-window-horizontally)
-(windmove-default-keybindings)
+
+(require 'dired-x)
+(global-set-key (kbd "<escape>") #'dired-jump)
+
+(defun duplicate-dwim ()
+  (interactive)
+  (if (region-active-p)
+      (let ((text (buffer-substring-no-properties (point) (mark)))
+            (deactivate-mark nil))
+        (save-excursion
+          (goto-char (max (point) (mark)))
+          (insert text)))
+    (let ((text (current-line)))
+      (save-excursion
+        (end-of-line)
+        (newline)
+        (insert text)))))
+(global-set-key (kbd "C-=") 'duplicate-dwim)
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.saves"))
@@ -106,3 +123,47 @@ region into minibuffer if it is active."
 (add-hook 'groovy-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
+
+(require 'ibuffer)
+(add-to-list 'ibuffer-formats '(mark " " name))
+(define-key ibuffer-name-map (kbd "<mouse-1>") 'ibuffer-visit-buffer)
+(define-key ibuffer-name-map (kbd "<mouse-1>") nil)
+(defun ibuffer-switcher ()
+  (interactive)
+  (ibuffer)
+  (unless (equal ibuffer-sorting-mode 'recency)
+    (ibuffer-do-sort-by-recency))
+  (beginning-of-buffer)
+  (next-line 3))
+(global-set-key (kbd "<f1>") #'ibuffer-switcher)
+(define-key ibuffer-mode-map (kbd "<f1>") #'quit-window)
+
+(defun point-line-start () (save-excursion (beginning-of-line) (point)))
+(defun point-line-end () (save-excursion (end-of-line) (point)))
+(defun drag (direction)
+  (interactive)
+  (unless (region-active-p)
+    (let ((pos-on-line (- (point) (point-line-start)))
+          (text (buffer-substring-no-properties (point-line-start) (1+ (point-line-end)))))
+      (delete-region (point-line-start) (1+ (point-line-end)))
+      (forward-line (if (equal direction 'up) -1 1))
+      (save-excursion (insert text))
+      (forward-char pos-on-line))))
+(defun drag-down () (interactive) (drag 'down))
+(defun drag-up () (interactive) (drag 'up))
+(global-set-key (kbd "<M-down>") 'drag-down)
+(global-set-key (kbd "<M-up>") 'drag-up)
+
+(require 'ag)
+(defun ag-here (str)
+  (interactive "M")
+  (ag str default-directory))
+(global-set-key (kbd "C-c r") 'ag-here)
+(define-key ag-mode-map (kbd "r") 'ag-here)
+
+(require 'transpose-frame)
+(global-set-key (kbd "C-x t") 'transpose-frame)
+
+(defun set-default-directory (d)
+  (interactive "D")
+  (setq-local default-directory d))
