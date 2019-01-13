@@ -25,7 +25,8 @@
 
 (defun save-all ()
   (interactive)
-  (save-some-buffers t))
+  (let ((inhibit-message t))
+    (save-some-buffers t)))
 (global-set-key (kbd "<f12>") 'save-all)
 
 (setq-default sentence-end-double-space nil)
@@ -125,18 +126,33 @@ region into minibuffer if it is active."
 (add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
 
 (require 'ibuffer)
-(add-to-list 'ibuffer-formats '(mark " " name))
-(define-key ibuffer-name-map (kbd "<mouse-1>") 'ibuffer-visit-buffer)
-(define-key ibuffer-name-map (kbd "<mouse-1>") nil)
+(add-to-list 'ibuffer-formats '(mark modified " " name " " filename))
+(defun ibuffer-maybe-visit-buffer (event)
+  "Hacky conditional visit based on click location. Should
+probably do a smarter check than if point is at end of line."
+  (interactive "e")
+  (let ((pos (posn-point (event-end event))))
+    (goto-char pos)
+    (unless (equal (point) (point-at-eol))
+      (ibuffer-visit-buffer))))
+(define-key ibuffer-name-map [mouse-1] 'ibuffer-maybe-visit-buffer)
+(setq ibuffer-display-summary nil
+      ibuffer-expert t)
 (defun ibuffer-switcher ()
   (interactive)
   (ibuffer)
   (unless (equal ibuffer-sorting-mode 'recency)
     (ibuffer-do-sort-by-recency))
-  (beginning-of-buffer)
-  (next-line 3))
+  (beginning-of-buffer))
 (global-set-key (kbd "<f1>") #'ibuffer-switcher)
 (define-key ibuffer-mode-map (kbd "<f1>") #'quit-window)
+(defadvice ibuffer-update-title-and-summary (after remove-column-titles nil activate)
+  (with-current-buffer "*Ibuffer*"
+    (read-only-mode -1)
+    (goto-char 1)
+    (search-forward "]\n" nil t)
+    (delete-region 1 (point))
+    (read-only-mode 1)))
 
 (defun point-line-start () (save-excursion (beginning-of-line) (point)))
 (defun point-line-end () (save-excursion (end-of-line) (point)))
@@ -167,3 +183,6 @@ region into minibuffer if it is active."
 (defun set-default-directory (d)
   (interactive "D")
   (setq-local default-directory d))
+
+(global-set-key (kbd "<tab>") 'other-window)
+(define-key minibuffer-local-map (kbd "<tab>") 'completion-at-point)
