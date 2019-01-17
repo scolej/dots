@@ -6,7 +6,8 @@
       initial-scratch-message nil)
 
 (setq-default tab-width 4
-              indent-tabs-mode nil)
+              indent-tabs-mode nil
+              c-basic-offset 4)
 
 (setq revert-without-query '(".*"))
 
@@ -93,6 +94,10 @@ region into minibuffer if it is active."
 (require 'dired-x)
 (global-set-key (kbd "<escape>") #'dired-jump)
 
+;; FIXME Need these?
+(defun point-line-start () (save-excursion (beginning-of-line) (point)))
+(defun point-line-end () (save-excursion (end-of-line) (point)))
+
 (defun duplicate-dwim ()
   (interactive)
   (if (region-active-p)
@@ -101,7 +106,8 @@ region into minibuffer if it is active."
         (save-excursion
           (goto-char (max (point) (mark)))
           (insert text)))
-    (let ((text (current-line)))
+    (let ((text (buffer-substring-no-properties (point-line-start)
+                                                (point-line-end))))
       (save-excursion
         (end-of-line)
         (newline)
@@ -124,6 +130,7 @@ region into minibuffer if it is active."
 (add-hook 'groovy-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
+(add-hook 'c-mode-hook 'clean-trailing-whitespace-mode)
 
 (require 'ibuffer)
 (add-to-list 'ibuffer-formats '(mark modified " " name " " filename))
@@ -154,8 +161,6 @@ probably do a smarter check than if point is at end of line."
     (delete-region 1 (point))
     (read-only-mode 1)))
 
-(defun point-line-start () (save-excursion (beginning-of-line) (point)))
-(defun point-line-end () (save-excursion (end-of-line) (point)))
 (defun drag (direction)
   (interactive)
   (unless (region-active-p)
@@ -184,5 +189,5 @@ probably do a smarter check than if point is at end of line."
   (interactive "D")
   (setq-local default-directory d))
 
-(global-set-key (kbd "<tab>") 'other-window)
-(define-key minibuffer-local-map (kbd "<tab>") 'completion-at-point)
+;; (global-set-key (kbd "<tab>") 'other-window)
+;; (define-key minibuffer-local-map (kbd "<tab>") 'completion-at-point)
