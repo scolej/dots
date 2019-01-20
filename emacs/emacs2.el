@@ -54,7 +54,6 @@
   (kill-buffer))
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
-;; (setf ansi-color-for-comint-mode 'filter)
 (setf ansi-color-for-comint-mode t)
 
 (define-derived-mode wrapping-text-mode fundamental-mode
@@ -189,5 +188,29 @@ probably do a smarter check than if point is at end of line."
   (interactive "D")
   (setq-local default-directory d))
 
-;; (global-set-key (kbd "<tab>") 'other-window)
-;; (define-key minibuffer-local-map (kbd "<tab>") 'completion-at-point)
+(global-set-key (kbd "<tab>") 'other-window)
+(define-key minibuffer-local-map (kbd "<tab>") 'completion-at-point)
+
+(require 'use-package)
+
+(use-package swiper
+  :config
+  (defun swiper-with-region ()
+    (interactive)
+    ;; FIXME This is so common, make it a function!
+    (let ((initial (if (region-active-p)
+                       (buffer-substring-no-properties (point) (mark))
+                     nil)))
+      (swiper initial)))
+  :bind (("C-s" . swiper-with-region)))
+
+(use-package ivy
+  :config
+  (setq ivy-use-virtual-buffers nil
+        ivy-do-completion-in-region nil
+        ivy-use-selectable-prompt t)
+  (ivy-mode 1))
+
+(use-package counsel
+  :config
+  (counsel-mode 1))
