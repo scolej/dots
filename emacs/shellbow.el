@@ -34,7 +34,7 @@ with a non-blank character."
     (re-search-backward "^[^[:space:]].*$")
     (buffer-substring-no-properties (match-beginning 0) (match-end 0))))
 
-(defun current-line ()
+(defun shellbow-current-line ()
   "Returns the text on the current line, with leading and
 trailing whitespace trimmed."
   (string-trim (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
@@ -56,7 +56,7 @@ trailing whitespace trimmed."
   (interactive)
   (unless (char-is-whitespace (char-after (point-at-bol)))
     (error "Line is not a command. Commands need to be indented."))
-  (let ((command (current-line)))
+  (let ((command (shellbow-current-line)))
     (when (string-empty-p command) (error "Line is empty."))
     (let* ((directory (shellbow-find-dir))
            (buf (get-buffer-create (shellbow-make-name command directory))))

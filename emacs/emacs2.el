@@ -9,7 +9,14 @@
               indent-tabs-mode nil
               c-basic-offset 4)
 
+(setq mouse-wheel-progressive-speed nil)
+
 (setq revert-without-query '(".*"))
+
+(setq hscroll-margin 15
+      scroll-margin 0)
+
+(setq set-mark-command-repeat-pop t)
 
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -24,11 +31,17 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq use-dialog-box nil)
 
+(global-set-key (kbd "<f5>") 'revert-buffer)
+
 (defun save-all ()
   (interactive)
   (let ((inhibit-message t))
     (save-some-buffers t)))
 (global-set-key (kbd "<f12>") 'save-all)
+
+(global-eldoc-mode -1)
+(setq auto-save-visited-interval 1)
+(auto-save-visited-mode 2)
 
 (setq-default sentence-end-double-space nil)
 
@@ -46,7 +59,8 @@
 (define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
 (define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
 (setq dired-recursive-deletes 'always
-      dired-auto-revert-buffer t)
+      dired-auto-revert-buffer t
+      dired-clean-confirm-killing-deleted-buffers nil)
 
 (defun kill-this-buffer ()
   "Kill the current buffer. Ask no questions."
@@ -114,22 +128,23 @@ region into minibuffer if it is active."
 (global-set-key (kbd "C-=") 'duplicate-dwim)
 
 (setq backup-by-copying t
-      backup-directory-alist '(("." . "~/.saves"))
+      backup-directory-alist '((".*" . "~/.saves"))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2
       version-control t)
 
-(define-minor-mode clean-trailing-whitespace-mode
-  "Delete trailing whitespace on save."
-  :lighter " ws"
-  (if clean-trailing-whitespace-mode
-      (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
-    (remove-hook 'before-save-hook 'delete-trailing-whitespace t)))
-(add-hook 'groovy-mode-hook 'clean-trailing-whitespace-mode)
-(add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
-(add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
-(add-hook 'c-mode-hook 'clean-trailing-whitespace-mode)
+;; (define-minor-mode clean-trailing-whitespace-mode
+;;   "Delete trailing whitespace on save."
+;;   :lighter " ws"
+;;   (if clean-trailing-whitespace-mode
+;;       (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
+;;     (remove-hook 'before-save-hook 'delete-trailing-whitespace t)))
+;; (add-hook 'groovy-mode-hook 'clean-trailing-whitespace-mode)
+;; (add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
+;; (add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
+;; (add-hook 'c-mode-hook 'clean-trailing-whitespace-mode)
+;; (add-hook 'cucumber-mode-hook 'clean-trailing-whitespace-mode)
 
 (require 'ibuffer)
 (add-to-list 'ibuffer-formats '(mark modified " " name " " filename))
@@ -150,8 +165,6 @@ probably do a smarter check than if point is at end of line."
   (unless (equal ibuffer-sorting-mode 'recency)
     (ibuffer-do-sort-by-recency))
   (beginning-of-buffer))
-(global-set-key (kbd "<f1>") #'ibuffer-switcher)
-(define-key ibuffer-mode-map (kbd "<f1>") #'quit-window)
 (defadvice ibuffer-update-title-and-summary (after remove-column-titles nil activate)
   (with-current-buffer "*Ibuffer*"
     (read-only-mode -1)
@@ -162,7 +175,8 @@ probably do a smarter check than if point is at end of line."
 
 (defun drag (direction)
   (interactive)
-  (unless (region-active-p)
+ (if (region-active-p)
+      ()
     (let ((pos-on-line (- (point) (point-line-start)))
           (text (buffer-substring-no-properties (point-line-start) (1+ (point-line-end)))))
       (delete-region (point-line-start) (1+ (point-line-end)))
@@ -180,6 +194,7 @@ probably do a smarter check than if point is at end of line."
   (ag str default-directory))
 (global-set-key (kbd "C-c r") 'ag-here)
 (define-key ag-mode-map (kbd "r") 'ag-here)
+(setq ag-reuse-window nil)
 
 (require 'transpose-frame)
 (global-set-key (kbd "C-x t") 'transpose-frame)
@@ -187,9 +202,6 @@ probably do a smarter check than if point is at end of line."
 (defun set-default-directory (d)
   (interactive "D")
   (setq-local default-directory d))
-
-(global-set-key (kbd "<tab>") 'other-window)
-(define-key minibuffer-local-map (kbd "<tab>") 'completion-at-point)
 
 (require 'use-package)
 
@@ -201,6 +213,7 @@ probably do a smarter check than if point is at end of line."
     (let ((initial (if (region-active-p)
                        (buffer-substring-no-properties (point) (mark))
                      nil)))
+      (deactivate-mark)
       (swiper initial)))
   :bind (("C-s" . swiper-with-region)))
 
@@ -209,8 +222,39 @@ probably do a smarter check than if point is at end of line."
   (setq ivy-use-virtual-buffers nil
         ivy-do-completion-in-region nil
         ivy-use-selectable-prompt t)
-  (ivy-mode 1))
+  (ivy-mode 1)
+  :bind (("<f1>" . 'ivy-switch-buffer)))
 
 (use-package counsel
   :config
-  (counsel-mode 1))
+  (counsel-mode 1)
+  :bind (:map counsel-mode-map
+         ("M-y" . nil)))
+
+(use-package projectile
+  :config
+  (setq projectile-completion-system 'ivy
+        projectile-enable-caching t
+        projectile-indexing-method 'alien
+        projectile-switch-project-action 'projectile-dired)
+  (projectile-mode 1)
+  :bind (("<f2>" . 'projectile-find-file)
+         ("C-c p p" . 'projectile-switch-project)))
+
+(use-package nxml-mode
+  :config
+  (setq nxml-child-indent 4
+        nxml-attribute-indent 4))
+
+(use-package highlight-thing
+  :config
+  (setq highlight-thing-what-thing nil
+        highlight-thing-prefer-active-region t
+        highlight-thing-exclude-thing-under-point t)
+  (global-highlight-thing-mode t))
+
+;; (use-package back-button
+;;   :config
+;;   (setq back-button-index-timeout nil)
+;;   :bind (("<M-left>" . 'back-button-local-backward)
+;;          ("<M-right>" . 'back-button-local-forward)))
