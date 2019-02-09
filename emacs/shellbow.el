@@ -166,7 +166,8 @@ command from the current selection or word around point."
   "Minor mode to add some shortcuts for command views."
   :lighter " sbv"
   :keymap shellbow-view-mode-map
-  (set-syntax-table shellbow-syntax-table))
+  (set-syntax-table shellbow-syntax-table)
+  (text-scale-set -1))
 
 (defvar shellbow-mode-map (make-sparse-keymap))
 (define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
