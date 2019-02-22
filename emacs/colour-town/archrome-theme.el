@@ -67,7 +67,7 @@
 
    `(success ((t (:foreground ,c47))))
 
-   `(mode-line ((t (:inherit default :background ,c22 :height 0.8))))
+   `(mode-line ((t (:inherit default :background ,c22 :height 0.85))))
    `(mode-line-inactive ((t (:inherit mode-line))))
 
    `(trailing-whitespace ((t (:background "#febbad"))))

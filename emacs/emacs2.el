@@ -18,10 +18,14 @@
 
 (setq revert-without-query '(".*"))
 
-(setq hscroll-margin 15
-      scroll-margin 0)
+(setq hscroll-margin 0
+      scroll-margin 0
+      split-width-threshold 150
+      split-height-threshold 100)
 
 (setq set-mark-command-repeat-pop t)
+
+(setq save-interprogram-paste-before-kill t)
 
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -48,10 +52,11 @@
 (setq-default sentence-end-double-space nil)
 
 ;; FIXME Should probably do "..." if truncated.
+;; FIXME Doesn't work if modeline has scaled text.
 (defun file-fitting-window ()
   "Returns the current file name, truncated to fit the window width."
   (let ((n (buffer-file-name))
-        (w (- (window-width) 0)))
+        (w (- (window-width) 3)))
     (if n (substring n (max 0 (- (length n) w)))
       (buffer-name))))
 
@@ -68,6 +73,26 @@
 
 (global-set-key (kbd "C-z") 'undo)
 
+(defun copy-buffer-path ()
+  "Copy the full path to the current buffer's file."
+  (interactive)
+  (let ((str (cond (buffer-file-name)
+                   (default-directory))))
+    (kill-new str)
+    (message (format "Copied %s" str))))
+(defun copy-buffer-path-and-line ()
+  "Copy the full path to the current buffer's file and append a
+colon followed by the line number."
+  (interactive)
+  (let ((s (concat (buffer-file-name)
+                   ":"
+                   (number-to-string (line-number-at-pos (point))))))
+    (kill-new s)
+    (message (format "Copied %s" s))))
+(global-set-key (kbd "C-c b b") #'copy-buffer-path)
+(global-set-key (kbd "C-c b l") #'copy-buffer-path-and-line)
+
+
 (require 'dired)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
@@ -76,6 +101,14 @@
 (setq dired-recursive-deletes 'always
       dired-auto-revert-buffer t
       dired-clean-confirm-killing-deleted-buffers nil)
+
+(defun dired-display-end-of-file ()
+  (interactive)
+  (dired-display-file)
+  (with-selected-window
+   (other-window-for-scrolling)
+   (end-of-buffer)))
+(define-key dired-mode-map (kbd "C-O") #'dired-display-end-of-file)
 
 (defun kill-this-buffer ()
   "Kill the current buffer. Ask no questions."
@@ -110,6 +143,7 @@ region into minibuffer if it is active."
 (global-set-key (kbd "C-c g") (call-maybe-with-region 'google))
 
 (global-set-key (kbd "C-c f c") #'make-frame)
+(global-set-key (kbd "C-c f d") #'delete-frame)
 (global-set-key (kbd "M-g") #'goto-line)
 
 (setq mouse-autoselect-window 0.1)
@@ -171,6 +205,7 @@ region into minibuffer if it is active."
 (add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'c-mode-hook 'clean-trailing-whitespace-mode)
+(add-hook 'pikatock-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'cucumber-mode-hook 'clean-trailing-whitespace-mode)
 
 (defun drag (direction)
@@ -191,17 +226,12 @@ region into minibuffer if it is active."
 (require 'ag)
 (defun ag-here (str)
   (interactive "M")
-  (let ((ag-reuse-buffers t))
-    (ag str default-directory)))
+  (ag str default-directory))
 (global-set-key (kbd "C-c r") 'ag-here)
 (define-key ag-mode-map (kbd "r") 'ag-here)
 
 (require 'transpose-frame)
 (global-set-key (kbd "C-x t") 'transpose-frame)
-
-(defun set-default-directory (d)
-  (interactive "D")
-  (setq-local default-directory d))
 
 (require 'use-package)
 
@@ -215,8 +245,7 @@ region into minibuffer if it is active."
                      nil)))
       (deactivate-mark)
       (swiper initial)))
-  :bind (("C-s" . swiper-with-region)
-         ("<f3>" . swiper-with-region)))
+  :bind (("<f3>" . swiper-with-region)))
 
 (use-package ivy
   :config

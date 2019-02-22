@@ -14,6 +14,8 @@
 ;; output. ie: git status. Sometimes you want tailing, othertimes you
 ;; want the start of the output.
 
+;; Window opening, don't re-use a window which has an active process.
+
 (require 'subr-x)
 (require 's)
 (require 'comint)
@@ -52,7 +54,7 @@ trailing whitespace trimmed."
   (string-join (list "*sb*" directory command) " "))
 
 (defun shellbow-execute-line ()
-  ;; TODO Maybe this on dir line should dired it.
+  ;; FIXME Maybe this on dir line should dired it.
   (interactive)
   (unless (char-is-whitespace (char-after (point-at-bol)))
     (error "Line is not a command. Commands need to be indented."))
@@ -60,7 +62,9 @@ trailing whitespace trimmed."
     (when (string-empty-p command) (error "Line is empty."))
     (let* ((directory (shellbow-find-dir))
            (buf (get-buffer-create (shellbow-make-name command directory))))
-      (display-buffer buf)
+      (display-buffer buf
+                      '((display-buffer-in-previous-window display-buffer-pop-up-window)
+                        . ((inhibit-same-window . t))))
       (shellbow-execute-command buf command directory))))
 
 (defun shellbow-kill-process ()
