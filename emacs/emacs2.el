@@ -40,6 +40,7 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq use-dialog-box nil)
 
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "<f5>") 'revert-buffer)
 
 ;; FIXME It would be nice if this messaged how many buffers it had saved.
@@ -201,12 +202,14 @@ region into minibuffer if it is active."
   (if clean-trailing-whitespace-mode
       (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
     (remove-hook 'before-save-hook 'delete-trailing-whitespace t)))
+;; FIXME Should probably do the reverse of this.
 (add-hook 'groovy-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'emacs-lisp-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'wrapping-text-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'c-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'pikatock-mode-hook 'clean-trailing-whitespace-mode)
 (add-hook 'cucumber-mode-hook 'clean-trailing-whitespace-mode)
+(add-hook 'haskell-mode-hook 'clean-trailing-whitespace-mode)
 
 (defun drag (direction)
   (interactive)
