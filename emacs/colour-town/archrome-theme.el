@@ -1,5 +1,7 @@
 (deftheme archrome)
 
+;; FIXME Set ansi-term-color-vector.
+
 (let ((bg "#f8e6d4")
 
       (c11 "#f7dac1")

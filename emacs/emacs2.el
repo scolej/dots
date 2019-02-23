@@ -20,8 +20,8 @@
 
 (setq hscroll-margin 0
       scroll-margin 0
-      split-width-threshold 150
-      split-height-threshold 100)
+      split-width-threshold 100
+      split-height-threshold 30)
 
 (setq set-mark-command-repeat-pop t)
 
@@ -71,6 +71,11 @@
    `((:eval (if (get-buffer-process (current-buffer))
 			    '(:propertize ,f face success)
 			  '(,f))))))
+
+(defun delete-whole-line ()
+  (interactive)
+  (delete-region (line-beginning-position) (1+ (line-end-position))))
+(global-set-key (kbd "<C-S-backspace>") 'delete-whole-line)
 
 (global-set-key (kbd "C-z") 'undo)
 

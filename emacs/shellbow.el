@@ -63,9 +63,28 @@ trailing whitespace trimmed."
     (let* ((directory (shellbow-find-dir))
            (buf (get-buffer-create (shellbow-make-name command directory))))
       (display-buffer buf
-                      '((display-buffer-in-previous-window display-buffer-pop-up-window)
+                      '((shellbow-display-buffer
+                         display-buffer-pop-up-window)
                         . ((inhibit-same-window . t))))
       (shellbow-execute-command buf command directory))))
+
+;; FIXME Window dedicated? Window already displayed somewhere else?
+(defun shellbow-preferred-window-p (win)
+  "Filter to select window candidates for displaying new buffers."
+  (let ((buf (window-buffer win)))
+    (not (or (equal (selected-window) win)
+             (get-buffer-process buf)
+             (with-current-buffer buf
+               (equalp major-mode 'shellbow-mode))))))
+
+(defun shellbow-display-buffer (buffer-to-display alist)
+  "Try to display buffer most appropriately for shellbow."
+  (let ((win (car (seq-sort-by 'window-use-time '< ;; FIXME Maybe opposite sort is more useful?
+                               (seq-filter 'shellbow-preferred-window-p
+                                           (window-list))))))
+    (when win
+      (with-selected-window win
+        (switch-to-buffer buffer-to-display)))))
 
 (defun shellbow-kill-process ()
   "Kill the process associated with the current buffer."
@@ -128,12 +147,17 @@ command from the current selection or word around point."
       (insert text) ;; FIXME Point doesn't move?
       (when need-quotes? (insert "\"")))))
 
+(defun shellbow-find-new-command-location ()
+  "Place point at the start of locations for new commands."
+  ;; FIXME Constrain to current directory context.
+  ;; FIXME Create marker if necessary.
+  (re-search-forward "^ >$" nil t))
+
 (defun shellbow-new-command ()
   (interactive)
   (let ((prefix (when (region-active-p) (buffer-substring-no-properties (point) (mark)))))
     (deactivate-mark)
-    (move-end-of-line nil)
-    ;; (end-of-buffer)
+    (shellbow-find-new-command-location)
     (newline)
     (insert " ")
     (when prefix (insert prefix))))
@@ -180,7 +204,8 @@ command from the current selection or word around point."
 (define-key shellbow-mode-map (kbd "<S-return>") 'shellbow-new-command)
 
 (defvar shellbow-highlights
-  '(("^ *#.*$" . font-lock-comment-face)
+  '(("^ >$" . font-lock-keyword-face)
+    ("^ *#.*$" . font-lock-comment-face)
     ("^[^[:space:]].*$" . font-lock-keyword-face)))
 
 (defun shellbow-indent ()
