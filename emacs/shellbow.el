@@ -147,19 +147,35 @@ command from the current selection or word around point."
       (insert text) ;; FIXME Point doesn't move?
       (when need-quotes? (insert "\"")))))
 
+(defun shellbox-find-context-bounds ()
+  "Find the start and end of this directory context."
+  (let* ((pat "^[^[:space:]].*$")
+         (end (or (save-excursion (re-search-forward pat nil t)
+                                  (match-beginning 0))
+                  (point-max)))
+         (start (or (save-excursion (re-search-backward pat nil t)
+                                    (match-beginning 0))
+                    (point-min))))
+    (cons start end)))
+
 (defun shellbow-find-new-command-location ()
   "Place point at the start of locations for new commands."
-  ;; FIXME Constrain to current directory context.
-  ;; FIXME Create marker if necessary.
-  (re-search-forward "^ >$" nil t))
+  (let* ((bounds (shellbox-find-context-bounds))
+         (start (car bounds))
+         (end (cdr bounds)))
+    (goto-char start)
+    (unless (re-search-forward "^ >$" end t)
+      (goto-char end)
+      (re-search-backward "^.*[^[:space:]]+.*$" start t)
+      (goto-char (match-end 0))
+      (insert "\n >"))))
 
 (defun shellbow-new-command ()
   (interactive)
   (let ((prefix (when (region-active-p) (buffer-substring-no-properties (point) (mark)))))
     (deactivate-mark)
     (shellbow-find-new-command-location)
-    (newline)
-    (insert " ")
+    (insert "\n ")
     (when prefix (insert prefix))))
 
 (defvar shellbow-speedy-buffer nil
