@@ -30,7 +30,7 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(fringe-mode -1)
+(fringe-mode 0)
 (blink-cursor-mode -1)
 
 (show-paren-mode 1)
@@ -73,11 +73,13 @@
 			  '(,f))))))
 
 (defun delete-whole-line ()
+  ;; FIXME End of file :(
   (interactive)
   (delete-region (line-beginning-position) (1+ (line-end-position))))
 (global-set-key (kbd "<C-S-backspace>") 'delete-whole-line)
 
 (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "M-v") 'delete-selection-repeat-replace-region)
 
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
@@ -242,6 +244,12 @@ region into minibuffer if it is active."
 (global-set-key (kbd "C-x t") 'transpose-frame)
 
 (require 'use-package)
+
+(use-package selected
+  :init
+  (selected-global-mode 1)
+  :bind (:map selected-keymap
+              ("RET" . kill-ring-save)))
 
 (use-package swiper
   :config
