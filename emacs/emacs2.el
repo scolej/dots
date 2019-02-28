@@ -21,7 +21,7 @@
 (setq hscroll-margin 0
       scroll-margin 0
       split-width-threshold 100
-      split-height-threshold 30)
+      split-height-threshold 70)
 
 (setq set-mark-command-repeat-pop t)
 

@@ -14,7 +14,7 @@
 ;; output. ie: git status. Sometimes you want tailing, othertimes you
 ;; want the start of the output.
 
-;; Window opening, don't re-use a window which has an active process.
+;; Syntax table so you can go up/forward etc. to parent directory?
 
 (require 'subr-x)
 (require 's)
@@ -22,11 +22,13 @@
 
 (defvar-local shellbow-command nil "Command used to generate a buffer's contents.")
 
+(defun shellbow-bufferp (b)
+  (string-prefix-p "*sb* " (buffer-name b)))
+
 (defun shellbow-kill-output-buffers ()
   (interactive)
-  (let* ((bufs (seq-filter (lambda (b) (string-prefix-p "*sb* " (buffer-name b)))
-                           (buffer-list))))
-    (mapc #'kill-buffer bufs)
+  (let* ((bufs (seq-filter 'shellbow-bufferp (buffer-list))))
+    (mapc 'kill-buffer bufs)
     (message "Killed %s output buffers" (length bufs))))
 
 (defun shellbow-find-dir ()
@@ -53,11 +55,25 @@ trailing whitespace trimmed."
 (defun shellbow-make-name (command directory)
   (string-join (list "*sb*" directory command) " "))
 
-(defun shellbow-execute-line ()
-  ;; FIXME Maybe this on dir line should dired it.
+(defun shellbow-line-kind ()
+  "Find the type of line which point is currently on."
+  (let* ((i (current-indentation))
+         (first-char (char-after (+ (line-beginning-position) i))))
+    (cond ((char-is-whitespace first-char) 'blank)
+          ((equal 0 i) 'directory)
+          ((equal ?> first-char) 'quick-command-separator)
+          ('command))))
+
+(defun shellbow-execute ()
+  "Look at the current line and try to do something with it."
   (interactive)
-  (unless (char-is-whitespace (char-after (point-at-bol)))
-    (error "Line is not a command. Commands need to be indented."))
+  (let ((k (shellbow-line-kind)))
+    (cond ((equal k 'command) (shellbow-execute-line))
+          ((equal k 'directory) (dired (shellbow-current-line)))
+          (t (error "No action for this line")))))
+
+(defun shellbow-execute-line ()
+  (interactive)
   (let ((command (shellbow-current-line)))
     (when (string-empty-p command) (error "Line is empty."))
     (let* ((directory (shellbow-find-dir))
@@ -210,12 +226,11 @@ command from the current selection or word around point."
   "Minor mode to add some shortcuts for command views."
   :lighter " sbv"
   :keymap shellbow-view-mode-map
-  (set-syntax-table shellbow-syntax-table)
-  (text-scale-set -1))
+  (set-syntax-table shellbow-syntax-table))
 
 (defvar shellbow-mode-map (make-sparse-keymap))
 (define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
-(define-key shellbow-mode-map (kbd "<return>") 'shellbow-execute-line)
+(define-key shellbow-mode-map (kbd "<return>") 'shellbow-execute)
 (define-key shellbow-mode-map (kbd "C-m") 'shellbow-execute-line)
 (define-key shellbow-mode-map (kbd "<S-return>") 'shellbow-new-command)
 
@@ -229,7 +244,7 @@ command from the current selection or word around point."
                     (1 0) (_ 1))))
 
 (define-derived-mode shellbow-mode fundamental-mode " sb"
-  (setq-local indent-line-function #'shellbow-indent)
+  (setq-local indent-line-function 'shellbow-indent)
   (setq font-lock-defaults '(shellbow-highlights))
   (set-syntax-table shellbow-syntax-table))
 
