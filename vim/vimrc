@@ -46,10 +46,8 @@ set wildmode=longest,list,full
 set wildmenu
 set completeopt+=longest
 
-:noremap Q <Nop>
-
-map <silent> <f1> :CtrlP()<CR>
-noremap <leader>b :CtrlPBuffer<CR>
-let g:ctrlp_custom_ignore = '\v[\/]dist$'
+noremap Q <Nop>
 
 noremap <f12> :w<CR>
+
+let g:netrw_banner=0
