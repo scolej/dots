@@ -1,21 +1,39 @@
 (setq custom-file "~/.emacs.d/custom.el")
 
 (tool-bar-mode -1)
+(menu-bar-mode -1)
 (scroll-bar-mode -1)
-(global-font-lock-mode -1)
 
 (global-auto-revert-mode 1)
 (recentf-mode 1)
+(show-paren-mode 1)
 
-(setq-default tab-width 4
-              indent-tabs-mode nil
-              c-basic-offset 4
-              sentence-end-double-space nil
-              make-backup-files nil
-              create-lockfiles nil
-              auto-save-default nil
-              inhibit-startup-screen t
-              initial-scratch-message nil)
+(setq indent-tabs-mode nil
+      c-basic-offset 4
+
+      backup-by-copying t
+      backup-directory-alist '((".*" . "~/.emacs.d/saves"))
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 6
+      version-control t
+      create-lockfiles nil
+
+      inhibit-startup-screen t
+      initial-scratch-message nil
+
+      dired-auto-revert-buffer t
+      dired-clean-confirm-killing-deleted-buffers nil
+      dired-use-ls-dired nil
+
+      sentence-end-double-space nil
+      set-mark-command-repeat-pop t
+      ring-bell-function 'ignore
+      linum-format "%4d"
+      mouse-autoselect-window -0.1
+      revert-without-query '(".*"))
+
+(fset 'yes-or-no-p 'y-or-n-p)
 
 (add-hook 'text-mode-hook 'visual-line-mode)
 
@@ -24,3 +42,5 @@
 
 (require 'savehist)
 (savehist-mode 1)
+
+(global-set-key (kbd "C-z") 'undo)
