@@ -16,6 +16,8 @@
 
 ;; Syntax table so you can go up/forward etc. to parent directory?
 
+;; Pressing enter with ctive region should use only that as the command. So you can "subset" commands easily.
+
 (require 'subr-x)
 (require 's)
 (require 'comint)
@@ -49,8 +51,9 @@ trailing whitespace trimmed."
 (defun shellbow-mouse-line (e)
   "Move cursor to click position and execute the command on that line."
   (interactive "e")
-  (mouse-set-point e)
-  (shellbow-execute-line))
+  ;; (mouse-set-point e)
+  ;; (shellbow-execute-line)
+  )
 
 (defun shellbow-make-name (command directory)
   (string-join (list "*sb*" directory command) " "))
@@ -229,7 +232,8 @@ command from the current selection or word around point."
   (set-syntax-table shellbow-syntax-table))
 
 (defvar shellbow-mode-map (make-sparse-keymap))
-(define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
+;; (define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
+(define-key shellbow-mode-map (kbd "<mouse-3>") nil)
 (define-key shellbow-mode-map (kbd "<return>") 'shellbow-execute)
 (define-key shellbow-mode-map (kbd "C-m") 'shellbow-execute-line)
 (define-key shellbow-mode-map (kbd "<S-return>") 'shellbow-new-command)

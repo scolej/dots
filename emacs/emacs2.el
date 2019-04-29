@@ -3,6 +3,16 @@
 ;; More convenient cut copy paste. <backspace> <enter>? <S-enter>?
 ;; https://github.com/Kungsgeten/selected.el
 
+;; Ideas
+;; Projectile find file with active region.
+;; Something like Vim's * / n N
+;; TODO
+;; Ag r should reuse the current window.
+;; Ag should get focus dammit! (when you run it)
+;; Swiper f3 f3
+;; Ivy C-r should return straight away... I always press enter twice
+;; Scroll, down, first centre cursor, then cursor at top, then whole pages
+
 (require 'cl)
 
 (setq-default truncate-lines t)
@@ -20,17 +30,22 @@
 
 (setq hscroll-margin 0
       scroll-margin 0
-      split-width-threshold 100
-      split-height-threshold 70)
+      split-width-threshold 200
+      split-height-threshold nil)
 
 (setq set-mark-command-repeat-pop t)
 
 (setq save-interprogram-paste-before-kill t)
 
+(setq-default cursor-in-non-selected-windows 'box
+              highlight-nonselected-windows t)
+
+(setq-default require-final-newline nil)
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(fringe-mode 0)
+(fringe-mode nil)
 (blink-cursor-mode -1)
 
 (show-paren-mode 1)
@@ -39,6 +54,14 @@
 
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq use-dialog-box nil)
+
+;; (global-set-key (kbd "<f1>") 'kill-region)
+;; (global-set-key (kbd "<f2>") 'kill-ring-save)
+;; (global-set-key (kbd "<f3>") 'yank)
+
+(winner-mode 1)
+(global-set-key (kbd "<C-wheel-down>") 'previous-buffer)
+(global-set-key (kbd "<C-wheel-up>") 'next-buffer)
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "<f5>") 'revert-buffer)
@@ -102,10 +125,15 @@
   (delete-region (point) (line-beginning-position)))
 (global-set-key (kbd "<C-backspace>") 'delete-backward-line)
 
-(defun delete-sexp ()
+(defun delete-forward-sexp ()
   (interactive)
   (delete-region (point) (save-excursion (forward-sexp) (point))))
-(global-set-key (kbd "C-M") 'delete-sexp)
+(global-set-key (kbd "C-M-k") 'delete-forward-sexp)
+
+(defun delete-backward-sexp ()
+  (interactive)
+  (delete-region (point) (save-excursion (backward-sexp) (point))))
+(global-set-key (kbd "<C-M-backspace>") 'delete-backward-sexp)
 
 ;;
 ;;
@@ -202,7 +230,8 @@ region into minibuffer if it is active."
       (top-level)
     (dired-jump)))
 
-(global-set-key (kbd "<escape>") #'escapy)
+(global-set-key (kbd "<escape>") 'escapy)
+(global-set-key (kbd "<S-escape>") 'make-frame)
 
 ;; FIXME Need these?
 (defun point-line-start () (save-excursion (beginning-of-line) (point)))
@@ -229,12 +258,14 @@ region into minibuffer if it is active."
 (global-set-key (kbd "C-=") 'duplicate-dwim)
 
 (setq backup-by-copying t
-      backup-directory-alist '((".*" . "~/.saves"))
+      backup-directory-alist '((".*" . "~/.saves/"))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2
       version-control t
-      create-lockfiles nil)
+      create-lockfiles nil
+      ;; auto-save-list-file-prefix "~/.auto-saves/"
+      auto-save-file-name-transforms `((".*" "~/.auto-saves" t)))
 
 (define-minor-mode clean-trailing-whitespace-mode
   "Delete trailing whitespace on save."
@@ -318,7 +349,9 @@ region into minibuffer if it is active."
         projectile-indexing-method 'alien
         projectile-switch-project-action 'projectile-dired)
   (projectile-mode 1)
-  :bind (("<f2>" . 'projectile-find-file)
+  :bind (("C-c p f" . 'projectile-find-file)
+         ("<f2>" . 'projectile-find-file)
+         ("<S-f2>" . 'projectile-find-file-other-window)
          ("C-c p p" . 'projectile-switch-project)))
 
 (use-package nxml-mode

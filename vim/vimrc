@@ -1,5 +1,5 @@
-syntax on
-filetype on
+" syntax on
+" filetype on
 map Y y$
 nmap <silent> <Down> :wincmd j<CR>
 nmap <silent> <Left> :wincmd h<CR>
@@ -37,6 +37,7 @@ set wildmode=longest:full,full
 set incsearch
 set fo-=o
 set hidden
+set path+=**
 
 autocmd BufNewFile,BufRead Jenkinsfile set syntax=groovy
 
@@ -53,3 +54,5 @@ noremap <leader>b :CtrlPBuffer<CR>
 let g:ctrlp_custom_ignore = '\v[\/]dist$'
 
 noremap <f12> :w<CR>
+
+let netrw_banner=0
