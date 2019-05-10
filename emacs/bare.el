@@ -34,7 +34,6 @@
       require-final-newline nil
       mode-require-final-newline nil
 
-      truncate-lines t
       ring-bell-function nil
       show-trailing-whitespace t
       sentence-end-double-space nil
@@ -45,7 +44,8 @@
       revert-without-query '(".*")
       mouse-wheel-progressive-speed nil)
 
-(setq-default indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil
+              truncate-lines t)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
