@@ -42,17 +42,24 @@
       linum-format "%4d"
       mouse-autoselect-window -0.1
       revert-without-query '(".*")
-      mouse-wheel-progressive-speed nil)
+      mouse-wheel-progressive-speed nil
+      read-buffer-completion-ignore-case t
+
+      vc-handled-backends nil
+
+      split-width-threshold nil)
 
 (setq-default indent-tabs-mode nil
               truncate-lines t)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(add-hook 'text-mode-hook 'visual-line-mode)
+;; Also does derived modes :( (add-hook 'text-mode-hook 'visual-line-mode)
 
 (require 'dired-x)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
+(global-set-key (kbd "<escape>") 'dired-jump)
 
 (require 'savehist)
 (savehist-mode 1)
@@ -71,3 +78,7 @@
                      nil)
     (kill-ring-save (point) (line-beginning-position 0)))))
 (global-set-key (kbd "M-w") 'maybe-copy-whole-line)
+
+(winner-mode 1)
+(global-set-key (kbd "<C-wheel-down>") 'winner-undo)
+(global-set-key (kbd "<C-wheel-up>") 'winner-redo)
