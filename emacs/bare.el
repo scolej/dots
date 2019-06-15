@@ -1,9 +1,7 @@
-
-(setq custom-file "~/.emacs.d/custom.el")
-
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(eldoc-mode -1)
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
@@ -45,40 +43,13 @@
       mouse-wheel-progressive-speed nil
       read-buffer-completion-ignore-case t
 
-      vc-handled-backends nil
+      vc-handled-backends nil)
 
-      split-width-threshold nil)
-
-(setq-default indent-tabs-mode nil
-              truncate-lines t)
+(setq-default indent-tabs-mode nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
-
-;; Also does derived modes :( (add-hook 'text-mode-hook 'visual-line-mode)
-
-(require 'dired-x)
-(add-hook 'dired-mode-hook 'dired-hide-details-mode)
-(define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
-(global-set-key (kbd "<escape>") 'dired-jump)
 
 (require 'savehist)
 (savehist-mode 1)
 
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "M-g") 'goto-line)
-(global-set-key (kbd "M-/") 'hippie-expand)
-
-(defun maybe-copy-whole-line ()
-  (interactive)
-  (if mark-active
-      (copy-region-as-kill nil nil t)
-    (beginning-of-line 2)
-    (if (eq last-command 'maybe-copy-whole-line)
-        (kill-append (buffer-substring-no-properties (point) (line-beginning-position 0))
-                     nil)
-    (kill-ring-save (point) (line-beginning-position 0)))))
-(global-set-key (kbd "M-w") 'maybe-copy-whole-line)
-
-(winner-mode 1)
-(global-set-key (kbd "<C-wheel-down>") 'winner-undo)
-(global-set-key (kbd "<C-wheel-up>") 'winner-redo)

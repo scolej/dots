@@ -1,0 +1,6 @@
+[submodule "emacs/packages/whole-line-or-region"]
+	path = emacs/packages/whole-line-or-region
+	url = https://github.com/purcell/whole-line-or-region.git
+[submodule "emacs/packages/parchment"]
+	path = emacs/packages/parchment
+	url = https://github.com/ajgrf/parchment.git
