@@ -1,3 +1,13 @@
+;;
+;; TODO & ideas
+;;
+
+Better jumping to file paths under point.
+
+;;
+;;
+;;
+
 (require 'dired-x)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
@@ -79,6 +89,15 @@
 
 ;; To fight the global definition above.
 (define-key minibuffer-local-map (kbd "<tab>") 'minibuffer-complete)
+
+(defun pop-new-frame ()
+  (interactive)
+  (let ((b (current-buffer)))
+    (previous-buffer)
+    (make-frame)
+    (switch-to-buffer b)))
+
+(global-set-key (kbd "C-`") #'pop-new-frame)
 
 ;;
 ;; Longmouse
