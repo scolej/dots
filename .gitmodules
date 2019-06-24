@@ -13,3 +13,9 @@
 [submodule "emacs/packages/slime"]
 	path = emacs/packages/slime
 	url = https://github.com/slime/slime.git
+[submodule "emacs/packages/swiper"]
+	path = emacs/packages/swiper
+	url = https://github.com/abo-abo/swiper.git
+[submodule "emacs/packages/projectile"]
+	path = emacs/packages/projectile
+	url = https://github.com/bbatsov/projectile.git
