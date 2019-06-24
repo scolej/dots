@@ -4,3 +4,12 @@
 [submodule "emacs/packages/parchment"]
 	path = emacs/packages/parchment
 	url = https://github.com/ajgrf/parchment.git
+[submodule "emacs/packages/rg.el"]
+	path = emacs/packages/rg.el
+	url = https://github.com/dajva/rg.el.git
+[submodule "emacs/packages/s.el"]
+	path = emacs/packages/s.el
+	url = https://github.com/magnars/s.el.git
+[submodule "emacs/packages/slime"]
+	path = emacs/packages/slime
+	url = https://github.com/slime/slime.git
