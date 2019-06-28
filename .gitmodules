@@ -19,3 +19,6 @@
 [submodule "emacs/packages/projectile"]
 	path = emacs/packages/projectile
 	url = https://github.com/bbatsov/projectile.git
+[submodule "emacs/packages/ag.el"]
+	path = emacs/packages/ag.el
+	url = https://github.com/Wilfred/ag.el

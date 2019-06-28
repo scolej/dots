@@ -17,15 +17,15 @@ intact so we can still use it for searching."
 (defun idle-highlight-set-timer ()
   (when idle-highlight-timer (cancel-timer idle-highlight-timer))
   (setq idle-highlight-timer
-        (run-at-time 0.1 nil 'idle-highlight-region)))
+        (run-at-time 0.5 nil 'idle-highlight-region)))
 
 (defun idle-highlight-region ()
   (when mark-active
     (idle-highlight-clean)
     (let ((str (buffer-substring-no-properties (point) (mark))))
       (unless (string-blank-p str)
-        (setq idle-highlight-string str)
-        (highlight-regexp idle-highlight-string 'hi-black-b)))))
+        (setq idle-highlight-string (regexp-quote str))
+        (highlight-regexp idle-highlight-string 'hi-yellow)))))
 
 (defun idle-highlight-find-next ()
   (interactive)

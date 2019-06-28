@@ -17,7 +17,7 @@ alias gds='git diff --staged'
 alias gdu='git diff @{upstream}'
 alias gg='git log --oneline --graph --decorate'
 alias ggb='git log --graph --decorate --branches --all'
-alias gl='git log --oneline'
+alias gl='git log'
 alias glu='git log --oneline @{upstream}'..
 alias gr='git reflog --date=relative'
 alias grc='git rebase --continue'

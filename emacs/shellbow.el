@@ -2,6 +2,13 @@
 ;; Ideas
 ;;
 
+;; should bind RET in output to same as g to be consistent
+
+;; A good way to search current buffer for a command and then use it as a new command.
+;; Like what C-r would do in a shell.
+
+;; S-return in an output buffer should create a new command for that directory
+
 ;; Bring back clicking but have commands which can't be clicked
 ;; ie, push, clean, rm...
 
@@ -261,7 +268,7 @@ command from the current selection or word around point."
   (indent-line-to (pcase (current-indentation)
                     (1 0) (_ 1))))
 
-(define-derived-mode shellbow-mode fundamental-mode " sb"
+(define-derived-mode shellbow-mode fundamental-mode "shellb"
   (setq-local indent-line-function 'shellbow-indent)
   (setq font-lock-defaults '(shellbow-highlights))
   (set-syntax-table shellbow-syntax-table))

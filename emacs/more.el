@@ -2,7 +2,11 @@
 ;; TODO & ideas
 ;;
 
-Better jumping to file paths under point.
+;; Better jumping to file paths under point.
+
+;; Long mouse presses for word & line selection
+
+;; C-x C-e for lisp should eval-region if region is active.
 
 ;;
 ;;
@@ -10,8 +14,11 @@ Better jumping to file paths under point.
 
 (require 'dired-x)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(setq mouse-1-click-follows-link 450)
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
+;; (define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file-other-window)
 (global-set-key (kbd "<escape>") 'dired-jump)
+(setq dired-guess-shell-alist-default '(("\\.mp4\\'" "vlc")))
 
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "M-/") 'hippie-expand)
@@ -26,14 +33,19 @@ Better jumping to file paths under point.
 
 (setq-default show-trailing-whitespace t)
 
-(setq split-width-threshold 160)
+(setq split-width-threshold nil)
+
+(setq delete-selection-save-to-register "d")
+(global-set-key (kbd "M-v") 'delete-selection-repeat-replace-region)
+
+(global-set-key (kbd "<f1>") 'switch-to-buffer)
 
 ;;
 ;; Auto saving
 ;;
 
-(setq auto-save-visited-interval 2)
-(auto-save-visited-mode 2)
+(setq auto-save-visited-interval 1)
+(auto-save-visited-mode 1)
 
 ;;
 ;; Stop killing text. Just delete it.
@@ -84,20 +96,14 @@ Better jumping to file paths under point.
 (global-set-key (kbd "C-2") #'split-window-vertically)
 (global-set-key (kbd "C-3") #'split-window-horizontally)
 
-(global-set-key (kbd "<tab>") #'other-window)
-(global-set-key (kbd "<S-tab>") (lambda () (interactive) (other-window -1)))
+;; (global-set-key (kbd "<tab>") #'other-window)
+;; (global-set-key (kbd "<S-tab>") (lambda () (interactive) (other-window -1)))
 
 ;; To fight the global definition above.
+;; FIXME Global minor mode probably better?
 (define-key minibuffer-local-map (kbd "<tab>") 'minibuffer-complete)
 
-(defun pop-new-frame ()
-  (interactive)
-  (let ((b (current-buffer)))
-    (previous-buffer)
-    (make-frame)
-    (switch-to-buffer b)))
-
-(global-set-key (kbd "C-`") #'pop-new-frame)
+(global-set-key (kbd "C-`") #'make-frame)
 
 ;;
 ;; Longmouse
@@ -105,28 +111,29 @@ Better jumping to file paths under point.
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
 ;;
 
-;; (defvar longmouse-timer nil)
+(defvar longmouse-timer nil)
 
-;; (defun longmouse-down ()
-;;   (interactive)
-;;   (setq longmouse-timer
-;;         (run-at-time 0.3
-;;                      nil
-;;                      '(lambda ()
-;;                         (setq longmouse-timer nil)
-;;                         (whole-line-or-region-delete 1)))))
-;; (defun longmouse-up ()
-;;   (interactive)
-;;   (unless (eq longmouse-timer nil)
-;;     (progn
-;;       (whole-line-or-region-kill-ring-save 1)
-;;       (setq deactivate-mark nil)
-;;       (message "Saved region.")
-;;       (cancel-timer longmouse-timer)
-;;       (setq longmouse-timer nil))))
-;; (global-set-key [down-mouse-3] 'longmouse-down)
-;; (global-set-key [mouse-3] 'longmouse-up)
-;; (global-set-key [mouse-2] 'whole-line-or-region-yank)
+(defun longmouse-down ()
+  (interactive)
+  (setq longmouse-timer
+        (run-at-time 0.3
+                     nil
+                     '(lambda ()
+                        (setq mouse-timer nil)
+                        (kill-region (point) (mark))))))
+(defun longmouse-up ()
+  (interactive)
+  (unless (eq longmouse-timer nil)
+    (progn
+      (kill-ring-save nil nil t)
+      (setq deactivate-mark nil)
+      (message "Saved region.")
+      (cancel-timer longmouse-timer)
+      (setq longmouse-timer nil))))
+
+(global-set-key [down-mouse-3] 'longmouse-down)
+(global-set-key [mouse-3] 'longmouse-up)
+(global-set-key [mouse-2] 'yank)
 
 ;;
 ;; Googling
@@ -211,8 +218,25 @@ region into minibuffer if it is active."
 (global-set-key (kbd "C-x k") 'really-kill-buffer)
 
 ;;
+;; Load a persistent scratch on startup.
+;;
+
+(when (boundp 'persistent-scratch-file)
+  (find-file (symbol-value 'persistent-scratch-file))
+  (end-of-buffer))
+
+;;
 ;; Other packages
 ;;
 
-(require 'whole-line-or-region)
-(whole-line-or-region-global-mode 1)
+(require 'ivy)
+(ivy-mode 1)
+
+(require 'projectile)
+(projectile-mode 1)
+(define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
+(global-set-key (kbd "<f2>") 'projectile-find-file)
+(setq projectile-indexing-method 'alien
+      projectile-completion-system 'default)
+
+(require 'ag)
