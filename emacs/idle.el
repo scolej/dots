@@ -1,3 +1,10 @@
+;; TODO
+;; - Don't  match at point, there's no point.
+;; - Make a global & minor mode.
+;; - Escape regexp properly.
+;; - Handle case properly.
+;; - idle timer setting could avoid work by testing if string has changed.
+
 (defvar idle-highlight-timer nil)
 (defvar idle-highlight-string nil)
 

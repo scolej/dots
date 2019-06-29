@@ -8,6 +8,14 @@
 
 ;; C-x C-e for lisp should eval-region if region is active.
 
+;; CUA repeat replace! So good.
+
+;; If tracking packages with submodules, can depend & load from here.
+
+;; Highlight-thing, add & patch so no highlight whitespace only.
+
+;; Quick jump next occurrence of selection, back and forwards.
+
 ;;
 ;;
 ;;
@@ -229,6 +237,13 @@ region into minibuffer if it is active."
 ;; Other packages
 ;;
 
+(when (boundp 'emacs-dot-root)
+  (dolist (dir (directory-files
+                (concat (symbol-value 'emacs-dot-root)
+                        "packages/") t "^[^.]"))
+    (when (file-directory-p dir)
+      (add-to-list 'load-path dir))))
+
 (require 'ivy)
 (ivy-mode 1)
 
@@ -239,4 +254,5 @@ region into minibuffer if it is active."
 (setq projectile-indexing-method 'alien
       projectile-completion-system 'default)
 
+(require 'dash)
 (require 'ag)

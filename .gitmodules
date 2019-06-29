@@ -1,15 +1,3 @@
-[submodule "emacs/packages/whole-line-or-region"]
-	path = emacs/packages/whole-line-or-region
-	url = https://github.com/purcell/whole-line-or-region.git
-[submodule "emacs/packages/parchment"]
-	path = emacs/packages/parchment
-	url = https://github.com/ajgrf/parchment.git
-[submodule "emacs/packages/rg.el"]
-	path = emacs/packages/rg.el
-	url = https://github.com/dajva/rg.el.git
-[submodule "emacs/packages/s.el"]
-	path = emacs/packages/s.el
-	url = https://github.com/magnars/s.el.git
 [submodule "emacs/packages/slime"]
 	path = emacs/packages/slime
 	url = https://github.com/slime/slime.git
@@ -22,3 +10,9 @@
 [submodule "emacs/packages/ag.el"]
 	path = emacs/packages/ag.el
 	url = https://github.com/Wilfred/ag.el
+[submodule "emacs/packages/dash.el"]
+	path = emacs/packages/dash.el
+	url = https://github.com/magnars/dash.el.git
+[submodule "emacs/packages/s.el"]
+	path = emacs/packages/s.el
+	url = https://github.com/magnars/s.el
