@@ -22,14 +22,16 @@
 
 (require 'dired-x)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
-(setq mouse-1-click-follows-link 450)
+(setq mouse-1-click-follows-link 450
+      dired-guess-shell-alist-default '(("\\.mp4\\'" "vlc")))
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
-;; (define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file-other-window)
 (global-set-key (kbd "<escape>") 'dired-jump)
-(setq dired-guess-shell-alist-default '(("\\.mp4\\'" "vlc")))
+
+;;
+;;
+;;
 
 (global-set-key (kbd "M-g") 'goto-line)
-(global-set-key (kbd "M-/") 'hippie-expand)
 (global-set-key (kbd "C-q") 'quit-window)
 
 (setq-default
@@ -48,12 +50,8 @@
 
 (global-set-key (kbd "<f1>") 'switch-to-buffer)
 
-;;
-;; Auto saving
-;;
-
-(setq auto-save-visited-interval 1)
-(auto-save-visited-mode 1)
+(defun save-all () (interactive) (save-some-buffers t))
+(global-set-key (kbd "<f12>") 'save-all)
 
 ;;
 ;; Stop killing text. Just delete it.
@@ -99,13 +97,10 @@
 ;; Windowing
 ;;
 
-(global-set-key (kbd "C-0") #'delete-window)
-(global-set-key (kbd "C-1") #'delete-other-windows)
-(global-set-key (kbd "C-2") #'split-window-vertically)
-(global-set-key (kbd "C-3") #'split-window-horizontally)
-
-;; (global-set-key (kbd "<tab>") #'other-window)
-;; (global-set-key (kbd "<S-tab>") (lambda () (interactive) (other-window -1)))
+(global-set-key (kbd "C-0") 'delete-window)
+(global-set-key (kbd "C-1") 'delete-other-windows)
+(global-set-key (kbd "C-2") 'split-window-vertically)
+(global-set-key (kbd "C-3") 'split-window-horizontally)
 
 ;; To fight the global definition above.
 ;; FIXME Global minor mode probably better?
@@ -127,11 +122,12 @@
         (run-at-time 0.3
                      nil
                      '(lambda ()
-                        (setq mouse-timer nil)
+                        (setq longmouse-timer nil)
+                        (message "Cut region.")
                         (kill-region (point) (mark))))))
 (defun longmouse-up ()
   (interactive)
-  (unless (eq longmouse-timer nil)
+  (when longmouse-timer
     (progn
       (kill-ring-save nil nil t)
       (setq deactivate-mark nil)
@@ -234,6 +230,12 @@ region into minibuffer if it is active."
   (end-of-buffer))
 
 ;;
+;;
+;;
+
+(load "idle.el")
+
+;;
 ;; Other packages
 ;;
 
@@ -256,3 +258,24 @@ region into minibuffer if it is active."
 
 (require 'dash)
 (require 'ag)
+(defun ag-here (str) (interactive "MAg literal: ") (ag str default-directory))
+(define-key dired-mode-map (kbd "r") 'ag-here)
+(define-key ag-mode-map (kbd "r") 'ag-here)
+
+;; FIXME :(
+(add-to-list 'load-path (concat (symbol-value 'emacs-dot-root) "packages/geiser/elisp"))
+(require 'seq)
+(require 'geiser)
+(setq-default geiser-scheme-implementation 'chicken)
+(setq geiser-active-implementations '(chicken)
+      geiser-debug-show-debug-p t
+      geiser-debug-jump-to-debug-p nil)
+(add-hook 'geiser-debug-mode-hook
+          (lambda ()
+            (toggle-truncate-lines 1)
+            (setq show-trailing-whitespace nil)))
+(add-hook 'geiser-repl-mode-hook
+          (lambda ()
+            (setq show-trailing-whitespace nil)))
+
+(setq max-mini-window-height 0.2)

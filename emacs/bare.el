@@ -32,8 +32,6 @@
       require-final-newline nil
       mode-require-final-newline nil
 
-      ring-bell-function nil
-      show-trailing-whitespace t
       sentence-end-double-space nil
       set-mark-command-repeat-pop t
       ring-bell-function 'ignore
