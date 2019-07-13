@@ -16,3 +16,6 @@
 [submodule "emacs/packages/s.el"]
 	path = emacs/packages/s.el
 	url = https://github.com/magnars/s.el
+[submodule "emacs/packages/geiser"]
+	path = emacs/packages/geiser
+	url = git://git.sv.gnu.org/geiser.git
