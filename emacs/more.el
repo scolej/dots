@@ -28,7 +28,7 @@
 (global-set-key (kbd "<escape>") 'dired-jump)
 
 ;;
-;;
+;; Misc
 ;;
 
 (global-set-key (kbd "M-g") 'goto-line)
@@ -43,55 +43,82 @@
 
 (setq-default show-trailing-whitespace t)
 
-(setq split-width-threshold nil)
+(setq split-width-threshold nil
+      yank-handled-properties nil
+      disabled-command-function nil)
 
 (setq delete-selection-save-to-register "d")
 (global-set-key (kbd "M-v") 'delete-selection-repeat-replace-region)
 
 (global-set-key (kbd "<f1>") 'switch-to-buffer)
 
+;;
+;; Handy saving
+;;
+
 (defun save-all () (interactive) (save-some-buffers t))
-(global-set-key (kbd "<f12>") 'save-all)
+
+(defun ibuffer-unsaved ()
+  (interactive)
+  (ibuffer t "*Ibuffer Modified Buffers*" '((visiting-file) (modified))))
+
+(defun save-current-or-ibuffer-unsaved ()
+  (interactive)
+  (let* ((unsaved-buffers (seq-filter (lambda (buf)
+                                        (and (buffer-modified-p buf)
+                                             (buffer-file-name buf)))
+                                      (buffer-list)))
+         (current-buffer-sole-unsaved (equal (list (current-buffer)) unsaved-buffers)))
+    (cond (current-buffer-sole-unsaved (save-buffer))
+          ((> (length unsaved-buffers) 0) (ibuffer-unsaved))
+          (t (message "All buffers saved.")))))
+
+(global-set-key (kbd "<f12>") 'save-current-or-ibuffer-unsaved)
+(define-key ibuffer-mode-map (kbd "<f12>")
+  (lambda ()
+    (interactive)
+    (save-all)
+    (quit-window)))
 
 ;;
 ;; Stop killing text. Just delete it.
 ;;
 
-(defun delete-whole-line ()
-  (interactive)
-  (delete-region (line-beginning-position)
-                 (min (point-max) (1+ (line-end-position)))))
-(global-set-key (kbd "<C-S-backspace>") 'delete-whole-line)
+;; (defun delete-whole-line ()
+;;   (interactive)
+;;   (delete-region (line-beginning-position)
+;;                  (min (point-max) (1+ (line-end-position)))))
+;; (global-set-key (kbd "<C-S-backspace>") 'delete-whole-line)
 
-(defun delete-forward-word ()
-  (interactive)
-  (delete-region (point) (save-excursion (forward-word) (point))))
-(global-set-key (kbd "M-d") 'delete-forward-word)
+;; (defun delete-forward-word ()
+;;   (interactive)
+;;   (delete-region (point) (save-excursion (forward-word) (point))))
+;; (global-set-key (kbd "M-d") 'delete-forward-word)
 
-(defun delete-backward-word ()
-  (interactive)
-  (delete-region (point) (save-excursion (backward-word) (point))))
-(global-set-key (kbd "<M-backspace>") 'delete-backward-word)
+;; (defun delete-backward-word ()
+;;   (interactive)
+;;   (delete-region (point) (save-excursion (backward-word) (point))))
+;; (global-set-key (kbd "<M-backspace>") 'delete-backward-word)
 
-(defun delete-forward-line ()
-  (interactive)
-  (delete-region (point) (line-end-position)))
-(global-set-key (kbd "C-k") 'delete-forward-line)
+;; (defun delete-forward-line ()
+;;   (interactive)
+;;   (delete-region (point) (line-end-position)))
+;; (global-set-key (kbd "C-k") 'delete-forward-line)
 
-(defun delete-backward-line ()
-  (interactive)
-  (delete-region (point) (line-beginning-position)))
-(global-set-key (kbd "<C-backspace>") 'delete-backward-line)
+;; (defun delete-backward-line ()
+;;   (interactive)
+;;   (delete-region (point) (line-beginning-position)))
+;; (global-set-key (kbd "<C-backspace>") 'delete-backward-line)
 
-(defun delete-forward-sexp ()
-  (interactive)
-  (delete-region (point) (save-excursion (forward-sexp) (point))))
-(global-set-key (kbd "C-M-k") 'delete-forward-sexp)
+;; (defun delete-forward-sexp ()
+;;   (interactive)
+;;   (delete-region (point) (save-excursion (forward-sexp) (point))))
+;; (global-set-key (kbd "C-M-k") 'delete-forward-sexp)
 
-(defun delete-backward-sexp ()
-  (interactive)
-  (delete-region (point) (save-excursion (backward-sexp) (point))))
-(global-set-key (kbd "<C-M-backspace>") 'delete-backward-sexp)
+;; (defun delete-backward-sexp ()
+;;   (interactive)
+;;   (delete-region (point) (save-excursion (backward-sexp) (point))))
+;; (global-set-key (kbd "<C-M-backspace>") 'delete-backward-sexp)
 
 ;;
 ;; Windowing
@@ -118,22 +145,28 @@
 
 (defun longmouse-down ()
   (interactive)
-  (setq longmouse-timer
-        (run-at-time 0.3
-                     nil
-                     '(lambda ()
-                        (setq longmouse-timer nil)
-                        (message "Cut region.")
-                        (kill-region (point) (mark))))))
+  (kill-new (buffer-substring-no-properties (point) (mark)))
+  (setq deactivate-mark t
+        longmouse-timer-1 (run-at-time 0.3 nil
+                                       (lambda ()
+                                         (message "Cut!")
+                                         (delete-region (point) (mark))))
+        ;; longmouse-timer-2 (run-at-time 0.9 nil
+        ;;                                (lambda ()
+        ;;                                  (message "Buried!")
+        ;;                                  ;; (pop kill-ring)
+        ;;                                  ;; (setq kill-ring-yank-pointer kill-ring)
+        ;;                                  (setq kill-ring-yank-pointer (cdr kill-ring))
+        ;;                                  ))
+        ))
+
 (defun longmouse-up ()
   (interactive)
-  (when longmouse-timer
-    (progn
-      (kill-ring-save nil nil t)
-      (setq deactivate-mark nil)
-      (message "Saved region.")
-      (cancel-timer longmouse-timer)
-      (setq longmouse-timer nil))))
+  (dolist (timer (list longmouse-timer-1
+                       ;; longmouse-timer-2
+                       ))
+    (when timer (cancel-timer timer))
+    (setq timer nil)))
 
 (global-set-key [down-mouse-3] 'longmouse-down)
 (global-set-key [mouse-3] 'longmouse-up)
