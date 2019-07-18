@@ -5,6 +5,8 @@
 ;; - Handle case properly.
 ;; - idle timer setting could avoid work by testing if string has changed.
 
+(require 'subr-x)
+
 (defvar idle-highlight-timer nil)
 (defvar idle-highlight-string nil)
 
@@ -34,26 +36,15 @@ intact so we can still use it for searching."
         (setq idle-highlight-string (regexp-quote str))
         (highlight-regexp idle-highlight-string 'hi-yellow)))))
 
-(defun idle-highlight-find-next ()
-  (interactive)
-  (when (and idle-highlight-string
-             (save-excursion
-               (goto-char (max (point) (mark)))
-               (re-search-forward idle-highlight-string nil t)))
-    (goto-char (match-end 0))
-    (set-mark (match-beginning 0))))
-
-(defun idle-highlight-find-prev ()
-  (interactive)
-  (when (and idle-highlight-string
-             (save-excursion
-               (goto-char (min (point) (mark)))
-               (re-search-backward idle-highlight-string nil t)))
-    (goto-char (match-end 0))
-    (set-mark (match-beginning 0))))
-
-(global-set-key (kbd "M-n") 'idle-highlight-find-next)
-(global-set-key (kbd "M-p") 'idle-highlight-find-prev)
-
 (add-hook 'activate-mark-hook 'idle-highlight-activate)
 (add-hook 'deactivate-mark-hook 'idle-highlight-deactivate)
+
+(defun isearch-insert-region
+    (&optional not-regexp no-recursive-edit)
+  (when (region-active-p)
+    (let ((str (buffer-substring-no-properties (point) (mark))))
+      (deactivate-mark)
+      (isearch-yank-string str))))
+
+(advice-add 'isearch-forward :after 'isearch-insert-region)
+(advice-add 'isearch-backward :after 'isearch-insert-region)
