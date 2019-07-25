@@ -1,5 +1,5 @@
 ;; TODO
-;; - Don't  match at point, there's no point.
+;; - Don't match at point, there's no point.
 ;; - Make a global & minor mode.
 ;; - Escape regexp properly.
 ;; - Handle case properly.
@@ -11,8 +11,7 @@
 (defvar idle-highlight-string nil)
 
 (defun idle-highlight-clean ()
-  "Remove any active highlight, but leave IDLE-HIGHLIGHT-STRING
-intact so we can still use it for searching."
+  "Remove any active highlight."
   (when idle-highlight-string
     (unhighlight-regexp idle-highlight-string)))
 
@@ -34,7 +33,7 @@ intact so we can still use it for searching."
     (let ((str (buffer-substring-no-properties (point) (mark))))
       (unless (string-blank-p str)
         (setq idle-highlight-string (regexp-quote str))
-        (highlight-regexp idle-highlight-string 'hi-yellow)))))
+        (highlight-regexp idle-highlight-string 'hi-blue)))))
 
 (add-hook 'activate-mark-hook 'idle-highlight-activate)
 (add-hook 'deactivate-mark-hook 'idle-highlight-deactivate)

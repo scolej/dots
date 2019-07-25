@@ -56,6 +56,8 @@
 ;; Handy saving
 ;;
 
+(require 'ibuffer)
+
 (defun save-all () (interactive) (save-some-buffers t))
 
 (defun ibuffer-unsaved ()
@@ -267,6 +269,7 @@ region into minibuffer if it is active."
 ;;
 
 (load "idle.el")
+(load "trails.el")
 
 ;;
 ;; Other packages
@@ -312,3 +315,8 @@ region into minibuffer if it is active."
             (setq show-trailing-whitespace nil)))
 
 (setq max-mini-window-height 0.2)
+
+(require 'iedit)
+(require 'avy)
+(require 'hydra)
+(require 'lispy)
