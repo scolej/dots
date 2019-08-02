@@ -28,11 +28,31 @@
 (global-set-key (kbd "<escape>") 'dired-jump)
 
 ;;
+;; Occur
+;;
+
+(add-hook 'occur-hook
+          '(lambda ()
+             (switch-to-buffer-other-window "*Occur*")))
+
+(define-key occur-mode-map (kbd "n")
+  (lambda () (interactive)
+    (occur-next)
+    (occur-mode-display-occurrence)))
+
+(define-key occur-mode-map (kbd "p")
+  (lambda () (interactive)
+    (occur-prev)
+    (occur-mode-display-occurrence)))
+
+;;
 ;; Misc
 ;;
 
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "C-q") 'quit-window)
+(global-set-key (kbd "C-\\") 'replace-string)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (setq-default
  mode-line-format
@@ -41,7 +61,7 @@
             "%*"))
    " %b:%l:%c"))
 
-(setq-default show-trailing-whitespace t)
+(setq-default show-trailing-whitespace nil)
 
 (setq split-width-threshold nil
       yank-handled-properties nil
@@ -52,6 +72,29 @@
 
 (global-set-key (kbd "<f1>") 'switch-to-buffer)
 
+(defun maybe-copy-whole-line ()
+  (interactive)
+  (if mark-active
+      (copy-region-as-kill nil nil t)
+    (beginning-of-line 2)
+    (if (eq last-command 'maybe-copy-whole-line)
+        (kill-append
+         (buffer-substring-no-properties
+          (point)
+          (line-beginning-position 0))
+         nil)
+    (copy-region-as-kill (point) (line-beginning-position 0)))))
+
+(global-set-key (kbd "M-w") 'maybe-copy-whole-line)
+
+(defun new-line-above ()
+  (interactive)
+  (forward-line -1)
+  (end-of-line)
+  (newline nil t))
+
+(global-set-key (kbd "C-o") 'new-line-above)
+
 ;;
 ;; Handy saving
 ;;
@@ -59,6 +102,9 @@
 (require 'ibuffer)
 
 (defun save-all () (interactive) (save-some-buffers t))
+
+(defun save-all-buffers () (interactive) (save-some-buffers t))
+(global-set-key (kbd "<f12>") 'save-all-buffers)
 
 (defun ibuffer-unsaved ()
   (interactive)
@@ -143,32 +189,32 @@
 ;; Functions and bindings for long-pressing right mouse button for copy / cut.
 ;;
 
-(defvar longmouse-timer nil)
+;; (defvar longmouse-timer nil)
 
-(defun longmouse-down ()
-  (interactive)
-  (kill-new (buffer-substring-no-properties (point) (mark)))
-  (setq deactivate-mark t
-        longmouse-timer-1 (run-at-time 0.3 nil
-                                       (lambda ()
-                                         (message "Cut!")
-                                         (delete-region (point) (mark))))
-        ;; longmouse-timer-2 (run-at-time 0.9 nil
-        ;;                                (lambda ()
-        ;;                                  (message "Buried!")
-        ;;                                  ;; (pop kill-ring)
-        ;;                                  ;; (setq kill-ring-yank-pointer kill-ring)
-        ;;                                  (setq kill-ring-yank-pointer (cdr kill-ring))
-        ;;                                  ))
-        ))
+;; (defun longmouse-down ()
+;;   (interactive)
+;;   (kill-new (buffer-substring-no-properties (point) (mark)))
+;;   (setq deactivate-mark t
+;;         longmouse-timer-1 (run-at-time 0.3 nil
+;;                                        (lambda ()
+;;                                          (message "Cut!")
+;;                                          (delete-region (point) (mark))))
+;;         ;; longmouse-timer-2 (run-at-time 0.9 nil
+;;         ;;                                (lambda ()
+;;         ;;                                  (message "Buried!")
+;;         ;;                                  ;; (pop kill-ring)
+;;         ;;                                  ;; (setq kill-ring-yank-pointer kill-ring)
+;;         ;;                                  (setq kill-ring-yank-pointer (cdr kill-ring))
+;;         ;;                                  ))
+;;         ))
 
-(defun longmouse-up ()
-  (interactive)
-  (dolist (timer (list longmouse-timer-1
-                       ;; longmouse-timer-2
-                       ))
-    (when timer (cancel-timer timer))
-    (setq timer nil)))
+;; (defun longmouse-up ()
+;;   (interactive)
+;;   (dolist (timer (list longmouse-timer-1
+;;                        ;; longmouse-timer-2
+;;                        ))
+;;     (when timer (cancel-timer timer))
+;;     (setq timer nil)))
 
 (global-set-key [down-mouse-3] 'longmouse-down)
 (global-set-key [mouse-3] 'longmouse-up)
@@ -191,6 +237,12 @@ region into minibuffer if it is active."
                            nil)))
            (minibuffer-with-setup-hook (lambda () (when init (insert init)))
              (call-interactively fun))))))
+
+(defun eww-google (term)
+  (interactive "MGoogle: ")
+  (eww
+   (concat "https://google.com/search?query="
+           (url-encode-url term))))
 
 (defun google (term)
   (interactive "MGoogle: ")
@@ -262,7 +314,25 @@ region into minibuffer if it is active."
 
 (when (boundp 'persistent-scratch-file)
   (find-file (symbol-value 'persistent-scratch-file))
+  (lisp-interaction-mode)
   (end-of-buffer))
+
+
+;;
+;;
+;;
+
+(defun isearch-use-region (&optional not-regexp no-recursive-edit)
+  (interactive "P\np")
+  (when (use-region-p)
+    (let ((search (buffer-substring-no-properties
+                   (region-beginning)
+                   (region-end))))
+      (setq deactivate-mark t)
+      (isearch-yank-string search))))
+
+(advice-add 'isearch-forward :after 'isearch-use-region)
+(advice-add 'isearch-backward :after 'isearch-use-region)
 
 ;;
 ;;
@@ -298,25 +368,35 @@ region into minibuffer if it is active."
 (define-key dired-mode-map (kbd "r") 'ag-here)
 (define-key ag-mode-map (kbd "r") 'ag-here)
 
-;; FIXME :(
-(add-to-list 'load-path (concat (symbol-value 'emacs-dot-root) "packages/geiser/elisp"))
-(require 'seq)
-(require 'geiser)
-(setq-default geiser-scheme-implementation 'chicken)
-(setq geiser-active-implementations '(chicken)
-      geiser-debug-show-debug-p t
-      geiser-debug-jump-to-debug-p nil)
-(add-hook 'geiser-debug-mode-hook
-          (lambda ()
-            (toggle-truncate-lines 1)
-            (setq show-trailing-whitespace nil)))
-(add-hook 'geiser-repl-mode-hook
-          (lambda ()
-            (setq show-trailing-whitespace nil)))
-
 (setq max-mini-window-height 0.2)
 
-(require 'iedit)
-(require 'avy)
-(require 'hydra)
-(require 'lispy)
+(require 'typescript-mode)
+(require 'glsl-mode)
+
+(require 'flycheck)
+(require 'flycheck-glsl)
+
+(require 'rainbow-mode)
+
+;;
+;; Org
+;;
+
+(require 'org)
+
+(setq org-refile-use-outline-path 'file
+      org-export-with-section-numbers nil)
+
+(add-hook 'org-mode-hook 'org-indent-mode)
+
+(setq org-fontify-done-headline t)
+(let ((c "#b0d483"))
+  (set-face-attribute 'org-headline-done nil :foreground c)
+  (set-face-attribute 'org-done nil :foreground c))
+
+(global-set-key (kbd "C-x i")
+                (lambda ()
+                  (interactive)
+                  (pop-to-buffer "inbox.org")
+                  (end-of-buffer)
+                  (org-insert-heading)))
