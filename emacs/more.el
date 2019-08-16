@@ -24,9 +24,7 @@
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
-(setq mouse-1-click-follows-link 450
-      dired-guess-shell-alist-default '(("\\.mp4\\'" "vlc")))
-
+(setq mouse-1-click-follows-link 450)
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
 (define-key dired-mode-map (kbd "o") 'dired-display-file)
 
@@ -96,6 +94,9 @@
   (newline nil t))
 
 (global-set-key (kbd "C-o") 'new-line-above)
+
+(setq-default case-fold-search t)
+(setq completion-ignore-case t)
 
 ;;
 ;; Handy saving
@@ -294,6 +295,8 @@ region into minibuffer if it is active."
 (advice-add 'isearch-forward :after 'isearch-use-region)
 (advice-add 'isearch-backward :after 'isearch-use-region)
 
+(setq isearch-allow-scroll t)
+
 ;;
 ;; Org
 ;;
@@ -323,3 +326,20 @@ region into minibuffer if it is active."
 
 (load "idle.el")
 (load "trails.el")
+
+;;
+;;
+;;
+
+(defun compilation-next-and-visit ()
+    (interactive)
+    (compilation-next-error 1)
+    (compilation-display-error))
+
+(defun compilation-prev-and-visit ()
+  (interactive)
+  (compilation-previous-error 1)
+  (compilation-display-error))
+
+(define-key compilation-mode-map (kbd "n") 'compilation-next-and-visit)
+(define-key compilation-mode-map (kbd "p") 'compilation-prev-and-visit)

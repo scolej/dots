@@ -19,7 +19,7 @@ alias gg='git log --oneline --graph --decorate'
 alias ggb='git log --graph --decorate --branches --all'
 alias gl='git log'
 alias glu='git log --oneline @{upstream}'..
-alias gr='git reflog --date=relative'
+alias gr='git reset'
 alias grc='git rebase --continue'
 alias gri='git rebase -i --autostash --autosquash'
 alias groot='cd "$(git rev-parse --show-toplevel)" ; echo "I am Groot"'

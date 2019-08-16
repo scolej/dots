@@ -37,13 +37,3 @@
 
 (add-hook 'activate-mark-hook 'idle-highlight-activate)
 (add-hook 'deactivate-mark-hook 'idle-highlight-deactivate)
-
-(defun isearch-insert-region
-    (&optional not-regexp no-recursive-edit)
-  (when (region-active-p)
-    (let ((str (buffer-substring-no-properties (point) (mark))))
-      (deactivate-mark)
-      (isearch-yank-string str))))
-
-(advice-add 'isearch-forward :after 'isearch-insert-region)
-(advice-add 'isearch-backward :after 'isearch-insert-region)
