@@ -4,7 +4,8 @@
   (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
   (global-set-key (kbd "<f2>") 'projectile-find-file)
   (setq projectile-indexing-method 'alien
-        projectile-completion-system 'default))
+        projectile-completion-system 'default
+        projectile-switch-project-action 'projectile-dired))
 
 (when (package-installed-p 'ag)
   (require 'ag)
@@ -25,12 +26,12 @@
   (defun ag-here-regexp (str)
     (interactive "MAg regexp: ")
     (pop-and-sole (ag-regexp str default-directory)))
-  (define-key dired-mode-map (kbd "R") 'ag-here-regexp)
-  (define-key ag-mode-map (kbd "R") 'ag-here-regexp)
+  (define-key dired-mode-map (kbd "M-r") 'ag-here-regexp)
+  (define-key ag-mode-map (kbd "M-r") 'ag-here-regexp)
 
   (add-hook 'ag-mode-hook (lambda () (setq truncate-lines t))))
 
-(when (package-installed-p 'lispy)
-  (require 'lispy)
-  (lispy-set-key-theme '(special lispy))
-  (add-hook 'emacs-lisp-mode-hook 'lispy-mode))
+;; (when (package-installed-p 'lispy)
+;;   (require 'lispy)
+;;   (lispy-set-key-theme '(special lispy))
+;;   (add-hook 'emacs-lisp-mode-hook 'lispy-mode))

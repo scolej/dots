@@ -25,7 +25,7 @@
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
 (setq mouse-1-click-follows-link 450)
-(define-key dired-mode-map (kbd "<mouse-2>") 'dired-find-file)
+(define-key dired-mode-map (kbd "<mouse-2>") 'dired-display-file)
 (define-key dired-mode-map (kbd "o") 'dired-display-file)
 
 (global-set-key (kbd "<escape>") 'dired-jump)
@@ -36,7 +36,10 @@
 
 (add-hook 'occur-hook
           '(lambda ()
-             (switch-to-buffer-other-window "*Occur*")))
+             (pop-to-buffer "*Occur*")))
+(add-hook 'occur-hook
+          '(lambda ()
+             (setq truncate-lines t)))
 
 (define-key occur-mode-map (kbd "n")
   (lambda () (interactive)
@@ -87,13 +90,21 @@
 
 (global-set-key (kbd "M-w") 'maybe-copy-whole-line)
 
+(defun new-line-below ()
+  (interactive)
+  (end-of-line)
+  (newline nil t))
+
+
+;; FIXME doesn't work at start of buffer
 (defun new-line-above ()
   (interactive)
   (forward-line -1)
   (end-of-line)
   (newline nil t))
 
-(global-set-key (kbd "C-o") 'new-line-above)
+(global-set-key (kbd "C-S-o") 'new-line-above)
+(global-set-key (kbd "C-o") 'new-line-below)
 
 (setq-default case-fold-search t)
 (setq completion-ignore-case t)
@@ -270,16 +281,6 @@ region into minibuffer if it is active."
 (global-set-key (kbd "C-x k") 'really-kill-buffer)
 
 ;;
-;; Load a persistent scratch on startup.
-;;
-
-(when (boundp 'persistent-scratch-file)
-  (find-file (symbol-value 'persistent-scratch-file))
-  (lisp-interaction-mode)
-  (end-of-buffer))
-
-
-;;
 ;;
 ;;
 
@@ -331,6 +332,8 @@ region into minibuffer if it is active."
 ;;
 ;;
 
+(require 'compile)
+
 (defun compilation-next-and-visit ()
     (interactive)
     (compilation-next-error 1)
@@ -343,3 +346,41 @@ region into minibuffer if it is active."
 
 (define-key compilation-mode-map (kbd "n") 'compilation-next-and-visit)
 (define-key compilation-mode-map (kbd "p") 'compilation-prev-and-visit)
+
+;;
+;;
+;;
+
+(setq completion-styles '(basic partial-completion emacs22 substring initials))
+
+;;
+;;
+;;
+
+(defun scratchy ()
+  (interactive)
+  (let ((dir (concat "~/scratchy/" (format-time-string "%Y/%m/%d/"))))
+    (make-directory dir t)
+    (find-file (concat dir (format-time-string "%H%M")))))
+
+;;
+;;
+;;
+
+(defun copy-buffer-path ()
+  "Copy the full path to the current buffer's file."
+  (interactive)
+  (let ((str (cond (buffer-file-name)
+                   (default-directory))))
+    (kill-new str)
+    (message (format "Copied: %s" str))))
+
+(defun copy-buffer-path-and-line ()
+  "Copy the full path to the current buffer's file and append a
+colon followed by the line number."
+  (interactive)
+  (let ((s (concat (buffer-file-name)
+                   ":"
+                   (number-to-string (line-number-at-pos (point))))))
+    (kill-new s)
+    (message (format "Copied: %s" s))))
