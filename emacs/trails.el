@@ -7,12 +7,14 @@
       (progn
         (add-hook 'before-save-hook 'delete-trailing-whitespace)
         (setq show-trailing-whitespace nil))
-    (remove-hook 'before-save-hook 'delete-trailing-whitespace)))
+    (progn
+      (remove-hook 'before-save-hook 'delete-trailing-whitespace)
+      (kill-local-variable 'show-trailing-whitespace))))
 
 (defun current-buffer-has-trailing-whitespace-p ()
   (save-excursion
     (beginning-of-buffer)
-    (re-search-forward "[[:space:]]+$" nil t)))
+    (re-search-forward "[\t ]+$" nil t)))
 
 (defun maybe-tidy-whitespace ()
   (if (current-buffer-has-trailing-whitespace-p)

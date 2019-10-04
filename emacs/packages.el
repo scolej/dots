@@ -31,7 +31,7 @@
 
   (add-hook 'ag-mode-hook (lambda () (setq truncate-lines t))))
 
-;; (when (package-installed-p 'lispy)
-;;   (require 'lispy)
-;;   (lispy-set-key-theme '(special lispy))
-;;   (add-hook 'emacs-lisp-mode-hook 'lispy-mode))
+(when (package-installed-p 'lispy)
+  (require 'lispy)
+  (lispy-set-key-theme '(special lispy))
+  (add-hook 'emacs-lisp-mode-hook 'lispy-mode))

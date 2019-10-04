@@ -35,6 +35,16 @@
 
 ;; Pressing enter with ctive region should use only that as the command. So you can "subset" commands easily.
 
+;; A quick way to get back to the shellbow buffer from command output buffer
+
+;; ">" could be on the same line as first command
+
+;;  Would be cool to have "archive" instead of delete. Send old commands to a history file from which you can autocomplete.
+
+;; FIXME
+;; enter on ">" line
+;; indent on ">" line
+
 (require 'subr-x)
 (require 's)
 (require 'comint)
@@ -240,6 +250,9 @@ command from the current selection or word around point."
 (define-key shellbow-view-mode-map (kbd "d") 'shellbow-kill-process)
 (define-key shellbow-view-mode-map (kbd "u") 'shellbow-command-from-selection)
 (define-key shellbow-view-mode-map (kbd "a") 'shellbow-append-selection-at-point)
+(define-key shellbow-view-mode-map (kbd "f") 'find-file-at-point)
+(define-key shellbow-view-mode-map (kbd "<SPC>") 'scroll-up-command)
+(define-key shellbow-view-mode-map (kbd "<backspace>") 'scroll-down-command)
 
 (defvar shellbow-syntax-table
   (let ((table (make-syntax-table text-mode-syntax-table)))
@@ -271,6 +284,11 @@ command from the current selection or word around point."
 (define-derived-mode shellbow-mode fundamental-mode "shellb"
   (setq-local indent-line-function 'shellbow-indent)
   (setq font-lock-defaults '(shellbow-highlights))
+  (setq-local completion-at-point-functions '()
+              ;; '(comint-completion-at-point)
+              ;; '(comint-dynamic-complete-filename comint-replace-by-expanded-filename)
+              ;; TODO write a file completion function which uses the directory context
+              )
   (set-syntax-table shellbow-syntax-table))
 
 (add-to-list 'auto-mode-alist '("\\.shellbow\\'" . shellbow-mode))

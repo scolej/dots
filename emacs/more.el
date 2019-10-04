@@ -55,10 +55,20 @@
 ;; Misc
 ;;
 
+(setq-default truncate-lines t)
+
+(global-set-key (kbd "C-x C-d") nil)
+
+;; (global-set-key (kbd "C-g") 'top-level)
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "C-q") 'quit-window)
 (global-set-key (kbd "C-\\") 'replace-string)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(global-set-key (kbd "<kp-5>") 'kill-whole-line)
+(global-set-key (kbd "<kp-1>") 'kill-region)
+(global-set-key (kbd "<kp-2>") 'maybe-copy-whole-line)
+(global-set-key (kbd "<kp-3>") 'yank)
 
 (setq-default
  mode-line-format
@@ -113,37 +123,8 @@
 ;; Handy saving
 ;;
 
-(require 'ibuffer)
-
 (defun save-all () (interactive) (save-some-buffers t))
-
-(defun save-all-buffers () (interactive) (save-some-buffers t))
-(global-set-key (kbd "<f12>") 'save-all-buffers)
-
-(defun ibuffer-unsaved ()
-  (interactive)
-  (ibuffer t "*Ibuffer Modified Buffers*" '((visiting-file) (modified))))
-
-(defun save-current-or-ibuffer-unsaved ()
-  (interactive)
-  (let* ((unsaved-buffers (seq-filter (lambda (buf)
-                                        (and (buffer-modified-p buf)
-                                             (buffer-file-name buf)))
-                                      (buffer-list)))
-         (current-buffer-sole-unsaved (equal (list (current-buffer))
-                                             unsaved-buffers)))
-    (cond (current-buffer-sole-unsaved (save-buffer))
-          ((> (length unsaved-buffers) 0) (ibuffer-unsaved))
-          ;; FIXME This shouldn't be the default case.
-          (t (message "All buffers saved.")))))
-
-(global-set-key (kbd "<f12>") 'save-current-or-ibuffer-unsaved)
-
-(define-key ibuffer-mode-map (kbd "<f12>")
-  (lambda ()
-    (interactive)
-    (save-all)
-    (quit-window)))
+(global-set-key (kbd "<f12>") 'save-all)
 
 ;;
 ;; Windowing
@@ -307,19 +288,12 @@ region into minibuffer if it is active."
 (setq org-refile-use-outline-path 'file
       org-export-with-section-numbers nil)
 
-(add-hook 'org-mode-hook 'org-indent-mode)
-
 (setq org-fontify-done-headline t)
 (let ((c "#b0d483"))
  (set-face-attribute 'org-headline-done nil :foreground c)
   (set-face-attribute 'org-done nil :foreground c))
 
-(global-set-key (kbd "C-x i")
-                (lambda ()
-                  (interactive)
-                  (pop-to-buffer "inbox.org")
-                  (end-of-buffer)
-                  (org-insert-heading)))
+(global-set-key (kbd "C-x c") 'org-capture)
 
 ;;
 ;;
@@ -359,7 +333,8 @@ region into minibuffer if it is active."
 
 (defun scratchy ()
   (interactive)
-  (let ((dir (concat "~/scratchy/" (format-time-string "%Y/%m/%d/"))))
+  (let ((dir (concat (if (boundp 'scratchy-dir) (symbol-value 'scratchy-dir) "~/")
+                     (format-time-string "%Y/%m/%d/"))))
     (make-directory dir t)
     (find-file (concat dir (format-time-string "%H%M")))))
 
