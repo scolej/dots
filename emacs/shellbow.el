@@ -163,11 +163,17 @@ trailing whitespace trimmed."
 
 (defun shellbow-last-buffer ()
   "Returns the most recently visited buffer in shellbow mode."
-  ;; FIXME Recency.
+  ;; FIXME Recency. buffer-display-time
   (car (seq-filter (lambda (b)
                      (with-current-buffer b
                        (equal major-mode 'shellbow-mode)))
                    (buffer-list))))
+
+(defun shellbow-last-window ()
+  "Returns the most recently selected window in shellbow mode."
+  (car (sort (get-buffer-window-list (shellbow-last-buffer) nil t)
+             (lambda (a b) (> (window-use-time a)
+                              (window-use-time b))))))
 
 (defun shellbow-region-or-word ()
   (if (region-active-p)
@@ -190,11 +196,11 @@ command from the current selection or word around point."
   (interactive "r")
   (let* ((text (shellbow-region-or-word))
          (need-quotes? (s-contains? " " text)))
-    (with-current-buffer (shellbow-last-buffer)
+    (with-selected-window (shellbow-last-window)
       (move-end-of-line nil)
       (unless (equal (char-before) ?\s) (insert " "))
       (when need-quotes? (insert "\""))
-      (insert text) ;; FIXME Point doesn't move?
+      (insert text)
       (when need-quotes? (insert "\"")))))
 
 (defun shellbox-find-context-bounds ()

@@ -34,4 +34,5 @@
 (when (package-installed-p 'lispy)
   (require 'lispy)
   (lispy-set-key-theme '(special lispy))
-  (add-hook 'emacs-lisp-mode-hook 'lispy-mode))
+  (add-hook 'emacs-lisp-mode-hook 'lispy-mode)
+  (add-hook 'scheme-mode-hook 'lispy-mode))

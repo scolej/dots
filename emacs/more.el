@@ -105,7 +105,6 @@
   (end-of-line)
   (newline nil t))
 
-
 ;; FIXME doesn't work at start of buffer
 (defun new-line-above ()
   (interactive)
@@ -120,7 +119,7 @@
 (setq completion-ignore-case t)
 
 ;;
-;; Handy saving
+;; Saving
 ;;
 
 (defun save-all () (interactive) (save-some-buffers t))
@@ -333,7 +332,8 @@ region into minibuffer if it is active."
 
 (defun scratchy ()
   (interactive)
-  (let ((dir (concat (if (boundp 'scratchy-dir) (symbol-value 'scratchy-dir) "~/")
+  (let ((dir (concat (if (boundp 'scratchy-dir) scratchy-dir
+                       "~/scratchy/")
                      (format-time-string "%Y/%m/%d/"))))
     (make-directory dir t)
     (find-file (concat dir (format-time-string "%H%M")))))
