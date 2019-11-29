@@ -5,10 +5,10 @@
   nil " tw" nil
   (if clean-trailing-whitespace-mode
       (progn
-        (add-hook 'before-save-hook 'delete-trailing-whitespace)
+        (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
         (setq show-trailing-whitespace nil))
     (progn
-      (remove-hook 'before-save-hook 'delete-trailing-whitespace)
+      (remove-hook 'before-save-hook 'delete-trailing-whitespace t)
       (kill-local-variable 'show-trailing-whitespace))))
 
 (defun current-buffer-has-trailing-whitespace-p ()

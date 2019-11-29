@@ -36,3 +36,9 @@
   (lispy-set-key-theme '(special lispy))
   (add-hook 'emacs-lisp-mode-hook 'lispy-mode)
   (add-hook 'scheme-mode-hook 'lispy-mode))
+
+(when (package-installed-p 'ivy)
+  (require 'ivy)
+  (ivy-mode)
+  (add-to-list 'ivy-completing-read-handlers-alist '(org-capture-refile . completing-read-default))
+  (add-to-list 'ivy-completing-read-handlers-alist '(org-refile . completing-read-default)))

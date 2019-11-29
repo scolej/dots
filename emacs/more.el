@@ -28,18 +28,15 @@
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-display-file)
 (define-key dired-mode-map (kbd "o") 'dired-display-file)
 
-(global-set-key (kbd "<escape>") 'dired-jump)
-
 ;;
 ;; Occur
 ;;
 
 (add-hook 'occur-hook
           '(lambda ()
-             (pop-to-buffer "*Occur*")))
-(add-hook 'occur-hook
-          '(lambda ()
              (setq truncate-lines t)))
+
+(add-hook 'occur-hook 'occur-rename-buffer)
 
 (define-key occur-mode-map (kbd "n")
   (lambda () (interactive)
@@ -55,13 +52,14 @@
 ;; Misc
 ;;
 
+(fringe-mode 0)
+
 (setq-default truncate-lines t)
 
 (global-set-key (kbd "C-x C-d") nil)
 
 ;; (global-set-key (kbd "C-g") 'top-level)
 (global-set-key (kbd "M-g") 'goto-line)
-(global-set-key (kbd "C-q") 'quit-window)
 (global-set-key (kbd "C-\\") 'replace-string)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
@@ -73,7 +71,7 @@
 (setq-default
  mode-line-format
  '((:eval (if (get-buffer-process (current-buffer))
-              '(:propertize ">>>" face success)
+              '(:propertize ">>>" face (:background "orange"))
             "%*"))
    " %b:%l:%c"))
 
@@ -117,6 +115,9 @@
 
 (setq-default case-fold-search t)
 (setq completion-ignore-case t)
+
+(setq delete-selection-save-to-register "d")
+(global-set-key (kbd "M-v") 'delete-selection-repeat-replace-region)
 
 ;;
 ;; Saving
@@ -203,6 +204,23 @@ region into minibuffer if it is active."
            (url-encode-url term))))
 
 (global-set-key (kbd "C-c g") (call-maybe-with-region 'google))
+
+;;
+;; Query replace using region
+;;
+
+(defun query-replace-maybe-region ()
+  (interactive)
+  (if (region-active-p)
+      (let ((str (buffer-substring-no-properties (point) (mark))))
+        (deactivate-mark)
+        (goto-char (min (point) (mark)))
+        (query-replace-regexp
+         str
+         (read-from-minibuffer (format "Replace %s with: " str))))
+    (call-interactively 'query-replace-regexp)))
+
+(global-set-key (kbd "M-%") 'query-replace-maybe-region)
 
 ;;
 ;; Dragging & duplicating
@@ -359,3 +377,31 @@ colon followed by the line number."
                    (number-to-string (line-number-at-pos (point))))))
     (kill-new s)
     (message (format "Copied: %s" s))))
+
+;;
+
+;; (defun long-line-truncator (str)
+;;   (let ((l 120))
+;;     (if (<= (length str) l)
+;;         str
+;;       (let ((start (substring str 0 l))
+;;             (end (substring str l)))
+;;         (concat start "\n" (long-line-truncator end))))))
+
+;; (defun long-line-truncator (str)
+;;   (replace-regexp-in-string "^\\(.\\{80\\}\\).*?$" ))
+
+;; (add-hook 'comint-preoutput-filter-functions 'long-line-truncator)
+
+;;
+
+;; (defun mark-and-forward ()
+;;   (interactive)
+;;   (unless (region-active-p) (set-mark (point)))
+;;   (forward-sexp))
+
+;; (global-set-key (kbd "<tab>") 'mark-and-forward)
+
+(global-set-key (kbd "<escape>") 'execute-extended-command)
+
+(global-set-key (kbd "<f3>") 'jump-to-register)

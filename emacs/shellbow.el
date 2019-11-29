@@ -52,8 +52,10 @@
 
 (defvar-local shellbow-command nil "Command used to generate a buffer's contents.")
 
+(defconst shellbow-buffer-prefix "!")
+
 (defun shellbow-bufferp (b)
-  (string-prefix-p "*sb* " (buffer-name b)))
+  (string-prefix-p shellbow-buffer-prefix (buffer-name b)))
 
 (defun shellbow-kill-output-buffers ()
   (interactive)
@@ -84,7 +86,7 @@ trailing whitespace trimmed."
   )
 
 (defun shellbow-make-name (command directory)
-  (string-join (list "*sb*" directory command) " "))
+  (string-join (list shellbow-buffer-prefix command directory) " "))
 
 (defun shellbow-line-kind ()
   "Find the type of line which point is currently on."
@@ -176,9 +178,9 @@ trailing whitespace trimmed."
                               (window-use-time b))))))
 
 (defun shellbow-region-or-word ()
-  (if (region-active-p)
+  (if (use-region-p)
       (buffer-substring-no-properties (point) (mark))
-    (thing-at-point 'sexp t)))
+      (thing-at-point 'sexp t)))
 
 ;; FIXME This should be smart enough to jump into the right directory context?
 ;; This is probably the desired behaviour most of the time.
@@ -256,7 +258,7 @@ command from the current selection or word around point."
 (define-key shellbow-view-mode-map (kbd "d") 'shellbow-kill-process)
 (define-key shellbow-view-mode-map (kbd "u") 'shellbow-command-from-selection)
 (define-key shellbow-view-mode-map (kbd "a") 'shellbow-append-selection-at-point)
-(define-key shellbow-view-mode-map (kbd "f") 'find-file-at-point)
+(define-key shellbow-view-mode-map (kbd "f") 'find-file-at-point) ;; FIXME use region
 (define-key shellbow-view-mode-map (kbd "<SPC>") 'scroll-up-command)
 (define-key shellbow-view-mode-map (kbd "<backspace>") 'scroll-down-command)
 

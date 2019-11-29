@@ -41,7 +41,7 @@
       mouse-wheel-progressive-speed nil
       read-buffer-completion-ignore-case t
 
-      vc-handled-backends '(git))
+      vc-handled-backends nil)
 
 (setq-default indent-tabs-mode nil)
 
