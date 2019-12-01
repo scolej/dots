@@ -62,6 +62,7 @@
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "C-\\") 'replace-string)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "C-/") 'split-line)
 
 (global-set-key (kbd "<kp-5>") 'kill-whole-line)
 (global-set-key (kbd "<kp-1>") 'kill-region)
@@ -103,12 +104,11 @@
   (end-of-line)
   (newline nil t))
 
-;; FIXME doesn't work at start of buffer
 (defun new-line-above ()
   (interactive)
-  (forward-line -1)
-  (end-of-line)
-  (newline nil t))
+  (beginning-of-line)
+  (newline)
+  (forward-line -1))
 
 (global-set-key (kbd "C-S-o") 'new-line-above)
 (global-set-key (kbd "C-o") 'new-line-below)
@@ -389,30 +389,7 @@ colon followed by the line number."
 
 ;;
 
-;; (defun long-line-truncator (str)
-;;   (let ((l 120))
-;;     (if (<= (length str) l)
-;;         str
-;;       (let ((start (substring str 0 l))
-;;             (end (substring str l)))
-;;         (concat start "\n" (long-line-truncator end))))))
-
-;; (defun long-line-truncator (str)
-;;   (replace-regexp-in-string "^\\(.\\{80\\}\\).*?$" ))
-
-;; (add-hook 'comint-preoutput-filter-functions 'long-line-truncator)
-
-;;
-
-;; (defun mark-and-forward ()
-;;   (interactive)
-;;   (unless (region-active-p) (set-mark (point)))
-;;   (forward-sexp))
-
-;; (global-set-key (kbd "<tab>") 'mark-and-forward)
-
 (global-set-key (kbd "<escape>") 'execute-extended-command)
-
 (global-set-key (kbd "<f3>") 'jump-to-register)
 
 ;;
@@ -425,3 +402,14 @@ colon followed by the line number."
 (defun insert-random-password ()
   (interactive)
   (insert (shell-command-to-string "openssl rand -base64 20")))
+
+(defun minibuffer-exit-insert ()
+  "Inserts the minibuffer text at point in the buffer from which
+minibuffer was started."
+  (interactive)
+  (let ((txt (minibuffer-contents-no-properties)))
+    (with-selected-window (minibuffer-selected-window)
+      (insert txt))
+    (minibuffer-keyboard-quit)))
+
+(define-key minibuffer-local-map (kbd "C-M-j") 'minibuffer-exit-insert)

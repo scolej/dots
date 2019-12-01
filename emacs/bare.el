@@ -24,7 +24,8 @@
       kept-old-versions 6
       version-control t
       auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save/" t))
-      auto-save-timeout 20
+      auto-save-timeout 5
+      auto-save-interval 100
       create-lockfiles nil
 
       inhibit-startup-screen t
