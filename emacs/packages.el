@@ -9,7 +9,6 @@
 
 (when (package-installed-p 'ag)
   (require 'ag)
-
   (define-key ag-mode-map (kbd "n") 'compilation-next-and-visit)
   (define-key ag-mode-map (kbd "p") 'compilation-prev-and-visit)
 

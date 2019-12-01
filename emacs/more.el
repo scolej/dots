@@ -421,3 +421,7 @@ colon followed by the line number."
 (defun ffap-git-diff-file (str)
   (substring str 2))
 (add-to-list 'ffap-alist '("[ab]/.*" . ffap-git-diff-file))
+
+(defun insert-random-password ()
+  (interactive)
+  (insert (shell-command-to-string "openssl rand -base64 20")))
