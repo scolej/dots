@@ -348,11 +348,20 @@ region into minibuffer if it is active."
 ;;
 ;;
 
+(defun scratchy-root ()
+  (concat (if (boundp 'scratchy-dir) scratchy-dir
+            "~/scratchy/")
+          (format-time-string "%Y/%m/%d/")))
+
+(defun scratchy-dired ()
+  (interactive)
+  (let ((dir (scratchy-root)))
+    (make-directory dir t)
+    (dired dir)))
+
 (defun scratchy ()
   (interactive)
-  (let ((dir (concat (if (boundp 'scratchy-dir) scratchy-dir
-                       "~/scratchy/")
-                     (format-time-string "%Y/%m/%d/"))))
+  (let ((dir (scratchy-root)))
     (make-directory dir t)
     (find-file (concat dir (format-time-string "%H%M")))))
 

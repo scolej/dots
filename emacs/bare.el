@@ -51,3 +51,4 @@
 (savehist-mode 1)
 
 (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "<M-delete>") 'kill-word)
