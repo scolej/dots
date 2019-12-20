@@ -1,7 +1,12 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(scroll-bar-mode -1)
 (eldoc-mode -1)
+
+(scroll-bar-mode 1)
+(defun hide-minibuffer-scroll-bars (frame)
+  (with-selected-frame frame
+    (set-window-scroll-bars (minibuffer-window) nil nil)))
+(add-hook 'after-make-frame-functions 'hide-minibuffer-scroll-bars)
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)

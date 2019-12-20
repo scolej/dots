@@ -414,3 +414,10 @@ colon followed by the line number."
 (global-set-key (kbd "<escape>") 'execute-extended-command)
 
 (global-set-key (kbd "<f3>") 'jump-to-register)
+
+;;
+
+(require 'ffap)
+(defun ffap-git-diff-file (str)
+  (substring str 2))
+(add-to-list 'ffap-alist '("[ab]/.*" . ffap-git-diff-file))

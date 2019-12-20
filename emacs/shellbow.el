@@ -114,7 +114,9 @@ trailing whitespace trimmed."
       (display-buffer buf
                       '((shellbow-display-buffer
                          display-buffer-pop-up-window)
-                        . ((inhibit-same-window . t))))
+                        . ((inhibit-same-window . t)
+                           (window-height . 0.8)
+                           (window-width . 0.8))))
       (shellbow-execute-command buf command directory))))
 
 ;; FIXME Window dedicated? Window already displayed somewhere else?
