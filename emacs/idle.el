@@ -4,11 +4,14 @@
 ;; - Escape regexp properly.
 ;; - Handle case properly.
 ;; - idle timer setting could avoid work by testing if string has changed.
+;; - use a unique face to not blow away manual highlights
+;; - use overlays?
 
 (require 'subr-x)
 
 (defvar idle-highlight-timer nil)
 (defvar idle-highlight-string nil)
+
 
 (defun idle-highlight-clean ()
   "Remove any active highlight."
