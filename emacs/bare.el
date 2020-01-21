@@ -49,7 +49,9 @@
       mouse-wheel-progressive-speed nil
       read-buffer-completion-ignore-case t
 
-      vc-handled-backends nil)
+      vc-handled-backends nil
+
+      scroll-conservatively 0)
 
 (setq-default indent-tabs-mode nil)
 

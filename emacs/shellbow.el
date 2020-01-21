@@ -41,9 +41,13 @@
 
 ;;  Would be cool to have "archive" instead of delete. Send old commands to a history file from which you can autocomplete.
 
+;; shellbow-show-active-processes
+
 ;; FIXME
 ;; enter on ">" line
 ;; indent on ">" line
+
+;; change buffer name on process exit? can see status from taskbar then.
 
 (require 'subr-x)
 (require 's)
@@ -81,9 +85,8 @@ trailing whitespace trimmed."
 (defun shellbow-mouse-line (e)
   "Move cursor to click position and execute the command on that line."
   (interactive "e")
-  ;; (mouse-set-point e)
-  ;; (shellbow-execute-line)
-  )
+  (mouse-set-point e)
+  (shellbow-execute-line))
 
 (defun shellbow-make-name (command directory)
   (string-join (list shellbow-buffer-prefix command directory) " "))
@@ -114,9 +117,7 @@ trailing whitespace trimmed."
       (display-buffer buf
                       '((shellbow-display-buffer
                          display-buffer-pop-up-window)
-                        . ((inhibit-same-window . t)
-                           (window-height . 0.8)
-                           (window-width . 0.8))))
+                        . ((inhibit-same-window . t))))
       (shellbow-execute-command buf command directory))))
 
 ;; FIXME Window dedicated? Window already displayed somewhere else?
@@ -276,8 +277,8 @@ command from the current selection or word around point."
   (set-syntax-table shellbow-syntax-table))
 
 (defvar shellbow-mode-map (make-sparse-keymap))
-;; (define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
-(define-key shellbow-mode-map (kbd "<mouse-3>") nil)
+(define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
+;; (define-key shellbow-mode-map (kbd "<mouse-3>") nil)
 (define-key shellbow-mode-map (kbd "<return>") 'shellbow-execute)
 (define-key shellbow-mode-map (kbd "C-m") 'shellbow-execute-line)
 (define-key shellbow-mode-map (kbd "<S-return>") 'shellbow-new-command)

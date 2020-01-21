@@ -24,9 +24,15 @@
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
+(defun dired-find-here (name)
+  (interactive "sFile name wildcard: ")
+  (find-name-dired default-directory name))
+
 (setq mouse-1-click-follows-link 450)
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-display-file)
 (define-key dired-mode-map (kbd "o") 'dired-display-file)
+(define-key dired-mode-map (kbd "i") 'dired-find-here)
+(define-key dired-mode-map (kbd "<backspace>") 'dired-up-directory)
 
 ;;
 ;; Occur
@@ -52,8 +58,6 @@
 ;; Misc
 ;;
 
-(fringe-mode 0)
-
 (setq-default truncate-lines t)
 
 (global-set-key (kbd "C-x C-d") nil)
@@ -78,7 +82,8 @@
 
 (setq-default show-trailing-whitespace nil)
 
-(setq split-width-threshold nil
+(setq split-width-threshold 130
+      split-height-threshold 40
       yank-handled-properties nil
       disabled-command-function nil)
 
@@ -134,44 +139,8 @@
 (global-set-key (kbd "C-1") 'delete-other-windows)
 (global-set-key (kbd "C-2") 'split-window-vertically)
 (global-set-key (kbd "C-3") 'split-window-horizontally)
-(global-set-key (kbd "C-`") #'make-frame)
-
-;;
-;; Longmouse
-;;
-;; Functions and bindings for long-pressing right mouse button for copy / cut.
-;;
-
-(defvar longmouse-timer nil)
-
-(defun longmouse-down ()
-  (interactive)
-  (kill-new (buffer-substring-no-properties (point) (mark)))
-  (setq deactivate-mark t
-        longmouse-timer-1 (run-at-time 0.3 nil
-                                       (lambda ()
-                                         (message "Cut!")
-                                         (delete-region (point) (mark))))
-        ;; longmouse-timer-2 (run-at-time 0.9 nil
-        ;;                                (lambda ()
-        ;;                                  (message "Buried!")
-        ;;                                  ;; (pop kill-ring)
-        ;;                                  ;; (setq kill-ring-yank-pointer kill-ring)
-        ;;                                  (setq kill-ring-yank-pointer (cdr kill-ring))
-        ;;                                  ))
-        ))
-
-(defun longmouse-up ()
-  (interactive)
-  (dolist (timer (list longmouse-timer-1
-                       ;; longmouse-timer-2
-                       ))
-    (when timer (cancel-timer timer))
-    (setq timer nil)))
-
-(global-set-key [down-mouse-3] 'longmouse-down)
-(global-set-key [mouse-3] 'longmouse-up)
-(global-set-key [mouse-2] 'yank)
+(global-set-key (kbd "C-`") 'make-frame)
+(global-set-key (kbd "M-o") 'other-window)
 
 ;;
 ;; Googling
@@ -297,22 +266,6 @@ region into minibuffer if it is active."
 (setq isearch-allow-scroll t)
 
 ;;
-;; Org
-;;
-
-(require 'org)
-
-(setq org-refile-use-outline-path 'file
-      org-export-with-section-numbers nil)
-
-(setq org-fontify-done-headline t)
-(let ((c "#b0d483"))
- (set-face-attribute 'org-headline-done nil :foreground c)
-  (set-face-attribute 'org-done nil :foreground c))
-
-(global-set-key (kbd "C-x c") 'org-capture)
-
-;;
 ;;
 ;;
 
@@ -413,3 +366,10 @@ minibuffer was started."
     (minibuffer-keyboard-quit)))
 
 (define-key minibuffer-local-map (kbd "C-M-j") 'minibuffer-exit-insert)
+
+;;
+
+(add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
+(set-face-attribute 'vertical-border nil :inherit 'fringe :inverse-video t)
+(set-face-attribute 'fringe nil :foreground "grey")
+(fringe-mode '(0 . 9))
