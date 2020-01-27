@@ -343,7 +343,9 @@ colon followed by the line number."
 ;;
 
 (global-set-key (kbd "<escape>") 'execute-extended-command)
-(global-set-key (kbd "<f3>") 'jump-to-register)
+;; ? (global-set-key (kbd "<f3>") 'jump-to-register)
+(global-set-key (kbd "<f3>") 'kmacro-start-macro)
+
 
 ;;
 
@@ -372,4 +374,8 @@ minibuffer was started."
 (add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
 (set-face-attribute 'vertical-border nil :inherit 'fringe :inverse-video t)
 (set-face-attribute 'fringe nil :foreground "grey")
+(set-face-attribute 'mode-line nil
+                    :height 75
+                    :box nil
+                    :overline nil)
 (fringe-mode '(0 . 9))

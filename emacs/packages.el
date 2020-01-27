@@ -55,7 +55,7 @@
     (let ((str (buffer-substring-no-properties (point) (mark))))
       (deactivate-mark)
       (goto-char (min (point) (mark)))
-      (query-replace-regexp str replacement)))
+      (query-replace str replacement)))
 
   (define-key selected-keymap (kbd "<return>") 'kill-ring-save)
   (define-key selected-keymap (kbd "/") 'replace-string)
@@ -64,4 +64,6 @@
   (selected-global-mode))
 
 (when (require 'flycheck nil t)
-  (setq flycheck-idle-change-delay 2))
+  (setq flycheck-idle-change-delay 2)
+  (when (featurep 'haskell-mode)
+    (add-hook 'haskell-mode-hook 'flycheck-mode)))
