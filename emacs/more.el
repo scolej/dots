@@ -82,8 +82,8 @@
 
 (setq-default show-trailing-whitespace nil)
 
-(setq split-width-threshold 130
-      split-height-threshold 40
+(setq split-width-threshold nil
+      split-height-threshold nil
       yank-handled-properties nil
       disabled-command-function nil)
 

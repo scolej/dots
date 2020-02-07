@@ -1,5 +1,6 @@
 (when (require 'shellbow nil t)
   (add-to-list 'auto-mode-alist '("shellbow" . shellbow-mode))
+  (global-set-key (kbd "<C-f11>") 'shellbow-this-is-the-speedy-buffer)
   (global-set-key (kbd "<f11>") (lambda () (interactive)
                                   (save-some-buffers t)
                                   (shellbow-speedy-rerun))))
@@ -67,3 +68,6 @@
   (setq flycheck-idle-change-delay 2)
   (when (featurep 'haskell-mode)
     (add-hook 'haskell-mode-hook 'flycheck-mode)))
+
+(when (require 'switcheroo nil t)
+  (global-set-key (kbd "<f1>") 'switcheroo))

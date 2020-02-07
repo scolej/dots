@@ -39,6 +39,16 @@
 (define-key switcheroo-mode-map (kbd "<f8>") 'switcheroo-select-8)
 (define-key switcheroo-mode-map (kbd "<f9>") 'switcheroo-select-9)
 
+(define-key switcheroo-mode-map (kbd "<kp-1>") 'switcheroo-select-1)
+(define-key switcheroo-mode-map (kbd "<kp-2>") 'switcheroo-select-2)
+(define-key switcheroo-mode-map (kbd "<kp-3>") 'switcheroo-select-3)
+(define-key switcheroo-mode-map (kbd "<kp-4>") 'switcheroo-select-4)
+(define-key switcheroo-mode-map (kbd "<kp-5>") 'switcheroo-select-5)
+(define-key switcheroo-mode-map (kbd "<kp-6>") 'switcheroo-select-6)
+(define-key switcheroo-mode-map (kbd "<kp-7>") 'switcheroo-select-7)
+(define-key switcheroo-mode-map (kbd "<kp-8>") 'switcheroo-select-8)
+(define-key switcheroo-mode-map (kbd "<kp-9>") 'switcheroo-select-9)
+
 (defun switcheroo-select ()
   (interactive)
   (if (equal 1 (line-number-at-pos))
@@ -82,9 +92,13 @@
                                                      (if f f "")))))
                 (and (not (minibufferp b))
                      (contains-all (split-string str) test-string))))
-            (buffer-list))))
+            ;; Drop the first element, it's always the buffer
+            ;; where we started.
+            (cdr (buffer-list)))))
         (counter 1))
-    (dolist (b (seq-take bufs max-lines))
+    (dolist (b (seq-take
+                bufs
+                max-lines))
       (switcheroo-write-line b counter)
       (setq counter (1+ counter)))))
 
@@ -119,3 +133,5 @@
   (setq switcheroo-idle-timer (run-at-time 0.3 nil 'switcheroo-rewrite (current-buffer))))
 
 (define-derived-mode switcheroo-mode fundamental-mode " sroo")
+
+(provide 'switcheroo)

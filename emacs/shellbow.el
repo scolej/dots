@@ -243,10 +243,12 @@ command from the current selection or word around point."
   "Buffer to use to re-run the last command from anywhere. (Like
   RECOMPILE)")
 
+;; FIXME should display the buffer? but needs to handle if it's already visible on another frame.
 (defun shellbow-this-is-the-speedy-buffer ()
   "Make the current shellbow output buffer the target for speedy re-runs."
   (interactive)
-  (setq shellbow-speedy-buffer (current-buffer)))
+  (setq shellbow-speedy-buffer (current-buffer))
+  (message "This is the speedy buffer!"))
 
 (defun shellbow-speedy-rerun ()
   "If SHELLBOW-SPEEDY-BUFFER is set, jump there and re-run its command."

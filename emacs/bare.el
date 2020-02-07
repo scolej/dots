@@ -1,7 +1,11 @@
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
 (setq-default cursor-type '(bar . 4)
-              cursor-in-non-selected-windows nil)
+              cursor-in-non-selected-windows '(bar . 2))
+
+(setq blink-cursor-blinks 100
+      blink-cursor-delay 0.2
+      blink-cursor-interval 0.2)
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
