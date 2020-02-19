@@ -71,3 +71,6 @@
 
 (when (require 'switcheroo nil t)
   (global-set-key (kbd "<f1>") 'switcheroo))
+
+(when (require 'latex-mode nil t)
+  (define-key latex-mode-map (kbd "<C-return>") nil))

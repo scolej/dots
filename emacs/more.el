@@ -379,3 +379,23 @@ minibuffer was started."
                     :box nil
                     :overline nil)
 (fringe-mode '(0 . 9))
+
+;;
+
+(defun find-next-file (&optional offset)
+  (interactive)
+  (let* ((full-name (buffer-file-name))
+         (f (file-name-nondirectory full-name))
+         (d (file-name-directory full-name))
+         (fs (directory-files d))
+         (i (seq-position fs f))
+         (next (seq-elt fs (+ i (or offset 1)))))
+    (if (equal next "..") (dired d)
+      (find-file next))))
+
+(defun find-prev-file ()
+  (interactive)
+  (find-next-file -1))
+
+(global-set-key (kbd "C-x <down>") 'find-next-file)
+(global-set-key (kbd "C-x <up>") 'find-prev-file)
