@@ -2,6 +2,12 @@
 ;; Ideas
 ;;
 
+;; Should remove this sill ">" business and just have a list of
+;; commands. New ones appended at the bottom.
+;; C-c $ should archive a region of commands, send them to some other buffer which can be C-r searched.
+;; Probably change to one directory per buffer?
+;; Shellbow shortcut should go to the buffer for a directory which contains default-directory
+
 ;; should bind RET in output to same as g to be consistent
 
 ;; A good way to search current buffer for a command and then use it as a new command.
@@ -42,6 +48,8 @@
 ;;  Would be cool to have "archive" instead of delete. Send old commands to a history file from which you can autocomplete.
 
 ;; shellbow-show-active-processes
+
+;; broken: quotes for "u"
 
 ;; FIXME
 ;; enter on ">" line

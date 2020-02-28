@@ -312,11 +312,15 @@ region into minibuffer if it is active."
     (make-directory dir t)
     (dired dir)))
 
-(defun scratchy ()
+(defun scratchy-ext (ext)
   (interactive)
   (let ((dir (scratchy-root)))
     (make-directory dir t)
-    (find-file (concat dir (format-time-string "%H%M")))))
+    (find-file (concat dir (format-time-string "%H%M") "." ext))))
+
+(defun scratchy () (interactive) (scratchy-ext ""))
+(defun scratchy-elisp () (interactive) (scratchy-ext "el"))
+(defun scratchy-txt () (interactive) (scratchy-ext "txt"))
 
 ;;
 ;;
