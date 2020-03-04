@@ -403,3 +403,9 @@ minibuffer was started."
 
 (global-set-key (kbd "C-x <down>") 'find-next-file)
 (global-set-key (kbd "C-x <up>") 'find-prev-file)
+
+(when (boundp 'terminal-prog)
+  (defun term-here ()
+    (interactive)
+    (start-process "term" nil terminal-prog))
+  (global-set-key (kbd "C-x t") 'term-here))
