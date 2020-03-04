@@ -1,15 +1,14 @@
-;;; switcheroo.el --- Buffer switching with filtering and single key selection.
+;;; switcheroo.el --- Buffer switching with filtering and single key selection.  -*- lexical-binding: t -*-
 
 ;;; Commentary:
 
-;; Buffer switcher which attempts to combine the best of Ivy and Avy.
+;; Buffer switcher which attempts to combine the styles of Ivy and
+;; Avy: filtering and single key selection from many candidates.
 ;; Invoke `switcheroo' to jump to the switcheroo buffer. Here, text
 ;; can be entered on the first line to filter for matching buffer
-;; candidates which are listed below.
-
-;; Candidates can be immediately selected by number. Alternatively,
-;; point can be moved to the appropriate line and then selected with
-;; `switcheroo-select'.
+;; candidates, which are listed below. Candidates can be immediately
+;; selected by number. Alternatively, point can be moved to the
+;; appropriate line and then selected with `switcheroo-select'.
 
 ;; The default bindings use the function keys and number-keypad to
 ;; select a candidate buffer by number.
@@ -19,10 +18,11 @@
 ;; then finding buffers whose name or visited file (if it exists)
 ;; contain subtring matches for every word.
 
-;; TODO
+;; TODO & Ideas
 ;; - make whole buffer except filter line unmodifiable
-;; - clickable
+;; - clickable lines
 ;; - exclude visible buffers? buffers on same window?
+;; - fuzzy filter, don't require exact matches
 
 ;;; Code:
 
@@ -80,6 +80,14 @@ otherwise the candidate on the current line."
 (defun switcheroo-select-7 () (interactive) (switcheroo-select-nth 7))
 (defun switcheroo-select-8 () (interactive) (switcheroo-select-nth 8))
 (defun switcheroo-select-9 () (interactive) (switcheroo-select-nth 9))
+
+;; FIXME Doesn't work :( make-symbol?
+;; (do ((i 1 (1+ i)))
+;;     ((< 10 i))
+;;   (fset (make-symbol (concat "switcheroo-select-" (number-to-string i)))
+;;         (lambda () (interactive) (switcheroo-select-nth i))))
+
+(fset 'switcheroo-select-1 (lambda () (interactive) (switcheroo-select-nth 1)))
 
 (defun contains-all (words str)
   "Return t if every element of the list WORDS is a substring of STR."
