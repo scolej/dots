@@ -15,6 +15,9 @@
 ;; Highlight-thing, add & patch so no highlight whitespace only.
 
 ;; Quick jump next occurrence of selection, back and forwards.
+;; and same if no selection, use thing under point
+
+;; M-n M-p flycheck next prev?
 
 ;;
 ;; Dired
