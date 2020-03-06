@@ -1,5 +1,4 @@
 (when (require 'shellbow nil t)
-  (add-to-list 'auto-mode-alist '("shellbow" . shellbow-mode))
   (global-set-key (kbd "<C-f11>") 'shellbow-this-is-the-speedy-buffer)
   (global-set-key (kbd "<f11>") (lambda () (interactive)
                                   (save-some-buffers t)

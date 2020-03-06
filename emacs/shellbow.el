@@ -51,6 +51,8 @@
 
 ;; broken: quotes for "u"
 
+;; default dir should be file location, make it easy to whip up at the site.
+
 ;; FIXME
 ;; enter on ">" line
 ;; indent on ">" line

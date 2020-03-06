@@ -389,6 +389,15 @@ minibuffer was started."
 
 ;;
 
+(defun next-file (&optional offset)
+  (let* ((full-name (buffer-file-name))
+         (f (file-name-nondirectory full-name))
+         (d (file-name-directory full-name))
+         (fs (directory-files d))
+         (i (seq-position fs f))
+         (next (seq-elt fs (+ i (or offset 1)))))
+    next))
+
 (defun find-next-file (&optional offset)
   (interactive)
   (let* ((full-name (buffer-file-name))
@@ -412,3 +421,22 @@ minibuffer was started."
     (interactive)
     (start-process "term" nil terminal-prog))
   (global-set-key (kbd "C-x t") 'term-here))
+
+;;
+
+(defun dedicate-window ()
+  (interactive)
+  (set-window-dedicated-p (selected-window) t))
+
+(defun quick-next ()
+  (interactive)
+  (when isearch-string
+    (search-forward isearch-string)))
+
+(defun quick-prev ()
+  (interactive)
+  (when isearch-string
+    (search-backward isearch-string)))
+
+(global-set-key (kbd "M-n") 'quick-next)
+(global-set-key (kbd "M-p") 'quick-prev)

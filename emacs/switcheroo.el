@@ -71,23 +71,9 @@ otherwise the candidate on the current line."
   (goto-line (1+ n))
   (switcheroo-select-current))
 
-(defun switcheroo-select-1 () (interactive) (switcheroo-select-nth 1))
-(defun switcheroo-select-2 () (interactive) (switcheroo-select-nth 2))
-(defun switcheroo-select-3 () (interactive) (switcheroo-select-nth 3))
-(defun switcheroo-select-4 () (interactive) (switcheroo-select-nth 4))
-(defun switcheroo-select-5 () (interactive) (switcheroo-select-nth 5))
-(defun switcheroo-select-6 () (interactive) (switcheroo-select-nth 6))
-(defun switcheroo-select-7 () (interactive) (switcheroo-select-nth 7))
-(defun switcheroo-select-8 () (interactive) (switcheroo-select-nth 8))
-(defun switcheroo-select-9 () (interactive) (switcheroo-select-nth 9))
-
-;; FIXME Doesn't work :( make-symbol?
-;; (do ((i 1 (1+ i)))
-;;     ((< 10 i))
-;;   (fset (make-symbol (concat "switcheroo-select-" (number-to-string i)))
-;;         (lambda () (interactive) (switcheroo-select-nth i))))
-
-(fset 'switcheroo-select-1 (lambda () (interactive) (switcheroo-select-nth 1)))
+(dolist (i (number-sequence 1 9))
+  (fset (intern (concat "switcheroo-select-" (number-to-string i)))
+        (lambda () (interactive) (switcheroo-select-nth i))))
 
 (defun contains-all (words str)
   "Return t if every element of the list WORDS is a substring of STR."
