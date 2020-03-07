@@ -69,7 +69,9 @@
     (add-hook 'haskell-mode-hook 'flycheck-mode)))
 
 (when (require 'switcheroo nil t)
-  (global-set-key (kbd "<f1>") 'switcheroo))
+  (global-set-key (kbd "<f1>") 'switcheroo)
+  (switcheroo-function-keys)
+  (switcheroo-numpad-keys))
 
 (when (require 'latex-mode nil t)
   (define-key latex-mode-map (kbd "<C-return>") nil))

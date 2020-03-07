@@ -4,14 +4,18 @@
 
 ;; Buffer switcher which attempts to combine the styles of Ivy and
 ;; Avy: filtering and single key selection from many candidates.
+
 ;; Invoke `switcheroo' to jump to the switcheroo buffer. Here, text
 ;; can be entered on the first line to filter for matching buffer
 ;; candidates, which are listed below. Candidates can be immediately
 ;; selected by number. Alternatively, point can be moved to the
 ;; appropriate line and then selected with `switcheroo-select'.
 
-;; The default bindings use the function keys and number-keypad to
-;; select a candidate buffer by number.
+;; Default bindings can be applied by calling
+;; `switcheroo-function-keys' and/or `switcheroo-numpad-keys'. These
+;; will setup function keys and numpad keys to select a candidate
+;; buffer by number. Alternatively, call neither and select candidates
+;; by moving point.
 
 ;; Candidates are listed by recency of display. Matching is performed
 ;; by taking the first line, splitting it on spaces into words and
@@ -71,6 +75,7 @@ otherwise the candidate on the current line."
   (goto-line (1+ n))
   (switcheroo-select-current))
 
+;; Define switcheroo-select-N where N goes from 1 to 9.
 (dolist (i (number-sequence 1 9))
   (fset (intern (concat "switcheroo-select-" (number-to-string i)))
         (lambda () (interactive) (switcheroo-select-nth i))))
@@ -151,24 +156,22 @@ range."
 (defvar switcheroo-mode-map (make-sparse-keymap))
 (define-key switcheroo-mode-map (kbd "C-g") 'quit-window)
 (define-key switcheroo-mode-map (kbd "<return>") 'switcheroo-select)
-(define-key switcheroo-mode-map (kbd "<f1>") 'switcheroo-select-1)
-(define-key switcheroo-mode-map (kbd "<f2>") 'switcheroo-select-2)
-(define-key switcheroo-mode-map (kbd "<f3>") 'switcheroo-select-3)
-(define-key switcheroo-mode-map (kbd "<f4>") 'switcheroo-select-4)
-(define-key switcheroo-mode-map (kbd "<f5>") 'switcheroo-select-5)
-(define-key switcheroo-mode-map (kbd "<f6>") 'switcheroo-select-6)
-(define-key switcheroo-mode-map (kbd "<f7>") 'switcheroo-select-7)
-(define-key switcheroo-mode-map (kbd "<f8>") 'switcheroo-select-8)
-(define-key switcheroo-mode-map (kbd "<f9>") 'switcheroo-select-9)
-(define-key switcheroo-mode-map (kbd "<kp-1>") 'switcheroo-select-1)
-(define-key switcheroo-mode-map (kbd "<kp-2>") 'switcheroo-select-2)
-(define-key switcheroo-mode-map (kbd "<kp-3>") 'switcheroo-select-3)
-(define-key switcheroo-mode-map (kbd "<kp-4>") 'switcheroo-select-4)
-(define-key switcheroo-mode-map (kbd "<kp-5>") 'switcheroo-select-5)
-(define-key switcheroo-mode-map (kbd "<kp-6>") 'switcheroo-select-6)
-(define-key switcheroo-mode-map (kbd "<kp-7>") 'switcheroo-select-7)
-(define-key switcheroo-mode-map (kbd "<kp-8>") 'switcheroo-select-8)
-(define-key switcheroo-mode-map (kbd "<kp-9>") 'switcheroo-select-9)
+
+(defun switcheroo-function-keys ()
+  "Add bindings to switch to buffer candidates by number using
+the function keys: <f1>, <f2>, <f3>..."
+  (dolist (i (mapcar 'number-to-string (number-sequence 1 9)))
+    (define-key switcheroo-mode-map
+      (kbd (concat "<f" i ">"))
+      (intern (concat "switcheroo-select-" i)))))
+
+(defun switcheroo-numpad-keys ()
+  "Add bindings to switch to buffer candidates by number using
+the numpad keys: <kp-1>, <kp-2>..."
+  (dolist (i (mapcar 'number-to-string (number-sequence 1 9)))
+    (define-key switcheroo-mode-map
+      (kbd (concat "<kp-" i ">"))
+      (intern (concat "switcheroo-select-" i)))))
 
 (define-derived-mode switcheroo-mode fundamental-mode " sroo")
 
