@@ -54,8 +54,8 @@
       read-buffer-completion-ignore-case t
 
       vc-handled-backends nil
-
-      scroll-conservatively 0)
+      scroll-conservatively 0
+      use-dialog-box nil)
 
 (setq-default indent-tabs-mode nil)
 

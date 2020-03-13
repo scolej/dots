@@ -325,6 +325,11 @@ region into minibuffer if it is active."
 (defun scratchy-elisp () (interactive) (scratchy-ext "el"))
 (defun scratchy-txt () (interactive) (scratchy-ext "txt"))
 
+(when (package-installed-p 'ag)
+  (defun search-scratchy (str)
+    (interactive "MAg scratchy: ")
+    (pop-and-sole (ag-regexp str "C:/JHMI/scratchy"))))
+
 ;;
 ;;
 ;;
