@@ -1,5 +1,5 @@
-" syntax on
-" filetype on
+syntax on
+filetype on
 map Y y$
 nmap <silent> <Down> :wincmd j<CR>
 nmap <silent> <Left> :wincmd h<CR>

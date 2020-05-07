@@ -1,17 +1,17 @@
+;;
+;; Minimal configuration.
+;;
+
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
 (setq-default cursor-type '(bar . 4)
               cursor-in-non-selected-windows '(bar . 2))
 
-(setq blink-cursor-blinks 100
-      blink-cursor-delay 0.2
-      blink-cursor-interval 0.2)
-
+(blink-cursor-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (eldoc-mode -1)
 (tooltip-mode -1)
-
 (scroll-bar-mode -1)
 
 (delete-selection-mode 1)
@@ -52,12 +52,13 @@
       revert-without-query '(".*")
       mouse-wheel-progressive-speed nil
       read-buffer-completion-ignore-case t
-
       vc-handled-backends nil
       scroll-conservatively 0
-      use-dialog-box nil)
+      use-dialog-box nil
+      async-shell-command-buffer 'new-buffer)
 
-(setq-default indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil
+              truncate-lines t)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -65,4 +66,4 @@
 (savehist-mode 1)
 
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "<M-delete>") 'kill-word)
+(global-set-key (kbd "M-g") 'goto-line)

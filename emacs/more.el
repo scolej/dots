@@ -1,23 +1,18 @@
 ;;
+;; Lots of random customizations.
+;; Work in progress.
+;;
+
+;;
 ;; TODO & ideas
 ;;
 
 ;; Better jumping to file paths under point.
+;; Tiny minor-mode?
 
 ;; Long mouse presses for word & line selection
 
 ;; C-x C-e for lisp should eval-region if region is active.
-
-;; CUA repeat replace! So good.
-
-;; If tracking packages with submodules, can depend & load from here.
-
-;; Highlight-thing, add & patch so no highlight whitespace only.
-
-;; Quick jump next occurrence of selection, back and forwards.
-;; and same if no selection, use thing under point
-
-;; M-n M-p flycheck next prev?
 
 ;;
 ;; Dired
@@ -28,6 +23,7 @@
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
 (defun dired-find-here (name)
+  ;; TODO ? initial input "**" with cursor in the middle.
   (interactive "sFile name wildcard: ")
   (find-name-dired default-directory name))
 
@@ -40,10 +36,6 @@
 ;;
 ;; Occur
 ;;
-
-(add-hook 'occur-hook
-          '(lambda ()
-             (setq truncate-lines t)))
 
 (add-hook 'occur-hook 'occur-rename-buffer)
 
@@ -61,20 +53,18 @@
 ;; Misc
 ;;
 
-(setq-default truncate-lines t)
-
 (global-set-key (kbd "C-x C-d") nil)
 
-;; (global-set-key (kbd "C-g") 'top-level)
-(global-set-key (kbd "M-g") 'goto-line)
+;; Just use find-file?
+(global-set-key (kbd "C-x d") nil)
+
 (global-set-key (kbd "C-\\") 'replace-string)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-/") 'split-line)
 
-(global-set-key (kbd "<kp-5>") 'kill-whole-line)
-(global-set-key (kbd "<kp-1>") 'kill-region)
-(global-set-key (kbd "<kp-2>") 'maybe-copy-whole-line)
-(global-set-key (kbd "<kp-3>") 'yank)
+;; (global-set-key (kbd "<kp-5>") 'kill-whole-line)
+;; (global-set-key (kbd "<kp-1>") 'kill-region)
+;; (global-set-key (kbd "<kp-2>") 'maybe-copy-whole-line)
+;; (global-set-key (kbd "<kp-3>") 'yank)
 
 (setq-default
  mode-line-format
@@ -83,7 +73,7 @@
             "%*"))
    " %b:%l:%c"))
 
-(setq-default show-trailing-whitespace nil)
+(setq-default show-trailing-whitespace t)
 
 (setq split-width-threshold nil
       split-height-threshold nil
@@ -92,31 +82,19 @@
 
 (global-set-key (kbd "<f1>") 'switch-to-buffer)
 
-(defun maybe-copy-whole-line ()
-  (interactive)
-  (if mark-active
-      (copy-region-as-kill nil nil t)
-    (beginning-of-line 2)
-    (if (eq last-command 'maybe-copy-whole-line)
-        (kill-append
-         (buffer-substring-no-properties
-          (point)
-          (line-beginning-position 0))
-         nil)
-    (copy-region-as-kill (point) (line-beginning-position 0)))))
+(defun new-line (n)
+  (let* ((bol (point-at-bol))
+         (indent (buffer-substring-no-properties bol (+ bol (current-indentation)))))
+    (if (eq n 'up)
+        (progn (goto-char bol)
+               (save-excursion (insert "\n"))
+               (insert indent))
+      (progn (goto-char (point-at-eol))
+             (insert "\n")
+             (insert indent)))))
 
-(global-set-key (kbd "M-w") 'maybe-copy-whole-line)
-
-(defun new-line-below ()
-  (interactive)
-  (end-of-line)
-  (newline nil t))
-
-(defun new-line-above ()
-  (interactive)
-  (beginning-of-line)
-  (newline)
-  (forward-line -1))
+(defun new-line-above () (interactive) (new-line 'up))
+(defun new-line-below () (interactive) (new-line nil))
 
 (global-set-key (kbd "C-S-o") 'new-line-above)
 (global-set-key (kbd "C-o") 'new-line-below)
@@ -163,12 +141,6 @@ region into minibuffer if it is active."
            (minibuffer-with-setup-hook (lambda () (when init (insert init)))
              (call-interactively fun))))))
 
-(defun eww-google (term)
-  (interactive "MGoogle: ")
-  (eww
-   (concat "https://google.com/search?query="
-           (url-encode-url term))))
-
 (defun google (term)
   (interactive "MGoogle: ")
   (browse-url
@@ -195,48 +167,62 @@ region into minibuffer if it is active."
 (global-set-key (kbd "M-%") 'query-replace-maybe-region)
 
 ;;
-;; Dragging & duplicating
+;; Duplicating
 ;;
 
-;; FIXME Need these?
-(defun point-line-start () (save-excursion (beginning-of-line) (point)))
-(defun point-line-end () (save-excursion (end-of-line) (point)))
+(defun duplicate-region (dir)
+  (interactive)
+  (let* ((p (point))
+         (m (mark))
+         (text (buffer-substring-no-properties p m))
+         (deactivate-mark nil))
+    (save-excursion
+      (cond
+       ((eq dir 'down) (goto-char (max p m)) (insert text))
+       ((eq dir 'up) (goto-char (min p m)) (insert-before-markers text))))))
 
-;; FIXME And the upwards version as well!
-;; FIXME Region should be deactivated, but consecutive invokations should still work.
-(defun duplicate-dwim ()
+(defun duplicate-line (dir)
+  (interactive)
+  (let* ((bol (point-at-bol))
+         (eol (point-at-eol))
+         (pos-on-line (- (point) bol))
+         (text (buffer-substring-no-properties bol eol)))
+    (cond ((eq dir 'down) (forward-line))
+          ((eq dir 'up) (beginning-of-line)))
+    (save-excursion (insert text "\n"))
+    (forward-char pos-on-line)))
+
+(defun duplicate (dir)
   (interactive)
   (if (region-active-p)
-      (let ((text (buffer-substring-no-properties (point) (mark)))
-            (deactivate-mark nil))
-        (goto-char (min (point) (mark)))
-        (insert text))
-    ;; FIXME buffer-substring-no-properties why so long? it's so common...
-    (let ((text (buffer-substring-no-properties (point-line-start)
-                                                (point-line-end))))
-      (save-excursion
-        (end-of-line)
-        (newline)
-        (insert text))
-      ;; FIXME Only meant for interactive use?
-      (next-line))))
+      (duplicate-region dir)
+    (duplicate-line dir)))
 
-(global-set-key (kbd "<C-M-down>") 'duplicate-dwim)
+(defun duplicate-up () (interactive) (duplicate 'up))
+(defun duplicate-down () (interactive) (duplicate 'down))
 
-(defun drag (direction)
+(global-set-key (kbd "<C-M-up>") 'duplicate-up)
+(global-set-key (kbd "<C-M-down>") 'duplicate-down)
+
+;;
+;; Dragging
+;;
+
+(defun drag (dir)
   (interactive)
   (unless (region-active-p)
-    (let ((pos-on-line (- (point) (point-line-start)))
-          (text (buffer-substring-no-properties
-                 (point-line-start)
-                 (1+ (point-line-end)))))
-      (delete-region (point-line-start) (1+ (point-line-end)))
-      (forward-line (if (equal direction 'up) -1 1))
+    (let* ((bol (point-at-bol))
+           (eol (point-at-eol))
+           (pos-on-line (- (point) bol))
+           (text (buffer-substring-no-properties bol eol)))
+      (delete-region bol (progn (forward-line) (point)))
+      (cond ((eq dir 'down) (end-of-line) (newline))
+            ((eq dir 'up) (forward-line -1) (save-excursion (newline))))
       (save-excursion (insert text))
       (forward-char pos-on-line))))
 
-(defun drag-down () (interactive) (drag 'down))
 (defun drag-up () (interactive) (drag 'up))
+(defun drag-down () (interactive) (drag 'down))
 
 (global-set-key (kbd "<M-down>") 'drag-down)
 (global-set-key (kbd "<M-up>") 'drag-up)
@@ -274,6 +260,8 @@ region into minibuffer if it is active."
 
 (load "idle.el")
 (load "trails.el")
+;; (load "delete.el")
+(load "scratchy.el")
 
 ;;
 ;;
@@ -304,36 +292,6 @@ region into minibuffer if it is active."
 ;;
 ;;
 
-(defun scratchy-root ()
-  (concat (if (boundp 'scratchy-dir) scratchy-dir
-            "~/scratchy/")
-          (format-time-string "%Y/%m/%d/")))
-
-(defun scratchy-dired ()
-  (interactive)
-  (let ((dir (scratchy-root)))
-    (make-directory dir t)
-    (dired dir)))
-
-(defun scratchy-ext (ext)
-  (interactive)
-  (let ((dir (scratchy-root)))
-    (make-directory dir t)
-    (find-file (concat dir (format-time-string "%H%M") "." ext))))
-
-(defun scratchy () (interactive) (scratchy-ext ""))
-(defun scratchy-elisp () (interactive) (scratchy-ext "el"))
-(defun scratchy-txt () (interactive) (scratchy-ext "txt"))
-
-(when (package-installed-p 'ag)
-  (defun search-scratchy (str)
-    (interactive "MAg scratchy: ")
-    (pop-and-sole (ag-regexp str "C:/JHMI/scratchy"))))
-
-;;
-;;
-;;
-
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
   (interactive)
@@ -353,22 +311,33 @@ colon followed by the line number."
     (message (format "Copied: %s" s))))
 
 ;;
+;;
+;;
 
-(global-set-key (kbd "<escape>") 'execute-extended-command)
-;; ? (global-set-key (kbd "<f3>") 'jump-to-register)
-(global-set-key (kbd "<f3>") 'kmacro-start-macro)
+(global-set-key (kbd "<escape>") 'dired-jump)
+;; (global-set-key (kbd "<escape>") 'execute-extended-command)
 
-
+;;
+;;
 ;;
 
 (require 'ffap)
+
 (defun ffap-git-diff-file (str)
   (substring str 2))
 (add-to-list 'ffap-alist '("[ab]/.*" . ffap-git-diff-file))
 
+;;
+;;
+;;
+
 (defun insert-random-password ()
   (interactive)
   (insert (shell-command-to-string "openssl rand -base64 20")))
+
+;;
+;;
+;;
 
 (defun minibuffer-exit-insert ()
   "Inserts the minibuffer text at point in the buffer from which
@@ -382,28 +351,35 @@ minibuffer was started."
 (define-key minibuffer-local-map (kbd "C-M-j") 'minibuffer-exit-insert)
 
 ;;
-
-(add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
-(set-face-attribute 'vertical-border nil :inherit 'fringe :inverse-video t)
-(set-face-attribute 'fringe nil :foreground "grey")
-(set-face-attribute 'mode-line nil
-                    :height 75
-                    :box nil
-                    :overline nil)
-(fringe-mode '(0 . 9))
-
+;;
 ;;
 
-(defun next-file (&optional offset)
-  (let* ((full-name (buffer-file-name))
-         (f (file-name-nondirectory full-name))
-         (d (file-name-directory full-name))
-         (fs (directory-files d))
-         (i (seq-position fs f))
-         (next (seq-elt fs (+ i (or offset 1)))))
-    next))
+(add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
+
+(set-face-attribute 'mode-line nil
+                    :height 75 :box nil :overline nil :underline nil
+                    :foreground "#555555" :background "#eeeeee"
+                    :inverse-video nil)
+(set-face-attribute 'mode-line-inactive nil
+                    :inherit 'mode-line
+                    :foreground nil :background nil
+                    :box nil :weight 'normal)
+
+(set-face-attribute 'fringe nil
+                    :inherit 'default
+                    ;; For some reason must be explicit about bg colour :S
+                    ;; :background nil
+                    :background "#ffffff"
+                    :foreground nil)
+(set-face-attribute 'vertical-border nil
+                    :inherit 'mode-line :inverse-video t)
+
+;;
+;;
+;;
 
 (defun find-next-file (&optional offset)
+  "Find a file in order relative to the current file based on OFFSET."
   (interactive)
   (let* ((full-name (buffer-file-name))
          (f (file-name-nondirectory full-name))
@@ -421,6 +397,10 @@ minibuffer was started."
 (global-set-key (kbd "C-x <down>") 'find-next-file)
 (global-set-key (kbd "C-x <up>") 'find-prev-file)
 
+;;
+;;
+;;
+
 (when (boundp 'terminal-prog)
   (defun term-here ()
     (interactive)
@@ -428,10 +408,16 @@ minibuffer was started."
   (global-set-key (kbd "C-x t") 'term-here))
 
 ;;
+;;
+;;
 
 (defun dedicate-window ()
   (interactive)
   (set-window-dedicated-p (selected-window) t))
+
+;;
+;;
+;;
 
 (defun quick-next ()
   (interactive)
@@ -445,3 +431,40 @@ minibuffer was started."
 
 (global-set-key (kbd "M-n") 'quick-next)
 (global-set-key (kbd "M-p") 'quick-prev)
+
+;;
+;;
+;;
+
+(require 'scheme)
+(require 'cmuscheme)
+
+(defun scheme-load-this-file ()
+  (interactive)
+  (save-buffer)
+  (scheme-load-file (buffer-file-name)))
+
+(define-key scheme-mode-map (kbd "C-c C-l") 'scheme-load-this-file)
+(define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
+
+(setq scheme-program-name "/usr/local/bin/guile")
+
+;;
+;;
+;;
+
+(defun common-comint-setup ()
+  (setq show-trailing-whitespace nil
+        truncate-lines nil))
+
+(add-hook 'comint-mode-hook 'common-comint-setup)
+
+;;
+
+(define-derived-mode tab-mode view-mode "Tab"
+  ;; (read-only-mode 1)
+  ;; Doesn't work. trails clobbers it. How fix?
+  ;; (setq show-trailing-whitespace nil)
+  )
+
+(add-to-list 'auto-mode-alist '("\\.tab\\'" . tab-mode))

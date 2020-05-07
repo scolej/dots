@@ -1,3 +1,7 @@
+;;
+;; Third parties
+;;
+
 (when (require 'shellbow nil t)
   (global-set-key (kbd "<C-f11>") 'shellbow-this-is-the-speedy-buffer)
   (global-set-key (kbd "<f11>") (lambda () (interactive)
@@ -39,7 +43,8 @@
 (when (package-installed-p 'lispy)
   (require 'lispy)
   (add-hook 'emacs-lisp-mode-hook 'lispy-mode)
-  (add-hook 'scheme-mode-hook 'lispy-mode)
+  (eval-after-load 'scheme
+    (add-hook 'scheme-mode-hook 'lispy-mode))
   (lispy-set-key-theme '(special lispy))
   (dolist (m (list lispy-mode-map-parinfer
                    lispy-mode-map-lispy))
@@ -63,10 +68,10 @@
   (global-set-key (kbd "<C-return>") 'yank)
   (selected-global-mode))
 
-(when (require 'flycheck nil t)
-  (setq flycheck-idle-change-delay 2)
-  (when (featurep 'haskell-mode)
-    (add-hook 'haskell-mode-hook 'flycheck-mode)))
+;; (when (require 'flycheck nil t)
+;;   (setq flycheck-idle-change-delay 2)
+;;   (when (featurep 'haskell-mode)
+;;     (add-hook 'haskell-mode-hook 'flycheck-mode)))
 
 (when (require 'switcheroo nil t)
   (global-set-key (kbd "<f1>") 'switcheroo)

@@ -52,7 +52,7 @@
   (switch-to-buffer (or (get-buffer switcheroo-buffer-name)
                         (switcheroo-create-buffer)))
   (goto-char (point-min))
-  (delete-region (point) (point-line-end))
+  (delete-region (point) (point-at-eol))
   (switcheroo-rewrite (current-buffer)))
 
 (defun switcheroo-select ()
@@ -118,7 +118,7 @@ be at the start of the buffer."
   (insert (string-trim (buffer-name b)))
   (let ((f (buffer-file-name b)))
     (when f (insert " - " f)))
-  (put-text-property (point-line-start) (point-line-end) 'field b)
+  (put-text-property (point-at-bol) (point-at-eol) 'field b)
   (insert "\n"))
 
 (defvar-local switcheroo-idle-timer nil
@@ -133,7 +133,7 @@ Adding and remov hooks/timers as necessary."
     (remove-hook 'after-change-functions 'switcheroo-after-change t)
     (let ((filter-string (save-excursion
                            (beginning-of-buffer)
-                           (buffer-substring-no-properties (point) (point-line-end)))))
+                           (buffer-substring-no-properties (point) (point-at-eol)))))
       (save-excursion
         (goto-char (point-min))
         (end-of-line)
