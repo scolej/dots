@@ -1,13 +1,3 @@
-;;
-;; Third parties
-;;
-
-(when (require 'shellbow nil t)
-  (global-set-key (kbd "<C-f11>") 'shellbow-this-is-the-speedy-buffer)
-  (global-set-key (kbd "<f11>") (lambda () (interactive)
-                                  (save-some-buffers t)
-                                  (shellbow-speedy-rerun))))
-
 (when (package-installed-p 'projectile)
   (require 'projectile)
   (projectile-mode 1)
@@ -38,7 +28,12 @@
   (define-key dired-mode-map (kbd "M-r") 'ag-here-regexp)
   (define-key ag-mode-map (kbd "M-r") 'ag-here-regexp)
 
-  (add-hook 'ag-mode-hook (lambda () (setq truncate-lines t))))
+  (add-hook 'ag-mode-hook (lambda () (setq truncate-lines t)))
+
+  (defun search-scratchy (str)
+    (interactive "MAg scratchy: ")
+    (with-selected-frame (make-frame)
+      (pop-and-sole (ag-regexp str "C:/JHMI/scratchy")))))
 
 (when (package-installed-p 'lispy)
   (require 'lispy)
@@ -55,16 +50,9 @@
     (define-key m (kbd "M-o") nil)))
 
 (when (require 'selected nil t)
-  (defun query-replace-with-region (replacement)
-    (interactive "sReplacement: ")
-    (let ((str (buffer-substring-no-properties (point) (mark))))
-      (deactivate-mark)
-      (goto-char (min (point) (mark)))
-      (query-replace str replacement)))
-
   (define-key selected-keymap (kbd "<return>") 'kill-ring-save)
   (define-key selected-keymap (kbd "/") 'replace-string)
-  (define-key selected-keymap (kbd "r") 'query-replace-with-region)
+  (define-key selected-keymap (kbd "r") 'query-replace-maybe-region)
   (global-set-key (kbd "<C-return>") 'yank)
   (selected-global-mode))
 
@@ -78,5 +66,5 @@
   (switcheroo-function-keys)
   (switcheroo-numpad-keys))
 
-(when (require 'latex-mode nil t)
-  (define-key latex-mode-map (kbd "<C-return>") nil))
+;; (when (require 'latex-mode nil t)
+;;   (define-key latex-mode-map (kbd "<C-return>") nil))

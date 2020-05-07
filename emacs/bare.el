@@ -4,15 +4,16 @@
 
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
-(setq-default cursor-type '(bar . 4)
-              cursor-in-non-selected-windows '(bar . 2))
+(setq-default cursor-type '(bar . 3)
+              cursor-in-non-selected-windows '(hbar . 3))
 
 (blink-cursor-mode -1)
-(tool-bar-mode -1)
-(menu-bar-mode -1)
 (eldoc-mode -1)
-(tooltip-mode -1)
+(fringe-mode -1)
+(menu-bar-mode -1)
 (scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
@@ -41,8 +42,8 @@
       dired-clean-confirm-killing-deleted-buffers nil
       dired-use-ls-dired nil
 
-      require-final-newline nil
-      mode-require-final-newline nil
+      require-final-newline t
+      mode-require-final-newline t
 
       sentence-end-double-space nil
       set-mark-command-repeat-pop t

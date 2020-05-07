@@ -27,6 +27,7 @@
 ;; - clickable lines
 ;; - exclude visible buffers? buffers on same window?
 ;; - fuzzy filter, don't require exact matches
+;; - smarter filtering, like builtin: "bui.gr" should match for "build.gradle"
 
 ;;; Code:
 

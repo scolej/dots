@@ -1,10 +1,13 @@
 syntax on
 filetype on
 map Y y$
+" imap <CR> <ESC> 
 nmap <silent> <Down> :wincmd j<CR>
 nmap <silent> <Left> :wincmd h<CR>
 nmap <silent> <Right> :wincmd l<CR>
 nmap <silent> <Up> :wincmd k<CR>
+nmap <silent> <C-Up> :prev<CR>
+nmap <silent> <C-Down> :next<CR>
 nore , ;
 nore ; :
 nore <leader>h :set hls!<CR>
@@ -32,23 +35,24 @@ set softtabstop=2
 set tabstop=4
 set tw=0
 set virtualedit+=block
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
-set wildmode=longest:full,full
 set incsearch
 set fo-=o
 set hidden
 set path+=**
+set relativenumber
+
+" If a swap file exists, just open in read-only mode automatically.
+" autocmd SwapExists * let v:swapchoice = "o"
 
 autocmd BufNewFile,BufRead Jenkinsfile set syntax=groovy
 
-set completeopt=menuone,menu,longest
-set wildignore+=*\\tmp\\*,*.swp,*.swo,*.zip,.git,.cabal-sandbox
-set wildmode=longest,list,full
-set wildmenu
-set completeopt+=longest
+set completeopt=longest
+set wildmode=list:longest
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
 
 noremap Q <Nop>
 
+inoremap <f12> <ESC>
 noremap <f12> :w<CR>
 
 let netrw_banner=0

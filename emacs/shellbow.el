@@ -49,6 +49,11 @@
 
 ;; shellbow-show-active-processes
 
+;; Maybe f11 should find the last visible shellbow comman buffer and run that. Instead of speedy-rerun.
+;; or just provide this as: shellbow-speedy-visible-recent
+
+;; Need a way to run command and have it take over current window
+
 ;; broken: quotes for "u"
 
 ;; default dir should be file location, make it easy to whip up at the site.
@@ -129,6 +134,17 @@ trailing whitespace trimmed."
                          display-buffer-pop-up-window)
                         . ((inhibit-same-window . t))))
       (shellbow-execute-command buf command directory))))
+
+(defun shellbow-execute-line-here ()
+  "Execute the current line, and use the current window to display output."
+  (interactive)
+  (let ((command (shellbow-current-line)))
+    (when (string-empty-p command) (error "Line is empty."))
+    (let* ((directory (shellbow-find-dir))
+           (buf (get-buffer-create (shellbow-make-name command directory))))
+      (switch-to-buffer buf)
+      (shellbow-execute-command buf command directory)
+      (setq shellbow-speedy-buffer buf))))
 
 ;; FIXME Window dedicated? Window already displayed somewhere else?
 (defun shellbow-preferred-window-p (win)
@@ -267,6 +283,14 @@ command from the current selection or word around point."
   (with-current-buffer shellbow-speedy-buffer
     (shellbow-maybe-refresh)))
 
+(defun shellbow-command-buffer-p (buf)
+  (with-current-buffer buf
+    (and (boundp 'shellbow-view-mode) shellbow-view-mode)))
+
+(defun shellbow-visible-recent ()
+  "Returns the most recent shellbow command buffer which is visible."
+  (seq-find 'shellbow-command-buffer-p (buffer-list)))
+
 (defvar shellbow-view-mode-map (make-sparse-keymap))
 (define-key shellbow-view-mode-map (kbd "q") 'quit-window)
 (define-key shellbow-view-mode-map (kbd "g") 'shellbow-maybe-refresh)
@@ -292,6 +316,7 @@ command from the current selection or word around point."
 (define-key shellbow-mode-map (kbd "<mouse-3>") 'shellbow-mouse-line)
 ;; (define-key shellbow-mode-map (kbd "<mouse-3>") nil)
 (define-key shellbow-mode-map (kbd "<return>") 'shellbow-execute)
+(define-key shellbow-mode-map (kbd "C-c C-c") 'shellbow-execute-line-here)
 (define-key shellbow-mode-map (kbd "C-m") 'shellbow-execute-line)
 (define-key shellbow-mode-map (kbd "<S-return>") 'shellbow-new-command)
 

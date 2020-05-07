@@ -27,11 +27,34 @@
   (interactive "sFile name wildcard: ")
   (find-name-dired default-directory name))
 
+(defun dired-bro ()
+  "Opens the file under point in a browser."
+  (interactive)
+  (browse-url (dired-filename-at-point)))
+
 (setq mouse-1-click-follows-link 450)
 (define-key dired-mode-map (kbd "<mouse-2>") 'dired-display-file)
 (define-key dired-mode-map (kbd "o") 'dired-display-file)
 (define-key dired-mode-map (kbd "i") 'dired-find-here)
 (define-key dired-mode-map (kbd "<backspace>") 'dired-up-directory)
+
+(global-set-key (kbd "<S-escape>") 'dired-jump)
+
+(setq dired-launch-programs
+      '(("mp4" . "c:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe")))
+
+(defun dired-launch ()
+  (interactive)
+  (let* ((f (replace-regexp-in-string "/" "\\\\" (dired-file-name-at-point)))
+         (prog (alist-get (file-name-extension f) dired-launch-programs nil nil 'equal)))
+    (unless prog (error "No program for file: " f))
+    ;; (message "Launch %s for %s" prog f)
+    (start-process "*dired launch*" (get-buffer-create "*dired launch*")
+                   prog f)
+    ;; (pop-to-buffer "*dired launch*")
+    ))
+
+(define-key dired-mode-map (kbd "J") 'dired-launch)
 
 ;;
 ;; Occur
@@ -74,6 +97,7 @@
    " %b:%l:%c"))
 
 (setq-default show-trailing-whitespace t)
+(set-face-attribute 'trailing-whitespace nil :background "#ffdddd")
 
 (setq split-width-threshold nil
       split-height-threshold nil
@@ -161,7 +185,7 @@ region into minibuffer if it is active."
         (goto-char (min (point) (mark)))
         (query-replace-regexp
          str
-         (read-from-minibuffer (format "Replace %s with: " str))))
+         (read-from-minibuffer (format "Replace %s with: " str) str)))
     (call-interactively 'query-replace-regexp)))
 
 (global-set-key (kbd "M-%") 'query-replace-maybe-region)
@@ -286,7 +310,12 @@ region into minibuffer if it is active."
 ;;
 ;;
 
-(setq completion-styles '(basic partial-completion emacs22 substring initials))
+(setq completion-styles
+      '(basic
+        partial-completion
+        ;; emacs22
+        substring
+        initials))
 
 ;;
 ;;
@@ -433,21 +462,16 @@ minibuffer was started."
 (global-set-key (kbd "M-p") 'quick-prev)
 
 ;;
-;;
-;;
 
-(require 'scheme)
-(require 'cmuscheme)
+(setq smerge-command-prefix (kbd "C-c v"))
 
-(defun scheme-load-this-file ()
-  (interactive)
-  (save-buffer)
-  (scheme-load-file (buffer-file-name)))
+(defun smerge-maybe ()
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward "^<<<<<<< " nil t)
+      (smerge-mode))))
 
-(define-key scheme-mode-map (kbd "C-c C-l") 'scheme-load-this-file)
-(define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
-
-(setq scheme-program-name "/usr/local/bin/guile")
+(add-hook 'buffer-list-update-hook 'smerge-maybe)
 
 ;;
 ;;
@@ -468,3 +492,54 @@ minibuffer was started."
   )
 
 (add-to-list 'auto-mode-alist '("\\.tab\\'" . tab-mode))
+
+;;
+;;
+;;
+
+(defvar hopper-root nil)
+
+(defun hopper-cd (dir)
+  (interactive "DNew hopper dir: ")
+  (setq hopper-root dir))
+
+(defun hop-test-file (dir file)
+  (let ((f (concat (file-name-as-directory dir) file)))
+    (if (file-exists-p f) f
+      nil)))
+
+(defun hop-to-file (file &optional line column)
+  (let ((target (or (if (file-exists-p file) file nil)
+                    (hop-test-file default-directory file)
+                    (hop-test-file hopper-root file))))
+    (if (not target) (call-interactively 'find-file)
+      (find-file target)
+      (when line (goto-line line))
+      (when column (move-to-column column))
+      (recenter))))
+
+(defconst hopper-not-path-char-regex "[ \"()']"
+  "Regexp matching characters which should mark the bounds of a file path.")
+
+(defun file-hopper ()
+  (interactive)
+  (let ((str (buffer-substring-no-properties
+              (or (when (save-excursion
+                          (re-search-backward hopper-not-path-char-regex (point-at-bol) t))
+                    (1+ (match-beginning 0)))
+                  (point-at-bol))
+              (or (when (save-excursion
+                          (re-search-forward hopper-not-path-char-regex (point-at-eol) t))
+                    (1- (match-end 0)))
+                  (point-at-eol)))))
+    (cond ((or (string-empty-p str)
+               (null hopper-root))
+           (call-interactively 'find-file))
+          ((string-match "\\(.*\\):\\([[:digit:]]+\\)" str)
+           (hop-to-file (match-string 1 str) (string-to-number (match-string 2 str))))
+          ;; TODO match line & column
+          (t
+           (hop-to-file str)))))
+
+(global-set-key (kbd "C-x f") 'file-hopper)
+(global-set-key (kbd "C-x C-f") 'find-file)
