@@ -4,8 +4,8 @@
 
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
-(setq-default cursor-type '(bar . 3)
-              cursor-in-non-selected-windows '(hbar . 3))
+(setq-default cursor-type 'box
+              cursor-in-non-selected-windows 'hollow)
 
 (blink-cursor-mode -1)
 (eldoc-mode -1)
@@ -14,6 +14,7 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
+(transient-mark-mode -1)
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)

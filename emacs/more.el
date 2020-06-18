@@ -40,12 +40,9 @@
 
 (global-set-key (kbd "<S-escape>") 'dired-jump)
 
-(setq dired-launch-programs
-      '(("mp4" . "c:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe")))
-
 (defun dired-launch ()
   (interactive)
-  (let* ((f (replace-regexp-in-string "/" "\\\\" (dired-file-name-at-point)))
+  (let* ((f (file-truename (dired-file-name-at-point)))
          (prog (alist-get (file-name-extension f) dired-launch-programs nil nil 'equal)))
     (unless prog (error "No program for file: " f))
     ;; (message "Launch %s for %s" prog f)
@@ -282,7 +279,7 @@ region into minibuffer if it is active."
 ;;
 ;;
 
-(load "idle.el")
+;; (load "idle.el")
 (load "trails.el")
 ;; (load "delete.el")
 (load "scratchy.el")
@@ -344,7 +341,6 @@ colon followed by the line number."
 ;;
 
 (global-set-key (kbd "<escape>") 'dired-jump)
-;; (global-set-key (kbd "<escape>") 'execute-extended-command)
 
 ;;
 ;;
@@ -543,3 +539,45 @@ minibuffer was started."
 
 (global-set-key (kbd "C-x f") 'file-hopper)
 (global-set-key (kbd "C-x C-f") 'find-file)
+
+;;
+;;
+;;
+
+(defun next-mark ()
+  (interactive)
+  (let* ((p0 (point))
+         (p (point-max)))
+    (dolist (m (cons (mark) (mapcar 'marker-position mark-ring)))
+      (when (and (> m p0)
+                 (< m p))
+        (setq p m)))
+    (goto-char p)))
+
+(defun prev-mark ()
+  (interactive)
+  (let* ((p0 (point))
+         (p (point-min)))
+    (dolist (m (cons (mark) (mapcar 'marker-position mark-ring)))
+      (when (and (< m p0)
+                 (> m p))
+        (setq p m)))
+    (goto-char p)))
+
+(defun purge-marks ()
+  (interactive)
+  (let ((p0 (min (point) (mark)))
+        (p1 (max (point) (mark))))
+    (setq mark-ring
+          (seq-remove
+           (lambda (m)
+             (let ((mp (marker-position m)))
+               (< p0 mp p1)))
+           mark-ring))))
+
+(defun purge-all-marks ()
+  (interactive)
+  (setq mark-ring nil))
+
+(global-set-key (kbd "<S-down>") 'next-mark)
+(global-set-key (kbd "<S-up>") 'prev-mark)
