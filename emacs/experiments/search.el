@@ -35,5 +35,6 @@
 
 (defvar search-engine-mode-map (make-sparse-keymap))
 (define-key search-engine-mode-map (kbd "C-c C-c") 'search-current-line)
+(define-key search-engine-mode-map (kbd "<escape> <return>") 'search-current-line)
 
 (define-derived-mode search-engine-mode fundamental-mode "search engine mode")

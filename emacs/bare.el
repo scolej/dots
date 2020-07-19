@@ -56,7 +56,7 @@
       read-buffer-completion-ignore-case t
       vc-handled-backends nil
       scroll-conservatively 101
-      scroll-margin 10
+      scroll-margin 0
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer)
 

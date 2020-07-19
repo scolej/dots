@@ -31,6 +31,8 @@
 
 ;;; Code:
 
+(require 'subr-x)
+
 (defconst switcheroo-buffer-name "*switcheroo*")
 
 (defcustom switcheroo-max-lines 20
