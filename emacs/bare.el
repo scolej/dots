@@ -14,7 +14,7 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
-(transient-mark-mode -1)
+(transient-mark-mode 1)
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
@@ -55,7 +55,8 @@
       mouse-wheel-progressive-speed nil
       read-buffer-completion-ignore-case t
       vc-handled-backends nil
-      scroll-conservatively 0
+      scroll-conservatively 101
+      scroll-margin 10
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer)
 

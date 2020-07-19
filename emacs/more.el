@@ -143,6 +143,7 @@
 (global-set-key (kbd "C-3") 'split-window-horizontally)
 (global-set-key (kbd "C-`") 'make-frame)
 (global-set-key (kbd "M-o") 'other-window)
+(global-set-key (kbd "<C-tab>") 'other-window)
 
 ;;
 ;; Googling

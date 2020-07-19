@@ -40,6 +40,7 @@
   (add-hook 'emacs-lisp-mode-hook 'lispy-mode)
   (eval-after-load 'scheme
     (add-hook 'scheme-mode-hook 'lispy-mode))
+
   (lispy-set-key-theme '(special lispy))
   (dolist (m (list lispy-mode-map-parinfer
                    lispy-mode-map-lispy))
@@ -49,12 +50,12 @@
     (define-key m (kbd ":") nil)
     (define-key m (kbd "M-o") nil)))
 
-;; (when (require 'selected nil t)
-;;   (define-key selected-keymap (kbd "<return>") 'kill-ring-save)
-;;   (define-key selected-keymap (kbd "/") 'replace-string)
-;;   (define-key selected-keymap (kbd "r") 'query-replace-maybe-region)
-;;   (global-set-key (kbd "<C-return>") 'yank)
-;;   (selected-global-mode))
+(when (require 'selected nil t)
+  (define-key selected-keymap (kbd "<return>") 'kill-ring-save)
+  (define-key selected-keymap (kbd "/") 'replace-string)
+  (define-key selected-keymap (kbd "r") 'query-replace-maybe-region)
+  (global-set-key (kbd "<C-return>") 'yank)
+  (selected-global-mode))
 
 ;; (when (require 'flycheck nil t)
 ;;   (setq flycheck-idle-change-delay 2)
@@ -66,10 +67,6 @@
   (switcheroo-function-keys)
   (switcheroo-numpad-keys))
 
-;; (when (require 'latex-mode nil t)
-;;   (define-key latex-mode-map (kbd "<C-return>") nil))
-
-(when (require 'visible-mark nil t)
-  (global-visible-mark-mode 1)
-  (setq visible-mark-max 20)
-  (setq visible-mark-faces '(visible-mark-face1 visible-mark-face2)))
+(when (require 'cmuscheme nil t)
+  (defun disable-font-lock-mode () (font-lock-mode -1))
+  (add-hook 'inferior-scheme-mode-hook 'disable-font-lock-mode))
