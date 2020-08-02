@@ -13,6 +13,7 @@
 (load "experiments/search.el")
 
 (defun save-all () (interactive) (save-some-buffers t))
+(global-set-key (kbd "<f12>") 'save-all)
 
 (setq-default
  mode-line-format
@@ -23,10 +24,7 @@
 
 
 ;; todo
-;; modeline
-;; lispy
 ;; stop pressing tab so much
-;; switcheroo project
 
 (defun really-kill-buffer ()
   (interactive) (kill-buffer nil))
@@ -69,7 +67,126 @@
              "h" (keymap "f" 'describe-function
                          "v" 'describe-variable
                          "k" 'describe-key)
-             "<f12>" 'save-all
-             "<escape>" 'top-level)))
-  (global-set-key (kbd "<escape>") keys)
-  (global-set-key (kbd "<f12>") keys))
+             ;; "<escape>" 'top-level
+             )))
+  (global-set-key (kbd "<escape>") keys))
+
+;;
+;; Duplicating
+;;
+
+(defun duplicate-region (dir)
+  (interactive)
+  (let* ((p (point))
+         (m (mark))
+         (text (buffer-substring-no-properties p m))
+         (deactivate-mark nil))
+    (save-excursion
+      (cond
+       ((eq dir 'down) (goto-char (max p m)) (insert text))
+       ((eq dir 'up) (goto-char (min p m)) (insert-before-markers text))))))
+
+(defun duplicate-line (dir)
+  (interactive)
+  (let* ((bol (point-at-bol))
+         (eol (point-at-eol))
+         (pos-on-line (- (point) bol))
+         (text (buffer-substring-no-properties bol eol)))
+    (cond ((eq dir 'down) (forward-line))
+          ((eq dir 'up) (beginning-of-line)))
+    (save-excursion (insert text "\n"))
+    (forward-char pos-on-line)))
+
+(defun duplicate (dir)
+  (interactive)
+  (if (region-active-p)
+      (duplicate-region dir)
+    (duplicate-line dir)))
+
+(defun duplicate-up () (interactive) (duplicate 'up))
+(defun duplicate-down () (interactive) (duplicate 'down))
+
+(global-set-key (kbd "<C-M-up>") 'duplicate-up)
+(global-set-key (kbd "<C-M-down>") 'duplicate-down)
+
+;;
+;; Dragging
+;;
+
+(defun drag (dir)
+  (interactive)
+  (unless (region-active-p)
+    (let* ((bol (point-at-bol))
+           (eol (point-at-eol))
+           (pos-on-line (- (point) bol))
+           (text (buffer-substring-no-properties bol eol)))
+      (delete-region bol (progn (forward-line) (point)))
+      (cond ((eq dir 'down) (end-of-line) (newline))
+            ((eq dir 'up) (forward-line -1) (save-excursion (newline))))
+      (save-excursion (insert text))
+      (forward-char pos-on-line))))
+
+(defun drag-up () (interactive) (drag 'up))
+(defun drag-down () (interactive) (drag 'down))
+
+(global-set-key (kbd "<M-down>") 'drag-down)
+(global-set-key (kbd "<M-up>") 'drag-up)
+
+;;
+;;
+;;
+
+(when (boundp 'terminal-prog)
+  (defun term-here ()
+    (interactive)
+    (start-process "term" nil terminal-prog))
+  (global-set-key (kbd "C-x t") 'term-here))
+
+;;
+;; Query replace using region
+;;
+
+(defun query-replace-maybe-region ()
+  (interactive)
+  (if (region-active-p)
+      (let ((str (buffer-substring-no-properties (point) (mark))))
+        (deactivate-mark)
+        (goto-char (min (point) (mark)))
+        (query-replace-regexp
+         str
+         (read-from-minibuffer (format "Replace %s with: " str) str)))
+    (call-interactively 'query-replace-regexp)))
+
+;;
+;; Opening lines
+;;
+
+(defun new-line (n)
+  (let* ((bol (point-at-bol))
+         (indent (buffer-substring-no-properties bol (+ bol (current-indentation)))))
+    (if (eq n 'up)
+        (progn (goto-char bol)
+               (save-excursion (insert "\n"))
+               (insert indent))
+      (progn (goto-char (point-at-eol))
+             (insert "\n")
+             (insert indent)))))
+
+(defun new-line-above () (interactive) (new-line 'up))
+(defun new-line-below () (interactive) (new-line nil))
+
+(global-set-key (kbd "C-S-o") 'new-line-above)
+(global-set-key (kbd "C-o") 'new-line-below)
+
+;;
+;;
+;;
+
+(require 'paredit)
+(add-hook 'scheme-mode-hook 'paredit-mode)
+(add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+
+(define-key paredit-mode-map (kbd "[") 'paredit-open-round)
+(define-key paredit-mode-map (kbd "]") 'paredit-close-round)
+(define-key paredit-mode-map (kbd "(") 'paredit-open-square)
+(define-key paredit-mode-map (kbd ")") 'paredit-close-square)

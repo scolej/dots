@@ -171,4 +171,6 @@ keys: <kp-1>, <kp-2>..."
            (forward-line 1))))
      items)))
 
+;; git ls-tree -r HEAD | awk '{ print $4 }' > filelist
+
 (provide 'pick)

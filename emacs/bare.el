@@ -9,7 +9,7 @@
 
 (blink-cursor-mode -1)
 (eldoc-mode -1)
-(fringe-mode -1)
+(fringe-mode nil)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
