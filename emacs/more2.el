@@ -1,3 +1,6 @@
+(require 'ivy)
+(ivy-mode 1)
+
 (require 'pick nil t)
 (global-set-key (kbd "<f1>") 'pick-select-buffer)
 (global-set-key (kbd "<f2>") 'pick-filelist)
