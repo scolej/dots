@@ -1,6 +1,12 @@
 ;;; -*- lexical-binding: t -*-
 
+;; Ideas
+;; what is shown initially (when no filter) is somewhat useless
+;; would be better to keep track of common selections, and peg them to a number
+;; so you can organically associate a buffer to a number
+
 (require 'subr-x)
+(require 'seq)
 
 (defvar-local pick-options nil)
 
@@ -172,5 +178,24 @@ keys: <kp-1>, <kp-2>..."
      items)))
 
 ;; git ls-tree -r HEAD | awk '{ print $4 }' > filelist
+
+(defun pick-gradles ()
+  (interactive)
+  (pick-buffer
+   "*gradles*"
+   (let* ((name "gradles")
+          (dir (file-name-as-directory
+                (locate-dominating-file default-directory name)))
+          (filelist (concat dir name))
+          items '())
+     (with-temp-buffer
+       (insert-file-contents filelist)
+       (while (< (point) (point-max))
+         (let* ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+                (f (concat dir line))
+                (fun (lambda () (find-file f))))
+           (setq items (cons (cons line fun) items))
+           (forward-line 1))))
+     items)))
 
 (provide 'pick)

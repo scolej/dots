@@ -1,13 +1,13 @@
 (require 'ivy)
 (ivy-mode 1)
 
-(require 'pick nil t)
+(require 'pick)
 (global-set-key (kbd "<f1>") 'pick-select-buffer)
 (global-set-key (kbd "<f2>") 'pick-filelist)
 (pick-define-function-keys)
 (pick-define-numpad-keys)
 
-(require 'selected nil t)
+(require 'selected)
 (define-key selected-keymap (kbd "<return>") 'kill-ring-save)
 (define-key selected-keymap (kbd "r") 'query-replace-maybe-region)
 (global-set-key (kbd "<C-return>") 'yank)
@@ -58,7 +58,7 @@
              "k" 'really-kill-buffer
              "e" 'eval-buffer
              "c" 'new-frame
-             "q" 'quit
+             "q" 'quit-window
              "0" 'delete-window
              "1" 'delete-other-windows
              "2" 'split-window-below
@@ -157,7 +157,8 @@
         (goto-char (min (point) (mark)))
         (query-replace-regexp
          str
-         (read-from-minibuffer (format "Replace %s with: " str) str)))
+         (read-from-minibuffer (format "Replace %s with: " str) nil nil nil nil str)
+         ))
     (call-interactively 'query-replace-regexp)))
 
 ;;
@@ -185,6 +186,28 @@
 ;;
 ;;
 
+(defun copy-buffer-path ()
+  "Copy the full path to the current buffer's file."
+  (interactive)
+  (let ((str (cond (buffer-file-name)
+                   (default-directory))))
+    (kill-new str)
+    (message (format "Copied: %s" str))))
+
+(defun copy-buffer-path-and-line ()
+  "Copy the full path to the current buffer's file and append a
+colon followed by the line number."
+  (interactive)
+  (let ((s (concat (buffer-file-name)
+                   ":"
+                   (number-to-string (line-number-at-pos (point))))))
+    (kill-new s)
+    (message (format "Copied: %s" s))))
+
+;;
+;;
+;;
+
 (require 'paredit)
 (add-hook 'scheme-mode-hook 'paredit-mode)
 (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
@@ -193,3 +216,37 @@
 (define-key paredit-mode-map (kbd "]") 'paredit-close-round)
 (define-key paredit-mode-map (kbd "(") 'paredit-open-square)
 (define-key paredit-mode-map (kbd ")") 'paredit-close-square)
+
+(defun shell-this-line ()
+  (interactive)
+  (let ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+        (buf (get-buffer-create "*shelly*")))
+    (start-process-shell-command "shelly" buf line)))
+
+(defvar shelly-mode-map (make-sparse-keymap))
+(define-key shelly-mode-map (kbd "C-c C-c") 'shell-this-line)
+(define-derived-mode shelly-mode fundamental-mode "shelly")
+
+;;
+;;
+;;
+
+(global-set-key (kbd "<f16>") (lambda () (interactive) (insert-register ?1)))
+(global-set-key (kbd "<f17>") (lambda () (interactive) (insert-register ?2)))
+(global-set-key (kbd "<f18>") (lambda () (interactive) (insert-register ?3)))
+
+;;
+;; Occur
+;;
+
+(add-hook 'occur-hook 'occur-rename-buffer)
+
+(define-key occur-mode-map (kbd "n")
+  (lambda () (interactive)
+    (occur-next)
+    (occur-mode-display-occurrence)))
+
+(define-key occur-mode-map (kbd "p")
+  (lambda () (interactive)
+    (occur-prev)
+    (occur-mode-display-occurrence)))

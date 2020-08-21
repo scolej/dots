@@ -16,8 +16,8 @@ alias gcomm='git commit -m'
 alias gcfix='git commit --fixup'
 alias gd='git diff'
 alias gds='git diff --staged'
-alias gdu='git diff @{u}...'
-alias gl='git log'
+alias gdu='git diff $(git merge-base @{u} HEAD)'
+alias gl='git log --oneline'
 alias glu='git log --oneline @{u}..'
 alias gr='git reset'
 alias grc='git rebase --continue'
@@ -27,3 +27,13 @@ alias grrr='git rebase'
 alias gru='git remote update'
 alias grup='git remote update -p'
 alias gs='git status'
+
+function gads() {
+    git add $@
+    git diff --staged
+}
+
+function gas() {
+    git add $@
+    git status
+}

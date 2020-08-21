@@ -42,6 +42,7 @@
       dired-auto-revert-buffer t
       dired-clean-confirm-killing-deleted-buffers nil
       dired-use-ls-dired nil
+      dired-recursive-deletes 'top      ; always?
 
       require-final-newline t
       mode-require-final-newline t
@@ -55,8 +56,11 @@
       mouse-wheel-progressive-speed nil
       read-buffer-completion-ignore-case t
       vc-handled-backends nil
-      scroll-conservatively 101
+
+      scroll-conservatively 0
+      scroll-step 3
       scroll-margin 0
+
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer)
 
