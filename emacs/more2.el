@@ -1,5 +1,5 @@
-(require 'ivy)
-(ivy-mode 1)
+;; (require 'ivy)
+;; (ivy-mode 1)
 
 (require 'pick)
 (global-set-key (kbd "<f1>") 'pick-select-buffer)
@@ -12,6 +12,8 @@
 (define-key selected-keymap (kbd "r") 'query-replace-maybe-region)
 (global-set-key (kbd "<C-return>") 'yank)
 (selected-global-mode)
+
+(put 'narrow-to-page 'disabled nil)
 
 (load "experiments/search.el")
 
@@ -36,6 +38,7 @@
 (require 'dired-x)
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(define-key dired-mode-map (kbd "<backspace>") 'dired-jump)
 
 (defun define-keys (keymap &rest keys)
   "Make multiple bindings in a map."
@@ -48,13 +51,17 @@
     (apply 'define-keys map bindings)
     map))
 
-(global-set-key (kbd "<tab>") 'other-window)
+(global-set-key (kbd "<kp-0>") 'completion-at-point)
+(define-key minibuffer-local-map (kbd "<kp-0>") 'minibuffer-complete)
+
+(global-set-key (kbd "<C-tab>") 'other-window)
 
 (define-keys minibuffer-local-map
   "<escape>" 'top-level)
 
 (let ((keys (keymap
              "j" 'dired-jump
+             "DEL" 'dired-jump
              "k" 'really-kill-buffer
              "e" 'eval-buffer
              "c" 'new-frame
@@ -63,6 +70,7 @@
              "1" 'delete-other-windows
              "2" 'split-window-below
              "3" 'split-window-right
+             "=" 'balance-windows
              "f" 'find-file
              "g" 'google
              "b" 'switch-to-buffer
@@ -250,3 +258,49 @@ colon followed by the line number."
   (lambda () (interactive)
     (occur-prev)
     (occur-mode-display-occurrence)))
+
+;;
+;;
+;;
+
+(defun find-next-file (&optional offset)
+  "Find a file in order relative to the current file based on OFFSET."
+  (interactive)
+  (let* ((full-name (buffer-file-name))
+         (f (file-name-nondirectory full-name))
+         (d (file-name-directory full-name))
+         (fs (directory-files d))
+         (i (seq-position fs f))
+         (next (seq-elt fs (+ i (or offset 1)))))
+    (if (equal next "..") (dired d)
+      (find-file next))))
+
+(defun find-prev-file ()
+  (interactive)
+  (find-next-file -1))
+
+(global-set-key (kbd "C-x <down>") 'find-next-file)
+(global-set-key (kbd "C-x <up>") 'find-prev-file)
+
+;;
+;;
+;;
+
+(defun end-of-line-and-next ()
+  (interactive)
+  (when (= (point-at-eol) (point)) (forward-line))
+  (end-of-line))
+
+(defun start-of-line-and-prev ()
+  (interactive)
+  (when (= (point-at-bol) (point)) (forward-line -1))
+  (beginning-of-line))
+
+(global-set-key (kbd "C-e") 'end-of-line-and-next)
+(global-set-key (kbd "C-a") 'start-of-line-and-prev)
+
+;;
+;;
+;;
+
+(global-set-key (kbd "<f5>") 'revert-buffer)

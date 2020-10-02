@@ -70,6 +70,24 @@
     (occur-mode-display-occurrence)))
 
 ;;
+;;
+;;
+
+;; (defun copy-whole-line ()
+;;   (interactive)
+;;   (beginning-of-line 2)
+;;   (if (eq last-command 'maybe-copy-whole-line)
+;;       (kill-append
+;;        (buffer-substring-no-properties
+;;         (point)
+;;         (line-beginning-position 0))
+;;        nil)
+;;     (copy-region-as-kill (point) (line-beginning-position 0))))
+
+;; (global-set-key (kbd "M-w") 'maybe-copy-whole-line)
+(global-set-key (kbd "M-w") 'kill-ring-save)
+
+;;
 ;; Misc
 ;;
 
@@ -81,10 +99,10 @@
 (global-set-key (kbd "C-\\") 'replace-string)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
-;; (global-set-key (kbd "<kp-5>") 'kill-whole-line)
-;; (global-set-key (kbd "<kp-1>") 'kill-region)
-;; (global-set-key (kbd "<kp-2>") 'maybe-copy-whole-line)
-;; (global-set-key (kbd "<kp-3>") 'yank)
+(global-set-key (kbd "<kp-5>") 'kill-whole-line)
+(global-set-key (kbd "<kp-1>") 'kill-region)
+(global-set-key (kbd "<kp-2>") 'copy-whole-line)
+(global-set-key (kbd "<kp-3>") 'yank)
 
 (setq-default
  mode-line-format
@@ -124,7 +142,7 @@
 (setq completion-ignore-case t)
 
 (setq delete-selection-save-to-register "d")
-(global-set-key (kbd "M-v") 'delete-selection-repeat-replace-region)
+(global-set-key (kbd "M-r") 'delete-selection-repeat-replace-region)
 
 ;;
 ;; Saving
@@ -275,14 +293,16 @@ region into minibuffer if it is active."
 (advice-add 'isearch-backward :after 'isearch-use-region)
 
 (setq isearch-allow-scroll t)
+(setq isearch-wrap-function '(lambda nil))
+
 
 ;;
 ;;
 ;;
 
 ;; (load "idle.el")
-(load "trails.el")
 ;; (load "delete.el")
+(load "trails.el")
 (load "scratchy.el")
 
 ;;
@@ -308,12 +328,15 @@ region into minibuffer if it is active."
 ;;
 ;;
 
+;; (setq completion-styles
+;;       '(basic
+;;         partial-completion
+;;         ;; emacs22
+;;         substring
+;;         initials))
+
 (setq completion-styles
-      '(basic
-        partial-completion
-        ;; emacs22
-        substring
-        initials))
+      '(substring partial-completion basic))
 
 ;;
 ;;
@@ -375,10 +398,6 @@ minibuffer was started."
     (minibuffer-keyboard-quit)))
 
 (define-key minibuffer-local-map (kbd "C-M-j") 'minibuffer-exit-insert)
-
-;;
-;;
-;;
 
 ;;
 ;;
@@ -495,7 +514,7 @@ minibuffer was started."
       (when column (move-to-column column))
       (recenter))))
 
-(defconst hopper-not-path-char-regex "[ \"()']"
+(defconst hopper-not-path-char-regex "[^[:alnum:]-_./:\\]"
   "Regexp matching characters which should mark the bounds of a file path.")
 
 (defun file-hopper ()
@@ -509,14 +528,18 @@ minibuffer was started."
                           (re-search-forward hopper-not-path-char-regex (point-at-eol) t))
                     (1- (match-end 0)))
                   (point-at-eol)))))
-    (cond ((or (string-empty-p str)
-               (null hopper-root))
-           (call-interactively 'find-file))
-          ((string-match "\\(.*\\):\\([[:digit:]]+\\)" str)
-           (hop-to-file (match-string 1 str) (string-to-number (match-string 2 str))))
-          ;; TODO match line & column
-          (t
-           (hop-to-file str)))))
+    (cond
+     ((or (string-empty-p str)
+          ;; (and (null hopper-root)
+          ;;      ;; (not (file-name-absolute-p str))
+          ;;      )
+          )
+      (call-interactively 'find-file))
+     ((string-match "\\([^:]*\\):\\([[:digit:]]+\\)" str)
+      (hop-to-file (match-string 1 str) (string-to-number (match-string 2 str))))
+     ;; TODO match line & column
+     (t
+      (hop-to-file str)))))
 
 (global-set-key (kbd "C-x f") 'file-hopper)
 (global-set-key (kbd "C-x C-f") 'find-file)
@@ -560,5 +583,83 @@ minibuffer was started."
   (interactive)
   (setq mark-ring nil))
 
-(global-set-key (kbd "<S-down>") 'next-mark)
-(global-set-key (kbd "<S-up>") 'prev-mark)
+;; (global-set-key (kbd "<S-down>") 'next-mark)
+;; (global-set-key (kbd "<S-up>") 'prev-mark)
+
+;;
+;;
+;;
+
+(global-set-key (kbd "<C-tab>") 'other-window)
+
+;;
+;;
+;;
+
+(defvar-local timer-1 nil)
+(defvar-local timer-2 nil)
+
+(defun long-click-init (event)
+  (interactive "e")
+  (posn-set-point (event-start event))
+  (deactivate-mark)
+  (setq timer-1 (run-at-time 0.5 nil 'mark-word))
+  (setq timer-2 (run-at-time 1.0 nil 'mark-line)))
+
+(defun long-click-cancel ()
+  (interactive)
+  (when timer-1 (cancel-timer timer-1) (setq timer-1 nil))
+  (when timer-2 (cancel-timer timer-2) (setq timer-2 nil)))
+
+(defun mark-word ()
+  (interactive)
+  (backward-word)
+  (push-mark)
+  (activate-mark)
+  (forward-word))
+
+(defun mark-line ()
+  (interactive)
+  (beginning-of-line)
+  (push-mark)
+  (activate-mark)
+  (forward-line))
+
+;; (global-set-key (kbd "<mouse-1>") 'mouse-set-point)
+;; (global-set-key [down-mouse-1] nil)
+
+;; (global-set-key [down-mouse-1] 'long-click-init)
+;; (global-set-key [drag-mouse-1] 'long-click-cancel)
+;; (global-set-key [mouse-1] 'long-click-cancel)
+
+;;
+;;
+;;
+
+;; (global-set-key (kbd "<prior>") 'scroll-down-command)
+;; (global-set-key (kbd "<next>") 'scroll-up-command)
+(global-set-key (kbd "<prior>") (lambda () (interactive) (forward-line -20)))
+(global-set-key (kbd "<next>") (lambda () (interactive) (forward-line 20)))
+
+;;
+;; Shell line
+;;
+
+(defun shell-this-line ()
+  (interactive)
+  (let ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
+    (end-of-line)
+    (newline)
+    (insert (shell-command-to-string line))))
+
+(global-set-key (kbd "C-c C-c") 'shell-this-line)
+
+;;
+;;
+;;
+
+(defun maybe-mark ()
+  (unless (eq last-command 'self-insert-command)
+    (push-mark (1- (point)))))
+
+(add-hook 'post-self-insert-hook 'maybe-mark)

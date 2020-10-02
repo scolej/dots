@@ -57,8 +57,12 @@
       read-buffer-completion-ignore-case t
       vc-handled-backends nil
 
+      ;; scroll-conservatively 0
+      ;; scroll-step 3
+      ;; scroll-margin 0
+
       scroll-conservatively 0
-      scroll-step 3
+      scroll-step 0
       scroll-margin 0
 
       use-dialog-box nil

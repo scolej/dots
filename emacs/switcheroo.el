@@ -74,9 +74,11 @@ otherwise the candidate on the current line."
 
 (defun switcheroo-select-nth (n)
   "Switch to the buffer on the Nth line."
-  (goto-char (point-min))
-  (goto-line (1+ n))
-  (switcheroo-select-current))
+  ;; FIXME save-excursion doesn't work if we switch away?
+  (save-excursion
+    (goto-char (point-min))
+    (goto-line (1+ n))
+    (switcheroo-select-current)))
 
 ;; Define switcheroo-select-N where N goes from 1 to 9.
 (dolist (i (number-sequence 1 9))
@@ -152,7 +154,7 @@ range."
   (when switcheroo-idle-timer
     (cancel-timer switcheroo-idle-timer))
   (setq switcheroo-idle-timer
-        (run-at-time 0.3 nil
+        (run-at-time 0.1 nil
                      'switcheroo-rewrite
                      (current-buffer))))
 

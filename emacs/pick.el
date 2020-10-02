@@ -177,7 +177,14 @@ keys: <kp-1>, <kp-2>..."
            (forward-line 1))))
      items)))
 
-;; git ls-tree -r HEAD | awk '{ print $4 }' > filelist
+
+(defun pick-list-git-files ()
+  (interactive)
+  (async-shell-command "git ls-tree -r HEAD | awk '{ print $4 }' > filelist"))
+
+(defun pick-list-gradle-files ()
+  (interactive)
+  (async-shell-command "git ls-tree -r HEAD | grep gradle | awk '{ print $4 }' > gradles"))
 
 (defun pick-gradles ()
   (interactive)

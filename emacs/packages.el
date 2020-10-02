@@ -4,7 +4,7 @@
   (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
   (global-set-key (kbd "<f2>") 'projectile-find-file)
   (setq projectile-indexing-method 'alien
-        projectile-completion-system 'default
+        projectile-completion-system 'ivy
         projectile-switch-project-action 'projectile-dired))
 
 (when (package-installed-p 'ag)

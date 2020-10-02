@@ -15,3 +15,7 @@
                     :foreground nil)
 (set-face-attribute 'vertical-border nil
                     :inherit 'mode-line :inverse-video t)
+
+(load-theme 'modus-operandi)
+
+;; (set-face-attribute 'org-block-begin-line nil :background nil :foreground "gray")
