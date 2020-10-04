@@ -1,9 +1,7 @@
-;;
-;; Tidy whitespace.
-;;
-;; If buffer has no trailing whitespace, keep it that way. Otherwise
-;; show the trailing whitespace.
-;;
+;;; Tidy whitespace.
+;;;
+;;; If buffer has no trailing whitespace, keep it that way. Otherwise
+;;; show the trailing whitespace.
 
 (define-minor-mode clean-trailing-whitespace-mode
   "Minor mode to automatically clean trailing whitespace on save."

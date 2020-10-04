@@ -10,8 +10,6 @@
   (interactive "M")
   (rgrep pattern "*" default-directory nil))
 
-(global-set-key (kbd "C-x g") 'git-grep-symbol-at-point)
-
 ;; Recursive grep which doesn't use find.
 ;; Find + Grep combo is too slow on Windows.
 (defun rgr (pattern dir)
@@ -29,5 +27,15 @@
                  nil nil nil nil thing))
          (pattern (if (string-empty-p input) thing input)))
     (compilation-start
-     (concat "git grep -Hin '" pattern "'")
+     (concat
+      ;; "GIT_PAGER=cat "
+      "git grep --color=never -HIin -e '" pattern "'")
      'grep-mode)))
+
+(defun git-grep-root-symbol-at-point ()
+  (interactive)
+  (let ((default-directory (locate-dominating-file default-directory ".git")))
+    (call-interactively 'git-grep-symbol-at-point)))
+
+(global-set-key (kbd "C-x g") 'git-grep-symbol-at-point)
+(global-set-key (kbd "C-x G") 'git-grep-root-symbol-at-point)

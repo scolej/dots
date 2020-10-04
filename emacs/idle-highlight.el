@@ -1,17 +1,16 @@
 ;; TODO
 ;; - Don't match at point, there's no point.
 ;; - Make a global & minor mode.
-;; - Escape regexp properly.
 ;; - Handle case properly.
 ;; - idle timer setting could avoid work by testing if string has changed.
 ;; - use a unique face to not blow away manual highlights
 ;; - use overlays?
+;; - Easily jump forward & backward between highlighted locations.
 
 (require 'subr-x)
 
 (defvar idle-highlight-timer nil)
 (defvar idle-highlight-string nil)
-
 
 (defun idle-highlight-clean ()
   "Remove any active highlight."
@@ -37,6 +36,15 @@
       (unless (string-blank-p str)
         (setq idle-highlight-string (regexp-quote str))
         (highlight-regexp idle-highlight-string 'hi-blue)))))
+
+(defun idle-highlight-keep ()
+  "Deactivate region & keep the current highlight in a new colour."
+  (interactive)
+  (deactivate-mark)
+  (highlight-regexp idle-highlight-string
+                    (let ((hi-lock-auto-select-face t))
+                      (hi-lock-read-face-name)))
+  (setq idle-highlight-string nil))
 
 (add-hook 'activate-mark-hook 'idle-highlight-activate)
 (add-hook 'deactivate-mark-hook 'idle-highlight-deactivate)

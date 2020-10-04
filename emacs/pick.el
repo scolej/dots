@@ -4,6 +4,11 @@
 ;; what is shown initially (when no filter) is somewhat useless
 ;; would be better to keep track of common selections, and peg them to a number
 ;; so you can organically associate a buffer to a number
+;;
+;; TODO
+;; - M-p M-n cycle through history
+;; - open buffer in other window, in v/h split
+;; - a read-only character after first line to stop contents sneaking onto first line
 
 (require 'subr-x)
 (require 'seq)
@@ -28,7 +33,7 @@
 
 (defun pick-write-buffer (options)
   (let ((i 1))
-    (dolist (o (seq-take options 15))
+    (dolist (o (seq-take options 100))
       (pick-write-line i (car o) (cdr o))
       (setq i (1+ i)))))
 
@@ -59,7 +64,8 @@ range."
 (defun contains-all (words str)
   "Return t if every element of the list WORDS is a substring of STR."
   (seq-every-p
-   (lambda (s) (string-match-p s str))
+   (lambda (s)
+     (string-match-p (regexp-quote s) str))
    words))
 
 (defun pick-filter (str options)
@@ -90,7 +96,12 @@ Adding and remov hooks/timers as necessary."
 ;;
 ;;
 
-(defun pick-select ()
+(defun pick-select (f)
+  "Bury the picking buffer & invoke the given function."
+  (quit-window)
+  (funcall f))
+
+(defun pick-select-dwim ()
   (interactive)
   (if (equal 1 (line-number-at-pos))
       (pick-select-1)
@@ -99,14 +110,14 @@ Adding and remov hooks/timers as necessary."
 (defun pick-select-current ()
   "Examine text property 'field under point and invoke that function."
   (let ((f (get-text-property (point) 'field)))
-    (funcall f)))
+    (pick-select f)))
 
 (defun pick-select-nth (n)
   (let ((f (save-excursion
              (goto-char (point-min))
              (goto-line (1+ n))
              (get-text-property (point) 'field))))
-    (funcall f)))
+    (pick-select f)))
 
 (dolist (i (number-sequence 1 9))
   (fset (intern (concat "pick-select-" (number-to-string i)))
@@ -118,7 +129,7 @@ Adding and remov hooks/timers as necessary."
 
 (defvar pick-mode-map (make-sparse-keymap))
 (define-key pick-mode-map (kbd "C-g") 'quit-window)
-(define-key pick-mode-map (kbd "<return>") 'pick-select)
+(define-key pick-mode-map (kbd "<return>") 'pick-select-dwim)
 (define-derived-mode pick-mode fundamental-mode " pick")
 
 (defun pick-define-function-keys ()
@@ -141,22 +152,28 @@ keys: <kp-1>, <kp-2>..."
 ;;
 ;;
 
-(defun pick-select-buffer ()
-  (interactive)
+(defun pick-select-buffer (arg)
+  "Select buffers.
+With a prefix arg, just jump back to previous pick buffer. This
+allows you to easily re-use the previous filter."
+  (interactive "P")
   (let ((bufname "*pick buffer*"))
-    (pick-buffer
-     bufname
-     (mapcar (lambda (b)
-               (cons (let ((bf (buffer-file-name b))
-                           (bn (buffer-name b)))
-                       (if bf (concat bn " " bf) bn))
-                     (lambda () (switch-to-buffer b))))
-             (seq-filter
-              (lambda (b)
-                (let ((n (buffer-name b)))
-                  (not (or (string-prefix-p " *Minibuf" n)
-                           (equal bufname n)))))
-              (buffer-list))))))
+    (if arg (switch-to-buffer bufname)
+      (pick-buffer
+       bufname
+       (mapcar
+        (lambda (b)
+          (cons (let ((bf (buffer-file-name b))
+                      (bn (buffer-name b)))
+                  (if bf (concat bn " " bf) bn))
+                (lambda () (switch-to-buffer b))))
+        (cdr ; Drop the first element, it should be the current buffer.
+         (seq-filter
+          (lambda (b)
+            (let ((n (buffer-name b)))
+              (not (or (string-prefix-p " *Minibuf" n)
+                       (equal bufname n)))))
+          (buffer-list))))))))
 
 (defun pick-filelist ()
   (interactive)
@@ -181,28 +198,5 @@ keys: <kp-1>, <kp-2>..."
 (defun pick-list-git-files ()
   (interactive)
   (async-shell-command "git ls-tree -r HEAD | awk '{ print $4 }' > filelist"))
-
-(defun pick-list-gradle-files ()
-  (interactive)
-  (async-shell-command "git ls-tree -r HEAD | grep gradle | awk '{ print $4 }' > gradles"))
-
-(defun pick-gradles ()
-  (interactive)
-  (pick-buffer
-   "*gradles*"
-   (let* ((name "gradles")
-          (dir (file-name-as-directory
-                (locate-dominating-file default-directory name)))
-          (filelist (concat dir name))
-          items '())
-     (with-temp-buffer
-       (insert-file-contents filelist)
-       (while (< (point) (point-max))
-         (let* ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-                (f (concat dir line))
-                (fun (lambda () (find-file f))))
-           (setq items (cons (cons line fun) items))
-           (forward-line 1))))
-     items)))
 
 (provide 'pick)

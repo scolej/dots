@@ -7,6 +7,8 @@
 (setq-default cursor-type 'box
               cursor-in-non-selected-windows 'hollow)
 
+(require 'savehist)
+
 (blink-cursor-mode -1)
 (eldoc-mode -1)
 (fringe-mode nil)
@@ -14,11 +16,12 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
-(transient-mark-mode 1)
+(recentf-mode -1)
 
+(savehist-mode 1)
+(transient-mark-mode 1)
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
-(recentf-mode 1)
 (show-paren-mode 1)
 
 (setq c-basic-offset 4
@@ -54,16 +57,17 @@
       mouse-autoselect-window -0.1
       revert-without-query '(".*")
       mouse-wheel-progressive-speed nil
-      read-buffer-completion-ignore-case t
       vc-handled-backends nil
+      case-fold-search t
 
-      ;; scroll-conservatively 0
-      ;; scroll-step 3
-      ;; scroll-margin 0
+      read-buffer-completion-ignore-case t
+      completion-ignore-case t
 
+      ;; Things which this affects:
+      ;; - 'up' in Info mode
       scroll-conservatively 0
-      scroll-step 0
       scroll-margin 0
+      scroll-step 0
 
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer)
@@ -73,8 +77,7 @@
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(require 'savehist)
-(savehist-mode 1)
-
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "M-g") 'goto-line)
+
+(setenv "PAGER" "cat")
