@@ -1,9 +1,14 @@
 ;;; -*- lexical-binding: t -*-
 
 ;; Ideas
+;;
 ;; what is shown initially (when no filter) is somewhat useless
 ;; would be better to keep track of common selections, and peg them to a number
 ;; so you can organically associate a buffer to a number
+;;
+;; colour code lines by major mode ... but keep it general, this should work easily with anything
+;;
+;; allow filter string to select by major mode
 ;;
 ;; TODO
 ;; - M-p M-n cycle through history
@@ -47,6 +52,9 @@
 ;;
 ;;
 
+(defcustom pick-idle-delay 0.15
+  "Seconds to wait until refreshing the picking buffer.")
+
 (defvar-local pick-idle-timer nil
   "Timer for rewriting the pick buffer after filter input has
   changed.")
@@ -59,7 +67,7 @@ range."
   (when pick-idle-timer
     (cancel-timer pick-idle-timer))
   (setq pick-idle-timer
-        (run-at-time 0.3 nil 'pick-rewrite (current-buffer))))
+        (run-at-time pick-idle-delay nil 'pick-rewrite (current-buffer))))
 
 (defun contains-all (words str)
   "Return t if every element of the list WORDS is a substring of STR."
@@ -175,24 +183,26 @@ allows you to easily re-use the previous filter."
                        (equal bufname n)))))
           (buffer-list))))))))
 
-(defun pick-filelist ()
-  (interactive)
-  (pick-buffer
-   "*filelist*"
-   (let* ((name "filelist")
-          (dir (file-name-as-directory
-                (locate-dominating-file default-directory name)))
-          (filelist (concat dir name))
-          items '())
-     (with-temp-buffer
-       (insert-file-contents filelist)
-       (while (< (point) (point-max))
-         (let* ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-                (f (concat dir line))
-                (fun (lambda () (find-file f))))
-           (setq items (cons (cons line fun) items))
-           (forward-line 1))))
-     items)))
+(defun pick-filelist (prefix)
+  (interactive "P")
+  (let ((bufname "*filelist*"))
+    (if prefix (switch-to-buffer bufname)
+      (pick-buffer
+       bufname
+       (let* ((name "filelist")
+              (dir (file-name-as-directory
+                    (locate-dominating-file default-directory name)))
+              (filelist (concat dir name))
+              items '())
+         (with-temp-buffer
+           (insert-file-contents filelist)
+           (while (< (point) (point-max))
+             (let* ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+                    (f (concat dir line))
+                    (fun (lambda () (find-file f))))
+               (setq items (cons (cons line fun) items))
+               (forward-line 1))))
+         items)))))
 
 
 (defun pick-list-git-files ()

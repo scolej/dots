@@ -51,7 +51,7 @@
       mode-require-final-newline t
 
       sentence-end-double-space nil
-      set-mark-command-repeat-pop t
+      set-mark-command-repeat-pop nil
       ring-bell-function 'ignore
       linum-format "%4d"
       mouse-autoselect-window -0.1
@@ -70,7 +70,8 @@
       scroll-step 0
 
       use-dialog-box nil
-      async-shell-command-buffer 'new-buffer)
+      async-shell-command-buffer 'new-buffer
+      split-width-threshold nil)
 
 (setq-default indent-tabs-mode nil
               truncate-lines t)

@@ -1,39 +1,61 @@
 #!/bin/sh
+
 alias g='git'
+
 alias ga='git add'
 alias gau='git add -u'
 alias gaus='git add -u && git status'
 alias gaud='git add -u && git diff'
 alias gauds='git add -u && git diff --staged'
+
 alias gb='git branch'
 alias gba='git branch -a'
 alias gbr='git branch -r'
-alias gbd='git branch -a | grep -i develop'
-alias gcamend='git commit --amend --no-edit --date=now'
+
 alias gco='git checkout'
+
+alias gcamend='git commit --amend --no-edit --date=now'
 alias gcom='git commit'
 alias gcomm='git commit -m'
 alias gcfix='git commit --fixup'
-alias gd='git diff'
-alias gds='git diff --staged'
-alias gdu='git diff $(git merge-base @{u} HEAD)'
+
+alias gd='git diff --patience'
+alias gds='git diff --patience --staged'
+alias gdmb='git diff $(git merge-base @{u} HEAD)'
+
 alias gl='git log --oneline'
-alias glu='git log --oneline @{u}..'
-alias gr='git reset'
+alias gll='git log --pretty'
+alias glmb='git log --oneline ^$(git merge-base @{u} HEAD) HEAD'
+
 alias grc='git rebase --continue'
 alias gri='git rebase -i --autostash --autosquash'
-alias groot='cd "$(git rev-parse --show-toplevel)" ; echo "I am Groot"'
-alias grrr='git rebase'
-alias gru='git remote update'
-alias grup='git remote update -p'
-alias gs='git status'
+alias grik='git rebase --interactive --keep-base'
 
-function gads() {
+alias groot='cd "$(git rev-parse --show-toplevel)" ; echo "I am Groot"'
+
+alias gru='git remote update'
+
+alias gs='git status'
+alias gsh='git show HEAD'
+
+alias gtl='git tag -l'
+
+alias gwl='git worktree list'
+
+function gads {
     git add $@
     git diff --staged
 }
 
-function gas() {
+function gas {
     git add $@
     git status
+}
+
+function gbg {
+    git branch -a | grep -i $@
+}
+
+function git-branch-by-author {
+    git for-each-ref --sort=authorname --format "%(authorname) %(refname)"
 }

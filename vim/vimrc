@@ -8,6 +8,8 @@ nmap <silent> <Right> :wincmd l<CR>
 nmap <silent> <Up> :wincmd k<CR>
 nmap <silent> <C-Up> :prev<CR>
 nmap <silent> <C-Down> :next<CR>
+nmap <silent> <KPlus> :cn<CR>
+nmap <silent> <KMinus> :cp<CR>
 nore , ;
 nore ; :
 nore <leader>h :set hls!<CR>
@@ -26,7 +28,7 @@ set nocp
 set nojoinspaces
 set nowrap
 set nowrapscan
-set number
+set nonumber
 set ruler
 set shiftwidth=2
 set shortmess=aoOtI
@@ -39,7 +41,7 @@ set incsearch
 set fo-=o
 set hidden
 set path+=**
-set relativenumber
+" set relativenumber
 
 " If a swap file exists, just open in read-only mode automatically.
 " autocmd SwapExists * let v:swapchoice = "o"
@@ -53,6 +55,10 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.o,*~,*.hi
 noremap Q <Nop>
 
 inoremap <f12> <ESC>
-noremap <f12> :w<CR>
+noremap <f12> :wa<CR>
 
 let netrw_banner=0
+
+nnoremap <silent>   <tab>   :bnext<CR>
+nnoremap <silent>   <s-tab> :bprev<CR>
+

@@ -1,12 +1,14 @@
 (defun quick-run (dir prog &rest args)
   (interactive)
   (let* ((bufname "*quick*")
-         (buf (get-buffer-create bufname))
-         (default-directory dir))
+         (default-directory dir)
+         (buf (get-buffer-create bufname)))
     (with-current-buffer buf
       (let ((p (get-buffer-process buf)))
         (when p (kill-process p)))
-      (erase-buffer))
+      (erase-buffer)
+      ;(setq-local default-directory dir)
+      )
     (let ((w (get-buffer-window buf t)))
       (when w
         (with-selected-window w

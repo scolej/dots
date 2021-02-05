@@ -1,3 +1,8 @@
+;; TODO
+;;
+;; how to copy stuff, then delete what's left of the line, then paste it somewhere else?
+;; first paste is always the blank/garbage you don't want :(
+
 (load "grep-setup.el")
 (load "hopper.el")
 (load "idle-highlight.el")
@@ -45,12 +50,23 @@
 (define-keys selected-keymap
   "<return>" 'kill-ring-save
   "r" 'query-replace-maybe-region
-  "k" 'idle-highlight-keep)
-(gsk "<C-return>" 'yank)
+  "k" 'idle-highlight-keep
+  "i" 'indent-rigidly
+  ";" 'comment-dwim
+  "s" 'sort-lines
+  ;; FIXME lose selection after first go :S ???
+  ;; ">" 'indent-rigidly-right
+  ;; "<" 'indent-rigidly-left
+  )
+(gsk "<S-return>" 'yank)
+;; ?? (gsk "<tab>" 'yank)
 (selected-global-mode)
 
 (gsk "<C-tab>" 'other-window)
 (gsk "<C-M-backspace>" 'backward-kill-sexp)
+(gsk "<M-f4>" 'delete-frame)
+
+(gsk "<M-SPC>" 'cycle-spacing)
 
 (define-keys minibuffer-local-map
   "<escape>" 'top-level
@@ -61,7 +77,7 @@
       "DEL" 'dired-jump
       "k" 'really-kill-buffer
       "e" 'eval-buffer
-      "c" 'new-frame
+      "c" 'make-frame
       "q" 'quit-window
       "0" 'delete-window
       "1" 'delete-other-windows
@@ -69,6 +85,7 @@
       "3" 'split-window-right
       "=" 'balance-windows
       "f" 'find-file
+      "F" 'file-hopper
       "g" 'google
       "b" 'switch-to-buffer
       "s" 'isearch-forward
@@ -87,6 +104,12 @@
 ;;
 ;;
 
+(setq-default fill-column 80
+              buffer-file-coding-system 'prefer-utf-8-unix)
+
+(add-to-list 'yank-excluded-properties 'face)
+(add-to-list 'yank-excluded-properties 'font-lock-face)
+
 (put 'narrow-to-page 'disabled nil)
 (put 'erase-buffer 'disabled nil)
 
@@ -100,7 +123,7 @@
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
             "%*"))
-   " %b:%l:%c"))
+   " %b:%l:%c - %f"))
 
 ;; todo
 ;; stop pressing tab so much
@@ -155,11 +178,8 @@
   (let* ((f (file-truename (dired-file-name-at-point)))
          (prog (alist-get (file-name-extension f) dired-launch-programs nil nil 'equal)))
     (unless prog (error "No program for file: " f))
-    ;; (message "Launch %s for %s" prog f)
-    (start-process "*dired launch*" (get-buffer-create "*dired launch*")
-                   prog f)
-    ;; (pop-to-buffer "*dired launch*")
-    ))
+    (apply 'start-process "*dired launch*" (get-buffer-create "*dired launch*")
+           (funcall prog f))))
 
 (define-keys dired-mode-map
   "<DEL>" 'dired-jump
@@ -178,8 +198,8 @@
          (deactivate-mark nil))
     (save-excursion
       (cond
-       ((eq dir 'down) (goto-char (max p m)) (insert text))
-       ((eq dir 'up) (goto-char (min p m)) (insert-before-markers text))))))
+       ((eq dir 'up) (goto-char (max p m)) (insert text))
+       ((eq dir 'down) (goto-char (min p m)) (insert-before-markers text))))))
 
 (defun duplicate-line (dir)
   (interactive)
@@ -433,6 +453,13 @@ colon followed by the line number."
 
 (when (boundp 'note-root)
   (defun take-notes (title)
+    ;; (interactive
+    ;;  (list
+    ;;   (read-from-minibuffer
+    ;;    "In file: "
+    ;;    (let ((time-string (format-time-string "%Y%m%d.%H%M%S"))
+    ;;          (len (string-)))
+    ;;      '("**" . 2)))) )
     (interactive "M")
     (find-file (concat
                 note-root
@@ -458,7 +485,7 @@ colon followed by the line number."
 ;;
 
 (setq smerge-command-prefix (kbd "C-c v"))
- 
+
 (defun smerge-maybe ()
   (save-excursion
     (goto-char (point-min))
@@ -471,10 +498,76 @@ colon followed by the line number."
 ;; Always leave a mark where we last added text.
 ;;
 
-(defun maybe-mark ()
-  (let ((p (point)))
-    (if (eq last-command 'self-insert-command)
-              (set-mark p)  
-            (push-mark p))))
+;; (defun maybe-mark ()
+;;   (let ((p (point)))
+;;     (if (eq last-command 'self-insert-command)
+;;               (set-mark p)
+;;             (push-mark p))))
 
-(add-hook 'post-self-insert-hook 'maybe-mark)
+;; (remove-hook 'post-self-insert-hook 'maybe-mark)
+
+;;
+;;
+;;
+
+(defun etags-here ()
+  (interactive)
+  (shell-command
+   "find -type f -iname '*.c' -or -iname '*.h' | xargs etags"
+   "*etags")
+  (visit-tags-table "TAGS"))
+
+;;
+;;
+;;
+
+(defun insert-time-ruler ()
+  (interactive)
+  (insert
+   "--- "
+   (format-time-string "%H:%M")
+   " ---"))
+
+(defun insert-time-date-ruler ()
+  (interactive)
+  (insert
+   "---------- "
+   (format-time-string "%Y-%m-%d %H:%M")
+   " ----------"))
+
+;;
+;;
+;;
+
+(defun kill-buffer-process ()
+  (interactive)
+  (kill-process (get-buffer-process)))
+
+;;
+;;
+;;
+
+(gsk "<kp-add>" 'next-error)
+(gsk "<kp-subtract>" 'previous-error)
+
+;;
+;;
+;;
+
+;; (gsk "<M-kp-1>" (lambda () (interactive) (jump-to-register ?1)))
+;; (gsk "<S-M-kp-1>" (lambda () (interactive) (point-to-register ?1)))
+;; Doesn't work because of some weird key translation?
+
+(defun save-and-recompile ()
+  (interactive)
+  ;; TODO predicate for same git project files only
+  (save-some-buffers t)
+  (recompile))
+
+;;
+;;
+;;
+
+(require 'org)
+(define-key org-mode-map (kbd "<tab>") nil)
+(define-key org-mode-map (kbd "<C-tab>") nil)
