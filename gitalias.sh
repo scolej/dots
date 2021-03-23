@@ -23,7 +23,7 @@ alias gd='git diff --patience'
 alias gds='git diff --patience --staged'
 alias gdmb='git diff $(git merge-base @{u} HEAD)'
 
-alias gl='git log --oneline'
+alias gl='git log --oneline -n 15'
 alias gll='git log --pretty'
 alias glmb='git log --oneline ^$(git merge-base @{u} HEAD) HEAD'
 
@@ -58,4 +58,21 @@ function gbg {
 
 function git-branch-by-author {
     git for-each-ref --sort=authorname --format "%(authorname) %(refname)"
+}
+
+function glup {
+    echo '--- they have ---'
+    git log --oneline ..@{u}
+    echo '--- we have ---'
+    git log --oneline @{u}..
+}
+
+function gstat {
+    t1=$(mktemp)
+    t2=$(mktemp)
+    t3=$(mktemp)
+    git status --color=always &> "$t1"
+    git log --oneline --decorate -n 10 &> "$t2"
+    git diff &> "$t3"
+    cat "$t1" "$t2" "$t3" | less -SR
 }

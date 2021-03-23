@@ -54,8 +54,7 @@
   (let ((default-directory (locate-dominating-file default-directory ".git")))
     (call-interactively 'git-grep-symbol-at-point)))
 
-(global-set-key (kbd "C-x g") 'git-grep-symbol-at-point)
-(global-set-key (kbd "C-x G") 'git-grep-root-symbol-at-point)
+(global-set-key (kbd "C-x g") 'rgr)
 
 (define-key grep-mode-map (kbd "r") 'rgr-here)
 

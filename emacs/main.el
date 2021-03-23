@@ -343,6 +343,8 @@ colon followed by the line number."
 (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-round)
 ;; fixme use multi bind
 
+(define-key paredit-mode-map (kbd "\\") nil)
+
 (defun clone-sexp ()
   (interactive)
   (let* ((b (point))
@@ -558,16 +560,66 @@ colon followed by the line number."
 ;; (gsk "<S-M-kp-1>" (lambda () (interactive) (point-to-register ?1)))
 ;; Doesn't work because of some weird key translation?
 
-(defun save-and-recompile ()
-  (interactive)
-  ;; TODO predicate for same git project files only
+(defun save-and-recompile (prefix)
+  (interactive "P")
   (save-some-buffers t)
-  (recompile))
+  (if prefix
+      (call-interactively 'compile)
+    ;; todo, if current buffer is compilation, use it, otherwise, find the most
+    ;; recent buffer in compilation mode and use that.
+    (recompile)))
+
+(gsk "<f11>" 'save-and-recompile)
+
+(setq-default compilation-always-kill t)
 
 ;;
 ;;
 ;;
 
 (require 'org)
+(require 'org-table)
 (define-key org-mode-map (kbd "<tab>") nil)
 (define-key org-mode-map (kbd "<C-tab>") nil)
+(define-key orgtbl-mode-map (kbd "<S-return>") nil)
+(define-key orgtbl-mode-map (kbd "<return>") nil)
+
+;;
+;;
+;;
+
+;; todo make minor mode targeting a specific window which does this on cursor
+;; move.
+(defun find-other-window ()
+  (interactive)
+  (let* ((thing (thing-at-point 'word t))
+         (pat (regexp-quote thing)))
+    (with-selected-window (next-window)
+      (goto-char (point-min))
+      (re-search-forward pat)
+      (unhighlight-regexp t)
+      (highlight-lines-matching-regexp pat))))
+
+(defun hh-find-in-window (window)
+  (interactive)
+  (let* ((thing (thing-at-point 'word t))
+         (pat (regexp-quote thing)))
+    (with-selected-window window
+      (goto-char (point-min))
+      (re-search-forward pat)
+      (unhighlight-regexp t)
+      (highlight-lines-matching-regexp pat))))
+
+(defun handy-highlight-thing ()
+  (when handy-highlight-other-window
+    (hh-find-in-window handy-highlight-other-window)))
+
+(define-minor-mode handy-highlight-mode
+  "Minor mode to highlight the thing at point in another window."
+  :lighter " hh"
+  :global nil
+  (if handy-highlight-mode
+      (progn
+       (setq-local handy-highlight-other-window (next-window))
+       (add-hook 'post-command-hook 'handy-highlight-thing))
+    (remove-hook 'post-command-hook 'handy-highlight-thing)))
