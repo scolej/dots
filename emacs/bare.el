@@ -23,10 +23,9 @@
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
 (show-paren-mode 1)
+(global-so-long-mode 1)
 
-(setq c-basic-offset 4
-
-      save-interprogram-paste-before-kill t
+(setq save-interprogram-paste-before-kill t
 
       backup-by-copying t
       backup-directory-alist '((".*" . "~/.emacs.d/saves"))
@@ -59,6 +58,10 @@
       mouse-wheel-progressive-speed nil
       vc-handled-backends '(Git)
       case-fold-search t
+      mouse-yank-at-point t
+
+      bidi-paragraph-direction 'left-to-right
+      bidi-inhibit-bpa t
 
       read-buffer-completion-ignore-case t
       completion-ignore-case t

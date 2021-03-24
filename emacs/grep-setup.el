@@ -4,19 +4,23 @@
 
 ;; (grep-compute-defaults)
 
-(setq grep-find-ignored-directories '(".git" "build" ".gradle")
-      grep-find-ignored-files '()
-      grep-save-buffers nil)
+(setq
+ grep-find-ignored-directories '(".git" "build" ".gradle")
+ grep-find-ignored-files '()
+ grep-save-buffers nil)
+
+;; todo what's the difference between interactive M and s?
+;; do they get different input histories?
 
 (defun speedy-grep (pattern)
-  (interactive "M")
+  (interactive "s")
   (rgrep pattern "*" default-directory nil))
 
 ;; Recursive grep which doesn't use find.
 ;; Find + Grep combo is too slow on Windows.
 (defun rgr (prefix dir pattern)
   "Run grep recursively."
-  (interactive "P\nDIn directory: \nMSearch for: ")
+  (interactive "P\nDIn directory: \nsSearch for: ")
   ;; TODO suggest symbol at point
   (with-selected-frame
       ;; TODO sole window
@@ -29,7 +33,7 @@
          (concat (string-join (list "*grep*" pattern dir) " - ")))))))
 
 (defun rgr-here (pattern)
-  (interactive "MSearch for: ")
+  (interactive "sSearch for: ")
   ;; TODO re-use existing window
   (rgr nil default-directory pattern))
 

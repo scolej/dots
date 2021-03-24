@@ -14,6 +14,9 @@
 ;; - M-p M-n cycle through history
 ;; - open buffer in other window, in v/h split
 ;; - a read-only character after first line to stop contents sneaking onto first line
+;; - buffer picking: append recent files
+;;      common pattern of looking for a buffer which is not open
+;;      but was recently open
 
 (require 'subr-x)
 (require 'seq)
@@ -204,9 +207,13 @@ allows you to easily re-use the previous filter."
                (forward-line 1))))
          items)))))
 
-
 (defun pick-list-git-files ()
+  "Make a file with lines for every file tracked by Git."
   (interactive)
-  (async-shell-command "git ls-tree -r HEAD | awk '{ print $4 }' > filelist"))
+  (let ((n "*pick*"))
+    (start-process-shell-command
+     n (get-buffer-create n)
+     (concat "git ls-tree -r HEAD | awk '{ print $4 }' > filelist;"
+             "echo Found $(wc -l < filelist) files"))))
 
 (provide 'pick)

@@ -1,22 +1,9 @@
 (defun quick-run (dir prog &rest args)
   (interactive)
-  (let* ((bufname "*quick*")
-         (default-directory dir)
-         (buf (get-buffer-create bufname)))
-    (with-current-buffer buf
-      (let ((p (get-buffer-process buf)))
-        (when p (kill-process p)))
-      (erase-buffer)
-      ;(setq-local default-directory dir)
-      )
-    (let ((w (get-buffer-window buf t)))
-      (when w
-        (with-selected-window w
-          (end-of-buffer))))
-    (save-some-buffers t)
-    ;(start-process-shell-command bufname buf )
-    (apply 'start-process bufname buf prog args)
-    ))
+  (save-some-buffers t)
+  (let ((default-directory dir))
+    (compilation-start
+     (string-join (apply 'list prog args) " "))))
 
 (defvar quick-runner-active nil
   "The currently active spec to run.")
@@ -25,8 +12,6 @@
   (interactive)
   (unless quick-runner-active (error "No active spec."))
   (apply 'quick-run quick-runner-active))
-
-(global-set-key (kbd "<f11>") 'quick-runner-run)
 
 (defun quick-runner-use-line-and-run ()
   (interactive)
