@@ -56,7 +56,7 @@
       mouse-autoselect-window -0.1
       revert-without-query '(".*")
       mouse-wheel-progressive-speed nil
-      vc-handled-backends '(Git)
+      vc-handled-backends '()
       case-fold-search t
       mouse-yank-at-point t
 
