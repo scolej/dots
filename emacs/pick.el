@@ -210,7 +210,8 @@ allows you to easily re-use the previous filter."
 (defun pick-list-git-files ()
   "Make a file with lines for every file tracked by Git."
   (interactive)
-  (let ((n "*pick*"))
+  (let ((n "*pick*")
+        (default-directory (locate-dominating-file default-directory ".git")))
     (start-process-shell-command
      n (get-buffer-create n)
      (concat "git ls-tree -r HEAD | awk '{ print $4 }' > filelist;"

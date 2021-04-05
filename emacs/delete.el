@@ -7,7 +7,6 @@
   (delete-region (line-beginning-position)
                  (min (point-max) (1+ (line-end-position)))))
 
-
 (defun delete-forward-word ()
   (interactive)
   (delete-region (point) (save-excursion (forward-word) (point))))

@@ -1,7 +1,3 @@
-;; (let ((c "red"))
-;;   (setf (alist-get 'cursor-color default-frame-alist) c)
-;;   (set-cursor-color c))
-
 (set-face-attribute
  'mode-line nil
  :height 75

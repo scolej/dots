@@ -72,6 +72,7 @@
       scroll-margin 0
       scroll-step 0
 
+      mouse-wheel-scroll-amount '(1 ((shift) . 10) ((control) . 20))
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer
       split-width-threshold nil)

@@ -5,7 +5,8 @@
 (defun compilation-buffer-p (b)
   "Is the given buffer in a mode derived from compilation mode?"
   (with-current-buffer b
-    (derived-mode-p 'compilation-mode)))
+    (or (eq major-mode 'comint-mode)
+        (derived-mode-p 'compilation-mode))))
 
 (defun find-recent-compilation-buffer ()
   "Finds the most recent buffer which is a compilation mode. (Or

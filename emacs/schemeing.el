@@ -31,13 +31,23 @@
     (newline-and-indent)))
 
 (defun insert-lambda ()
-  (interactive
-   (insert "λ")))
+  (interactive)
+  (insert "(λ ())")
+  (forward-char -2))
+
+(defun delete-blank-line ()
+  "If point is on a line containing only whitespace, delete it all."
+  (interactive)
+  (let ((beg (line-beginning-position))
+        (end (line-end-position)))
+    (when (string-empty-p (string-trim (buffer-substring-no-properties beg end)))
+      (delete-region beg (1+ end)))))
 
 (defun delete-sexp-around-point ()
   (interactive)
   (paredit-backward-up)
-  (delete-forward-sexp))
+  (delete-forward-sexp)
+  (delete-blank-line))
 
 (define-keys paredit-mode-map
   "[" 'paredit-open-round
@@ -48,11 +58,17 @@
   "<mouse-3>" 'kill-sexp
   "M-c" 'clone-sexp
   "C-\\" 'insert-lambda
-  "<C-S-backspace>" 'delete-sexp-around-point
   ;; "\\" nil
   ;; "C-d" nil
-  "<M-up>" nil
-  "<M-down>" nil)
+
+  ;; shadow things which break sexps
+  "<C-backspace>" 'delete-backward-sexp
+  "<C-S-backspace>" 'delete-sexp-around-point
+
+  ;; my line moving breaks sexps
+  ;; "<M-up>" nil
+  ;; "<M-down>" nil
+  )
 
 ;; todo, format sexp on enter?
 
@@ -79,17 +95,19 @@
 
 
 
-(defvar guile-compilation-font-lock-keywords '())
-(defvar guile-compilation-scroll-output nil)
-(defvar guile-compilation-error-regexp-alist
-  '(("^;;; \\([.[:alnum:]]+\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)$" 1 2 3)
-    ("^\\([.[:alnum:]]+\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)$" 1 2 3)
-    ("^\\test:.*(\\([.[:alnum:]]+\\):\\([[:digit:]]+\\))" 1 2 3 0)
+(defvar compilation-guile-font-lock-keywords '())
+(defvar compilation-guile-scroll-output nil)
+(defvar compilation-guile-error-regexp-alist
+  '(("^;;; \\([^:[:space:]]+\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)" 1 2 3)
+    ("^\\([^:[:space:]]+\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)$" 1 2 3)
+    ("^\\test:.*(\\([^:[:space:]]+\\):\\([[:digit:]]+\\))" 1 2 3 0)
     guile-file
     guile-line))
+(defvar compilation-guile-command-history nil)
 
-(define-compilation-mode guile-compilation "guile compilation" nil)
+(define-compilation-mode compilation-guile "compilation guile" nil)
 
-(defun guile-compile (cmd)
-  (interactive "s")
-  (compilation-start cmd 'guile-compilation))
+(defun compile-guile (cmd)
+  (interactive
+   (list (read-from-minibuffer "Command: " nil nil nil 'compilation-guile-command-history)))
+  (compilation-start cmd 'compilation-guile))
