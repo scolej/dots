@@ -147,6 +147,10 @@ colon followed by the line number."
   ;; FIXME lose selection after first go :S ???
   ;; ">" 'indent-rigidly-right
   ;; "<" 'indent-rigidly-left
+
+  ;; ideas
+  ;; move up down
+  ;; clone
   )
 
 (selected-global-mode)
@@ -154,17 +158,19 @@ colon followed by the line number."
 
 
 (setq-default
- fill-column 80
+ fill-column 75
  buffer-file-coding-system 'prefer-utf-8-unix
  mode-line-format
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
             "%*"))
-   " %b:%l:%c - %f"))
+   " %b:%l:%c %f"))
 
-(setq hi-lock-auto-select-face t
-      Info-isearch-search t
-      Info-use-header-line nil)
+(setq
+ next-screen-context-lines 15
+ hi-lock-auto-select-face t
+ Info-isearch-search t
+ Info-use-header-line nil)
 
 (mapc
  (lambda (s) (add-to-list 'yank-excluded-properties s))
@@ -195,6 +201,7 @@ colon followed by the line number."
 ;; Query replace using region
 ;;
 
+;; fixme how to repeat easily the last replacment?
 (defun query-replace-maybe-region ()
   (interactive)
   (if (region-active-p)

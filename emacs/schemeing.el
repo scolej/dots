@@ -30,6 +30,18 @@
     (insert s)
     (newline-and-indent)))
 
+(defun dwim-sexp-copy ()
+  (interactive)
+  (if (region-active-p)
+      (call-interactively 'kill-ring-save)
+    (let (beg end)
+      (save-excursion
+        (forward-sexp)
+        (setf end (point))
+        (backward-sexp)
+        (setf beg (point)))
+      (kill-ring-save beg end))))
+
 (defun insert-lambda ()
   (interactive)
   (insert "(λ ())")
@@ -43,6 +55,9 @@
     (when (string-empty-p (string-trim (buffer-substring-no-properties beg end)))
       (delete-region beg (1+ end)))))
 
+;; maybe better would be something smarter which is more
+;; like delete-whole-line.
+
 (defun delete-sexp-around-point ()
   (interactive)
   (paredit-backward-up)
@@ -55,6 +70,7 @@
   "(" 'paredit-open-square
   ")" 'paredit-close-square
   "M-[" 'paredit-wrap-round
+  "M-w" 'dwim-sexp-copy
   "<mouse-3>" 'kill-sexp
   "M-c" 'clone-sexp
   "C-\\" 'insert-lambda
@@ -96,7 +112,7 @@
 
 
 (defvar compilation-guile-font-lock-keywords '())
-(defvar compilation-guile-scroll-output nil)
+(defvar compilation-guile-scroll-output t)
 (defvar compilation-guile-error-regexp-alist
   '(("^;;; \\([^:[:space:]]+\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)" 1 2 3)
     ("^\\([^:[:space:]]+\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)$" 1 2 3)

@@ -1,28 +1,40 @@
-(set-face-attribute
- 'mode-line nil
- :height 75
- :box nil
- ;; :overline nil :underline nil
- ;; :background "#f3f3f3"
- ;; :foreground "#000"
- ;; :inverse-video nil
- )
+(defun theme-tweaks ()
+  (set-face-attribute
+   'mode-line nil
+   :height 75
+   :box nil
+   ;; :overline nil :underline nil
+   ;; :background "#f3f3f3"
+   ;; :foreground "#000"
+   ;; :inverse-video nil
+   )
+  (set-face-attribute
+   'mode-line-inactive nil
+   :inherit 'mode-line
+   :foreground 'unspecified :background 'unspecified
+   :box 'unspecified :weight 'unspecified)
+  (set-face-attribute
+   'fringe nil
+   :inherit 'default
+   :background 'unspecified
+   :foreground 'unspecified)
+  (set-face-attribute
+   'vertical-border nil
+   :inherit 'mode-line :inverse-video t)
+  (set-face-attribute
+   'fixed-pitch-serif nil :family 'unspecified))
 
-(set-face-attribute
- 'mode-line-inactive nil
- :inherit 'mode-line
- :foreground 'unspecified :background 'unspecified
- :box 'unspecified :weight 'unspecified)
+(defun switch-theme (new-theme)
+  (interactive)
+  (mapc 'disable-theme custom-enabled-themes)
+  (load-theme new-theme))
 
-(set-face-attribute
- 'fringe nil
- :inherit 'default
- :background 'unspecified
- :foreground 'unspecified)
+(defun switch-theme-dark ()
+  (interactive)
+  (switch-theme 'modus-vivendi)
+  (theme-tweaks))
 
-(set-face-attribute
- 'vertical-border nil
- :inherit 'mode-line :inverse-video t)
-
-(set-face-attribute
- 'fixed-pitch-serif nil :family 'unspecified)
+(defun switch-theme-light ()
+  (interactive)
+  (switch-theme 'modus-operandi)
+  (theme-tweaks))
