@@ -21,8 +21,8 @@
   (set-face-attribute
    'vertical-border nil
    :inherit 'mode-line :inverse-video t)
-  (set-face-attribute
-   'fixed-pitch-serif nil :family 'unspecified))
+  ;; (set-face-attribute 'fixed-pitch-serif nil :family 'unspecified)
+)
 
 (defun switch-theme (new-theme)
   (interactive)

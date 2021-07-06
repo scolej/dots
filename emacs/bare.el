@@ -19,15 +19,19 @@
 (recentf-mode -1)
 
 (savehist-mode 1)
+(setq savehist-autosave-interval 120
+      history-length 500)
+
 (transient-mark-mode 1)
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
 (show-paren-mode 1)
-(global-so-long-mode 1)
+;; (global-so-long-mode 1)
 
 (setq save-interprogram-paste-before-kill t
 
-      backup-by-copying t
+      backup-by-copying nil ; fixme breaks on windows for remote drives?
+
       backup-directory-alist '((".*" . "~/.emacs.d/saves"))
       delete-old-versions t
       kept-new-versions 6
@@ -53,12 +57,12 @@
       set-mark-command-repeat-pop nil
       ring-bell-function 'ignore
       linum-format "%4d"
-      mouse-autoselect-window -0.1
+      mouse-autoselect-window 0.8
       revert-without-query '(".*")
       mouse-wheel-progressive-speed nil
       vc-handled-backends '()
       case-fold-search t
-      mouse-yank-at-point t
+      mouse-yank-at-point nil
 
       bidi-paragraph-direction 'left-to-right
       bidi-inhibit-bpa t
@@ -72,13 +76,14 @@
       scroll-margin 0
       scroll-step 0
 
-      mouse-wheel-scroll-amount '(1 ((shift) . 10) ((control) . 20))
+      mouse-wheel-scroll-amount '(5 ((shift) . 10) ((control) . 20))
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer
       split-width-threshold nil)
 
 (setq-default indent-tabs-mode nil
-              truncate-lines t)
+              truncate-lines t
+              buffer-file-coding-system 'utf-8-unix)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 

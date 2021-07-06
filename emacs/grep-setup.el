@@ -37,6 +37,11 @@
   ;; TODO re-use existing window
   (rgr nil default-directory pattern))
 
+(defun grep-here (pattern)
+  (interactive "s")
+  ;; TODO re-use existing window
+  (rgr nil default-directory pattern))
+
 (defun git-grep-symbol-at-point (arg)
   (interactive "P")
   (let* ((thing (thing-at-point 'symbol t))

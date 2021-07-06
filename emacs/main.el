@@ -2,6 +2,8 @@
 ;; Handier binding
 ;;
 
+(require 'cl)
+
 (defun define-keys (keymap &rest keys)
   "Make multiple bindings in a map."
   (cl-loop for (key binding) on keys by #'cddr do
@@ -59,7 +61,7 @@ colon followed by the line number."
 
 
 (load "grep-setup.el")
-(load "idle-highlight.el")
+;; (load "idle-highlight.el")
 (load "trails.el")
 (load "delete.el")
 (load "dupe-and-drag.el")
@@ -68,12 +70,14 @@ colon followed by the line number."
 (load "search-engines.el")
 (load "symbol-scan.el")
 (load "time-strings.el")
+(load "hopper.el")
 
 (load "custom-compile.el")
 (load "custom-dired.el")
 (load "custom-isearch.el")
 (load "custom-occur.el")
 (load "custom-org.el")
+(load "custom-c.el")
 
 ;;
 ;; Global bindings
@@ -125,13 +129,13 @@ colon followed by the line number."
 
 
 
-(require 'pick)
+;; (require 'pick)
 
-(gsk "<f1>" 'pick-select-buffer)
-(gsk "<f2>" 'pick-filelist)
+;; (gsk "<f1>" 'pick-select-buffer)
+;; (gsk "<f2>" 'pick-filelist)
 
-(pick-define-function-keys)
-(pick-define-numpad-keys)
+;; (pick-define-function-keys)
+;; (pick-define-numpad-keys)
 
 
 
@@ -159,7 +163,7 @@ colon followed by the line number."
 
 (setq-default
  fill-column 75
- buffer-file-coding-system 'prefer-utf-8-unix
+ ;; buffer-file-coding-system 'prefer-utf-8-unix
  mode-line-format
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
@@ -167,7 +171,7 @@ colon followed by the line number."
    " %b:%l:%c %f"))
 
 (setq
- next-screen-context-lines 15
+ next-screen-context-lines 2
  hi-lock-auto-select-face t
  Info-isearch-search t
  Info-use-header-line nil)
@@ -278,3 +282,19 @@ file based on OFFSET."
 
 (gsk "C-e" 'end-of-line-and-next)
 (gsk "C-a" 'start-of-line-and-prev)
+
+;;
+;;
+;;
+
+(gsk "<C-kp-1>" 'point-to-register)
+(gsk "<kp-1>" 'jump-to-register)
+
+;;
+
+
+;; TODO insert kill-ring into minibuffer if it starts with http?
+(defun view-url (url)
+  (interactive "M")
+  (switch-to-buffer
+   (url-retrieve-synchronously url)))

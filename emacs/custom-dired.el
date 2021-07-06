@@ -3,7 +3,7 @@
 
 (require 'dired-x)
 
-(add-hook 'dired-mode-hook 'dired-hide-details-mode)
+;; (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
 (defun dired-find-here (pattern)
   "Find files in this directory using a wildcard pattern."

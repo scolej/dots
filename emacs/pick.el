@@ -48,14 +48,15 @@
 (defun pick-write-line (i text action)
   (if (<= i 9) (insert (format "%2d " i)) (insert "   "))
   (insert (string-trim text))
-  (put-text-property (point-at-bol) (point-at-eol) 'field action)
+  ;; fixme, enter doesn't work at end of line?
+  (put-text-property (point-at-bol) (min (point-max) (1+ (point-at-eol))) 'field action)
   (insert "\n"))
 
 ;;
 ;;
 ;;
 
-(defcustom pick-idle-delay 0.15
+(defcustom pick-idle-delay 0.3
   "Seconds to wait until refreshing the picking buffer.")
 
 (defvar-local pick-idle-timer nil
@@ -109,7 +110,7 @@ Adding and remov hooks/timers as necessary."
 
 (defun pick-select (f)
   "Bury the picking buffer & invoke the given function."
-  (quit-window)
+  ;; (quit-window)
   (funcall f))
 
 (defun pick-select-dwim ()
@@ -178,13 +179,12 @@ allows you to easily re-use the previous filter."
                       (bn (buffer-name b)))
                   (if bf (concat bn " " bf) bn))
                 (lambda () (switch-to-buffer b))))
-        (cdr ; Drop the first element, it should be the current buffer.
-         (seq-filter
-          (lambda (b)
-            (let ((n (buffer-name b)))
-              (not (or (string-prefix-p " *Minibuf" n)
-                       (equal bufname n)))))
-          (buffer-list))))))))
+        (seq-filter
+         (lambda (b)
+           (let ((n (buffer-name b)))
+             (not (or (string-prefix-p " *Minibuf" n)
+                      (equal bufname n)))))
+         (buffer-list)))))))
 
 (defun pick-filelist (prefix)
   (interactive "P")
@@ -212,9 +212,9 @@ allows you to easily re-use the previous filter."
   (interactive)
   (let ((n "*pick*")
         (default-directory (locate-dominating-file default-directory ".git")))
-    (start-process-shell-command
-     n (get-buffer-create n)
+    (shell-command
      (concat "git ls-tree -r HEAD | awk '{ print $4 }' > filelist;"
-             "echo Found $(wc -l < filelist) files"))))
+             "echo Found $(wc -l < filelist) files")
+     (get-buffer-create n))))
 
 (provide 'pick)

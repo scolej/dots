@@ -1,5 +1,4 @@
-(when (boundp 'note-root)
-  (defun take-notes (title)
+(defun take-notes (title)
     ;; (interactive
     ;;  (list
     ;;   (read-from-minibuffer
@@ -13,6 +12,7 @@
                 (format-time-string
                  "%Y%m%d.%H%M%S")
                 "." title ".txt")))
-  (defun find-active-note ()
+
+(defun find-active-note ()
     (interactive)
-    (find-file (concat note-root "active.txt"))))
+    (find-file (concat note-root "active.txt")))

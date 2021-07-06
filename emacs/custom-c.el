@@ -1,7 +1,6 @@
 (defun c-setup ()
-  (setq-local
    ;; fixme does it even work?
-   parens-require-spaces nil
-   c-basic-offset 4))
+  (setq-local parens-require-spaces nil)
+  (setq-local c-basic-offset 4))
 
-(add-hook c-mode-hook 'c-setup)
+(add-hook 'c-mode-hook 'c-setup)
