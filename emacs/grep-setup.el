@@ -63,6 +63,12 @@
   (let ((default-directory (locate-dominating-file default-directory ".git")))
     (call-interactively 'git-grep-symbol-at-point)))
 
+(defun grep-default-dir-symbol-at-point ()
+  (interactive)
+  (let ((symbol (thing-at-point 'symbol)))
+    (unless (stringp symbol) (error "not a symbol"))
+    (grep-here symbol)))
+
 (global-set-key (kbd "C-x g") 'rgr)
 
 (define-key grep-mode-map (kbd "r") 'rgr-here)

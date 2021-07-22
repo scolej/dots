@@ -83,6 +83,7 @@
 
 (setq-default indent-tabs-mode nil
               truncate-lines t
+              auto-hscroll-mode nil
               buffer-file-coding-system 'utf-8-unix)
 
 (fset 'yes-or-no-p 'y-or-n-p)

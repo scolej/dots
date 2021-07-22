@@ -129,6 +129,9 @@ colon followed by the line number."
 
 
 
+;; (gsk "<f1>" 'ibuffer)
+(gsk "<f1>" 'buffer-menu)
+
 ;; (require 'pick)
 
 ;; (gsk "<f1>" 'pick-select-buffer)
@@ -298,3 +301,10 @@ file based on OFFSET."
   (interactive "M")
   (switch-to-buffer
    (url-retrieve-synchronously url)))
+
+;;
+
+
+
+(gsk "<M-wheel-down>" 'scroll-left)
+(gsk "<M-wheel-up>" 'scroll-right)

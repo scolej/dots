@@ -17,6 +17,10 @@
 ;; - buffer picking: append recent files
 ;;      common pattern of looking for a buffer which is not open
 ;;      but was recently open
+;;
+;; ??
+;; - f2 -> files in project which are open in a buffer
+;; - C-f2 -> all files in project
 
 (require 'subr-x)
 (require 'seq)
