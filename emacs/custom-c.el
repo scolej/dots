@@ -1,7 +1,7 @@
 (defun c-setup ()
    ;; fixme does it even work?
   (setq-local parens-require-spaces nil)
-  (setq-local c-basic-offset 4)
+  (setq-local c-basic-offset 2)
   (electric-indent-mode 1))
 
 (add-hook 'c-mode-hook 'c-setup)

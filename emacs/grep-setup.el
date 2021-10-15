@@ -69,7 +69,7 @@
     (unless (stringp symbol) (error "not a symbol"))
     (grep-here symbol)))
 
-(global-set-key (kbd "C-x g") 'rgr)
+(global-set-key (kbd "C-x g") 'grep-default-dir-symbol-at-point)
 
 (define-key grep-mode-map (kbd "r") 'rgr-here)
 

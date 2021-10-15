@@ -25,8 +25,8 @@ alias gd='git diff --patience'
 alias gds='git diff --patience --staged'
 alias gdmb='git diff $(git merge-base @{u} HEAD)'
 
-alias gl='git log --oneline'
-alias gll='git log --pretty --graph' # Log with all the info we have
+alias gl='git log --oneline --decorate'
+alias gll='git log --pretty' # Log with all the info we have
 alias gl9='gl -n9'
 alias gla="g log --format='%h %<(15,trunc)%an %s'" # One-line log with the author as well
 
@@ -35,7 +35,7 @@ alias glmb='git log --oneline ^$(git merge-base @{u} HEAD) HEAD'
 alias grc='git rebase --continue'
 alias gri='git rebase -i --autosquash'
 alias grio='git rebase -i --autosquash origin/$(git rev-parse --abbrev-ref HEAD)' # Rebase onto the same branch on origin
-alias grik='git rebase --interactive --keep-base'
+alias grik='git rebase --interactive --autosquash --keep-base'
 
 alias groot='cd "$(git rev-parse --show-toplevel)" ; echo "I am Groot"'
 
@@ -109,7 +109,7 @@ gg() {
     { cat "$t1" ; echo ; cat "$t2" ; echo ; cat "$t3"; echo ; cat "$t4"; echo ; cat "$t5"; } >> "$all"
 
     clear
-    less -SR "$all"
+    less -SRX "$all"
 }
 
 gsum() {

@@ -25,7 +25,8 @@ the current buffer, if it's a compilation mode!)"
               (recompile)))
       (call-interactively 'compile))))
 
-(setq-default compilation-always-kill t)
+(setq-default compilation-always-kill t
+              compilation-ask-about-save nil)
 
 ;; FIXME does nothing?
 (add-hook 'compilation-mode-hook
@@ -42,6 +43,6 @@ the current buffer, if it's a compilation mode!)"
 (setq compilation-always-kill t
       compilation-mode-font-lock-keywords nil)
 
-(gsk "<f11>" 'recompile-recent-compilation)
+(gsk "<f11>" 'recompile)
 (gsk "<kp-add>" 'next-error)
 (gsk "<kp-subtract>" 'previous-error)

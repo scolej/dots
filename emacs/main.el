@@ -29,6 +29,34 @@
 (defun really-kill-buffer ()
   (interactive) (kill-buffer nil))
 
+(defun copy-path-git ()
+  "Copy the git-relative path to the current file."
+  (interactive)
+  (let* ((root (or (locate-dominating-file default-directory ".git")
+                   (error "not in a git repo")))
+         (abs (or (buffer-file-name)
+                  (default-directory)))
+         (str (file-relative-name abs root)))
+    (kill-new str)
+    (let ((x-select-enable-primary t))
+      (x-select-text str))
+    (message (format "Copied: %s" str))))
+
+(defun copy-crumb ()
+  "Copy file path, line number, and trimmed line."
+  (interactive)
+  (let* ((root (or (locate-dominating-file default-directory ".git")
+                   (error "not in a git repo")))
+         (abs (or (buffer-file-name)
+                  (default-directory)))
+         (line (s-trim (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
+         (linum (number-to-string (line-number-at-pos (point))))
+         (str (concat (file-relative-name abs root) ":" linum " " line)))
+    (kill-new str)
+    (let ((x-select-enable-primary t))
+      (x-select-text str))
+    (message (format "Copied: %s" str))))
+
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
   (interactive)
@@ -78,11 +106,13 @@ colon followed by the line number."
 (load "custom-occur.el")
 (load "custom-org.el")
 (load "custom-c.el")
+(load "custom-org.el")
 
 ;;
 ;; Global bindings
 ;;
 
+(gsk "<kp-enter>" 'execute-extended-command)
 (gsk "<S-return>" 'yank)
 (gsk "<C-tab>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
@@ -129,16 +159,7 @@ colon followed by the line number."
 
 
 
-;; (gsk "<f1>" 'ibuffer)
 (gsk "<f1>" 'buffer-menu)
-
-;; (require 'pick)
-
-;; (gsk "<f1>" 'pick-select-buffer)
-;; (gsk "<f2>" 'pick-filelist)
-
-;; (pick-define-function-keys)
-;; (pick-define-numpad-keys)
 
 
 
@@ -292,6 +313,7 @@ file based on OFFSET."
 
 (gsk "<C-kp-1>" 'point-to-register)
 (gsk "<kp-1>" 'jump-to-register)
+(gsk "<kp-2>" 'bookmark-bmenu-list)
 
 ;;
 
