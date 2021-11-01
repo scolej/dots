@@ -3,7 +3,7 @@
 
 (require 'dired-x)
 
-;; (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
 (defun dired-find-here (pattern)
   "Find files in this directory using a wildcard pattern."
@@ -42,7 +42,7 @@ Each entry can be
 in dired-launch-programs."
   (interactive)
   (let* ((f (file-truename (dired-file-name-at-point)))
-         (ext (file-name-extension f))
+         (ext (downcase (file-name-extension f)))
          (prog (alist-get ext dired-launch-programs nil nil 'equal))
          (cmd (cond
                ((stringp prog) (list prog f))

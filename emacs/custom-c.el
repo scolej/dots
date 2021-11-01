@@ -18,3 +18,10 @@
   (forward-line)
   (end-of-line)
   (insert " "))
+
+(defun c-etags-here ()
+  (interactive)
+  (shell-command
+   "find -type f -iname '*.c' -or -iname '*.h' | xargs etags"
+   "*etags")
+  (visit-tags-table "TAGS"))

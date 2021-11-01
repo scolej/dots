@@ -69,7 +69,7 @@
   "]" 'paredit-close-round
   "(" 'paredit-open-square
   ")" 'paredit-close-square
-  "M-[" 'paredit-wrap-round
+  "{" 'paredit-wrap-round
   "M-w" 'dwim-sexp-copy
   "<mouse-3>" 'kill-sexp
   "M-c" 'clone-sexp
@@ -84,7 +84,20 @@
   ;; my line moving breaks sexps
   ;; "<M-up>" nil
   ;; "<M-down>" nil
+
+  "M-]" 'paredit-forward
+  "M-[" 'paredit-backward
+  ;; "M-[" 'paredit-backward-up
+
+  "M-k" 'kill-sexp
+  "<M-SPC>" 'squish-space
+
+  "<M-up>" 'paredit-backward-up
   )
+
+(defun squish-space ()
+  (interactive)
+  (just-one-space -1))
 
 ;; todo, format sexp on enter?
 

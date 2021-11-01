@@ -41,8 +41,12 @@ the current buffer, if it's a compilation mode!)"
 (define-key compilation-mode-map (kbd "DEL") 'compilation-delete-hit)
 
 (setq compilation-always-kill t
-      compilation-mode-font-lock-keywords nil)
+      compilation-mode-font-lock-keywords nil
+      compilation-search-path '("." "src"))
 
 (gsk "<f11>" 'recompile)
 (gsk "<kp-add>" 'next-error)
 (gsk "<kp-subtract>" 'previous-error)
+
+(defun use-smaller-text () (text-scale-set -1))
+(add-hook 'compilation-mode-hook 'use-smaller-text)

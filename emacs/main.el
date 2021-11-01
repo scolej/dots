@@ -18,15 +18,16 @@
 (defun gsk (k f)
   (global-set-key (kbd k) f))
 
-
-
+;;
 ;; Wrappers, shortcuts, utilities
+;;
 
 (defun save-all ()
   (interactive)
   (save-some-buffers t))
 
 (defun really-kill-buffer ()
+  "Unconditionally kill the current buffer."
   (interactive) (kill-buffer nil))
 
 (defun copy-path-git ()
@@ -42,6 +43,7 @@
       (x-select-text str))
     (message (format "Copied: %s" str))))
 
+;; TODO there's some factoring here for sure
 (defun copy-crumb ()
   "Copy file path, line number, and trimmed line."
   (interactive)
@@ -75,18 +77,19 @@ colon followed by the line number."
     (kill-new s)
     (message (format "Copied: %s" s))))
 
-(defun etags-here ()
-  (interactive)
-  (shell-command
-   "find -type f -iname '*.c' -or -iname '*.h' | xargs etags"
-   "*etags")
-  (visit-tags-table "TAGS"))
-
 (defun kill-buffer-process ()
+  "Unconditionally kill any process in the current buffer."
   (interactive)
   (kill-process (get-buffer-process (current-buffer))))
 
-
+;; TODO insert kill-ring into minibuffer if it starts with http?
+(defun view-url (url)
+  "Retrieve a URL and show it in a buffer."
+  (interactive "M")
+  (switch-to-buffer
+   (url-retrieve-synchronously url)))
+
+;;
 
 (load "grep-setup.el")
 ;; (load "idle-highlight.el")
@@ -149,7 +152,8 @@ colon followed by the line number."
               "v" 'describe-variable
               "k" 'describe-key
               "m" 'describe-mode
-              "i" 'info)
+              "i" 'info
+              "a" 'apropos)
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
   "<escape>" 'top-level
@@ -157,11 +161,41 @@ colon followed by the line number."
   "p" 'previous-error
   "o" 'occur))
 
-
+;;
+;; Buffer switching
+;;
+
+(defun buffer-menu-current-file ()
+  "Opens the buffer menu, sorted by file, and moves point to the
+current buffer."
+  (interactive)
+  (let ((buf (current-buffer)))
+    (let ((tabulated-list-sort-key '("File" . nil)))
+      (buffer-menu))
+    (goto-char (point-min))
+    (while (and (not (equal (point) (point-max)))
+                (not (equal buf (tabulated-list-get-id))))
+      (forward-line))))
+
+;; doesn't work :(
+;; (defun buffer-menu-toggle-sort ()
+;;   (interactive)
+;;   (setq-local
+;;    tabulated-list-sort-key
+;;    (if (and (listp tabulated-list-sort-key)
+;;             (equal "File" (car tabulated-list-sort-key)))
+;;        '("C" . nil)
+;;      '("File" . nil)))
+;;   (tabulated-list-init-header)
+;;   (tabulated-list-print t))
+;; (define-key Buffer-menu-mode-map "<f1>" 'buffer-menu-toggle-sort)
 
 (gsk "<f1>" 'buffer-menu)
+(gsk "<f2>" 'buffer-menu-current-file)
 
-
+(add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
+
+;;
 
 (require 'selected)
 
@@ -183,7 +217,7 @@ colon followed by the line number."
 
 (selected-global-mode)
 
-
+;;
 
 (setq-default
  fill-column 75
@@ -204,14 +238,15 @@ colon followed by the line number."
  (lambda (s) (add-to-list 'yank-excluded-properties s))
  '(face font-lock-face))
 
+;; Enable useful disabled things.
 (mapc
  (lambda (s) (put s 'disabled nil))
- '(narrow-to-page erase-buffer))
+ '(narrow-to-page
+   erase-buffer
+   scroll-right
+   scroll-left))
 
-;; todo
-;; stop pressing tab so much
-
-
+;;
 
 (when (boundp 'terminal-prog)
   (defun term-here ()
@@ -223,13 +258,22 @@ colon followed by the line number."
       (start-process "term" nil terminal-prog)))
   (global-set-key (kbd "C-x t") 'term-here))
 
-
+
+;;
+;; Horizontal scrolling
+;;
+
+(defun small-scroll-right () (interactive) (scroll-right 15 t))
+(defun small-scroll-left () (interactive) (scroll-left 15 t))
+(gsk "<C-prior>" 'small-scroll-right)
+(gsk "<C-next>" 'small-scroll-left)
 
 ;;
 ;; Query replace using region
 ;;
 
-;; fixme how to repeat easily the last replacment?
+;; TODO how to repeat easily the last replacement? ie: immediately
+;; kick back into query-replace mode?
 (defun query-replace-maybe-region ()
   (interactive)
   (if (region-active-p)
@@ -242,8 +286,6 @@ colon followed by the line number."
           (format "Replace %s with: " str)
           nil nil nil nil str)))
     (call-interactively 'query-replace-regexp)))
-
-
 
 ;;
 ;; Opening lines
@@ -266,12 +308,11 @@ colon followed by the line number."
 (gsk "C-S-o" 'new-line-above)
 (gsk "C-o" 'new-line-below)
 
-
-
 ;;
 ;; Browsing back & forth in directory order.
 ;;
 
+;; TODO this should probably use dired so the order of files matches
 (defun find-next-file (&optional offset)
   "Find a file in order relative to the current
 file based on OFFSET."
@@ -292,7 +333,7 @@ file based on OFFSET."
 (gsk "C-x <down>" 'find-next-file)
 (gsk "C-x <up>" 'find-prev-file)
 
-
+;;
 
 (defun end-of-line-and-next ()
   (interactive)
@@ -308,25 +349,9 @@ file based on OFFSET."
 (gsk "C-a" 'start-of-line-and-prev)
 
 ;;
-;;
-;;
 
-(gsk "<C-kp-1>" 'point-to-register)
-(gsk "<kp-1>" 'jump-to-register)
-(gsk "<kp-2>" 'bookmark-bmenu-list)
-
-;;
-
-
-;; TODO insert kill-ring into minibuffer if it starts with http?
-(defun view-url (url)
-  (interactive "M")
-  (switch-to-buffer
-   (url-retrieve-synchronously url)))
-
-;;
-
-
-
-(gsk "<M-wheel-down>" 'scroll-left)
-(gsk "<M-wheel-up>" 'scroll-right)
+;; TODO a simple CSV mode
+(defun align-buffer-commas ()
+  (interactive "")
+  (align-regexp (point-min) (point-max)
+                "\\( *\\)," 1 1 t))

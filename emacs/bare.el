@@ -5,12 +5,12 @@
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
 (setq-default cursor-type 'box
-              cursor-in-non-selected-windows 'hollow)
+              cursor-in-non-selected-windows 'box)
 
 (require 'savehist)
 
-(blink-cursor-mode -1)
-(eldoc-mode -1)
+(blink-cursor-mode 1)
+;; (eldoc-mode -1)
 (fringe-mode nil)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -26,7 +26,7 @@
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
 (show-paren-mode 1)
-;; (global-so-long-mode 1)
+(global-so-long-mode 1)
 
 (setq save-interprogram-paste-before-kill t
 
@@ -38,7 +38,7 @@
       kept-old-versions 6
       version-control t
       auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save/" t))
-      auto-save-timeout 5
+      auto-save-timeout 30
       auto-save-interval 100
       create-lockfiles nil
 
@@ -76,14 +76,16 @@
       scroll-margin 0
       scroll-step 0
 
-      mouse-wheel-scroll-amount '(5 ((shift) . 10) ((control) . 20))
+      mouse-wheel-scroll-amount '(1 ((shift) . 10) ((control) . 20))
       use-dialog-box nil
       async-shell-command-buffer 'new-buffer
       split-width-threshold nil)
 
 (setq-default indent-tabs-mode nil
               truncate-lines t
-              auto-hscroll-mode nil
+              auto-hscroll-mode t
+              hscroll-step 10
+              hscroll-margin 2
               buffer-file-coding-system 'utf-8-unix)
 
 (fset 'yes-or-no-p 'y-or-n-p)
