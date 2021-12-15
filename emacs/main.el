@@ -110,6 +110,7 @@ colon followed by the line number."
 (load "custom-org.el")
 (load "custom-c.el")
 (load "custom-org.el")
+(load "custom-ruby.el")
 
 ;;
 ;; Global bindings
@@ -156,10 +157,19 @@ colon followed by the line number."
               "a" 'apropos)
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
-  "<escape>" 'top-level
+  "<escape>" 'buffer-menu
+  "`" 'buffer-menu-current-file
   "n" 'next-error
   "p" 'previous-error
-  "o" 'occur))
+  "o" 'occur
+  "y" (keymap "c" 'copy-crumb)
+  "t" (keymap "l" 'toggle-truncate-lines
+              "n" 'linum-mode
+              "f" 'auto-fill-mode)
+  "v" 'view-mode
+  "j" (keymap "b" 'bk-bfp-branch
+              "n" 'take-notes)
+  "C" 'compile))
 
 ;;
 ;; Buffer switching
@@ -190,10 +200,41 @@ current buffer."
 ;;   (tabulated-list-print t))
 ;; (define-key Buffer-menu-mode-map "<f1>" 'buffer-menu-toggle-sort)
 
-(gsk "<f1>" 'buffer-menu)
+(require 'pick)
+(gsk "<f1>" 'pick-select-buffer)
+(pick-define-numpad-keys)
+(pick-define-function-keys)
+
 (gsk "<f2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
+
+;;
+;; Indenting
+;;
+
+;; TODO it looks like indent-rigidly attempts to keep the region active;
+;; but it seems to fail...
+
+(defun indent-right (beg end)
+  (interactive "r")
+  (let ((deactivate-mark nil))
+    (indent-rigidly beg end 4)))
+
+(defun indent-left (beg end)
+  (interactive "r")
+  (let ((deactivate-mark nil))
+    (indent-rigidly beg end -4)))
+
+;;
+
+(defun clone-region (beg end)
+  (interactive "r")
+  (let ((deactivate-mark nil)
+        (str (buffer-substring-no-properties beg end)))
+    (save-excursion
+      (goto-char end)
+      (insert str))))
 
 ;;
 
@@ -206,14 +247,11 @@ current buffer."
   "i" 'indent-rigidly
   ";" 'comment-dwim
   "s" 'sort-lines
-  ;; FIXME lose selection after first go :S ???
-  ;; ">" 'indent-rigidly-right
-  ;; "<" 'indent-rigidly-left
-
-  ;; ideas
-  ;; move up down
-  ;; clone
-  )
+  "o" 'occur-selection
+  ">" 'indent-right
+  "<" 'indent-left
+  "c" 'clone-region
+  "x" 'exchange-point-and-mark)
 
 (selected-global-mode)
 
@@ -272,20 +310,35 @@ current buffer."
 ;; Query replace using region
 ;;
 
-;; TODO how to repeat easily the last replacement? ie: immediately
-;; kick back into query-replace mode?
+(define-keys query-replace-map "p" 'backup)
+
+(defvar-local query-replace-previous nil
+  "The last query replace we did. A pair, the first element is the string to find,
+the second element is the replacement.")
+
 (defun query-replace-maybe-region ()
+  "If there's a selection, prompt for replacement text for the
+selection, otherwise call query-replace-regexp as normal."
   (interactive)
   (if (region-active-p)
       (let ((str (buffer-substring-no-properties (point) (mark))))
         (deactivate-mark)
         (goto-char (min (point) (mark)))
-        (query-replace-regexp
-         (regexp-quote str)
-         (read-from-minibuffer
-          (format "Replace %s with: " str)
-          nil nil nil nil str)))
+        (let ((rep (read-from-minibuffer
+                    (format "Replace %s with: " str)
+                    nil nil nil nil str))
+              (str-esc (regexp-quote str)))
+          (setq query-replace-previous (cons str-esc rep))
+          (query-replace-regexp str-esc rep)))
     (call-interactively 'query-replace-regexp)))
+
+(defun query-replace-resume ()
+  "Resume a previous session of replacing."
+  (interactive)
+  (unless query-replace-previous (error "no previous replacement"))
+  (query-replace-regexp
+   (car query-replace-previous)
+   (cdr query-replace-previous)))
 
 ;;
 ;; Opening lines
@@ -355,3 +408,70 @@ file based on OFFSET."
   (interactive "")
   (align-regexp (point-min) (point-max)
                 "\\( *\\)," 1 1 t))
+
+;;
+
+;; (defun select-whole-line ()
+;;   (interactive)
+;;   (deactivate-mark)
+;;   (beginning-of-line)
+;;   (activate-mark)
+;;   (end-of-line))
+
+;;
+
+(defun call-process-buffer-replace (prog args)
+  "Send the entire contents of the current buffer to a command
+and replace the buffer contents with the output."
+  ;; FIXME doc indicates you can pass nil for START; reality indicates otherwise.
+  (call-process-region (point-min) (point-max) prog t t nil args))
+
+(defun strip-ansi-current-buffer ()
+  (interactive)
+  (call-process-buffer-replace "sed" "s/\x1b\[[0-9;]*m//g"))
+
+(defun tidy-rubbish-buffer ()
+  (interactive)
+  (strip-ansi-current-buffer)
+  (delete-trailing-whitespace))
+
+;;
+
+(add-hook 'text-mode-hook 'goto-address-mode)
+
+;;
+
+(defun maybe-visual-line-mode ()
+  "Look at the first 10 lines of the current buffer. If any
+  are longer than 80 chars, turn on visual-line-mode."
+  (let ((lines-to-consider 10)
+        (trigger-length 80)
+        (found-long-line nil))
+    (while (and (<= (line-number-at-pos) lines-to-consider)
+                (not found-long-line))
+      (setq found-long-line
+            (> trigger-length (- (point-at-eol) (point-at-bol))))
+      (forward-line))
+    (if found-long-line
+        (visual-line-mode t))))
+
+(add-hook 'markdown-mode-hook 'maybe-visual-line-mode)
+
+;;
+
+(setq scroll-preserve-screen-position t)
+
+;;
+
+(defun pp-json (beg end)
+  (interactive "r")
+  (shell-command-on-region beg end "jq" nil t))
+
+;; todo dupe-to-other-window
+;; todo rust format on save
+
+;;
+
+(require 'company)
+(global-company-mode 1)
+(setq company-idle-delay 1)

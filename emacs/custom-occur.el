@@ -10,6 +10,12 @@
     (occur-prev)
     (occur-mode-display-occurrence)))
 
+(defun occur-selection ()
+  (interactive)
+  (let ((str (buffer-substring-no-properties (point) (mark))))
+    (deactivate-mark)
+    (occur str)))
+
 ;; todo
 ;;
 ;; how to make window only as big as entries?

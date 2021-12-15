@@ -1,7 +1,7 @@
 (defun theme-tweaks ()
   (set-face-attribute
    'mode-line nil
-   :height 75
+   :height 110
    :box nil
    ;; :overline nil :underline nil
    ;; :background "#f3f3f3"
@@ -22,7 +22,7 @@
    'vertical-border nil
    :inherit 'mode-line :inverse-video t)
   ;; (set-face-attribute 'fixed-pitch-serif nil :family 'unspecified)
-)
+  )
 
 (defun switch-theme (new-theme)
   (interactive)
@@ -32,9 +32,11 @@
 (defun switch-theme-dark ()
   (interactive)
   (switch-theme 'modus-vivendi)
-  (theme-tweaks))
+ ;; (theme-tweaks)
+  )
 
 (defun switch-theme-light ()
   (interactive)
   (switch-theme 'modus-operandi)
-  (theme-tweaks))
+  ;;(theme-tweaks)
+  )

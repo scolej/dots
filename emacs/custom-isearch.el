@@ -11,5 +11,6 @@
 ;; (advice-add 'isearch-forward :after 'isearch-use-region)
 ;; (advice-add 'isearch-backward :after 'isearch-use-region)
 
-(setq isearch-allow-scroll t)
-(setq isearch-wrap-function '(lambda nil))
+(setq isearch-allow-scroll t
+      isearch-wrap-function '(lambda nil)
+      isearch-yank-on-move t)

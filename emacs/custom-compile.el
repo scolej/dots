@@ -32,14 +32,6 @@ the current buffer, if it's a compilation mode!)"
 (add-hook 'compilation-mode-hook
           'ansi-color-for-comint-mode-on)
 
-;; FIXME works?
-(defun compilation-delete-hit ()
-  (interactive)
-  (read-only-mode -1)
-  (delete-whole-line)
-  (read-only-mode 1))
-(define-key compilation-mode-map (kbd "DEL") 'compilation-delete-hit)
-
 (setq compilation-always-kill t
       compilation-mode-font-lock-keywords nil
       compilation-search-path '("." "src"))
@@ -49,4 +41,4 @@ the current buffer, if it's a compilation mode!)"
 (gsk "<kp-subtract>" 'previous-error)
 
 (defun use-smaller-text () (text-scale-set -1))
-(add-hook 'compilation-mode-hook 'use-smaller-text)
+;; (remove-hook 'compilation-mode-hook 'use-smaller-text)

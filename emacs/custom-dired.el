@@ -1,6 +1,3 @@
-;; TODO
-;; dired, copy full path to marked files as line separated string
-
 (require 'dired-x)
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
@@ -13,12 +10,18 @@
      "Find: " '("**" . 2))) )
   (find-name-dired default-directory pattern))
 
+;; (defun dired-git (pattern)
+;;   "Find files in this directory using a wildcard pattern."
+;;   (interactive
+;;    (list
+;;     (read-from-minibuffer
+;;      "Find: " '("**" . 2))) )
+;;   (find-name-dired default-directory pattern))
+
 (defun dired-bro ()
   "Opens the file under point in a browser."
   (interactive)
   (browse-url (dired-filename-at-point)))
-
-
 
 ;;
 ;; Easily launch external programs from dired
@@ -53,9 +56,24 @@ in dired-launch-programs."
            (get-buffer-create "*dired launch*")
            cmd)))
 
-
-
 (define-keys dired-mode-map
   "<DEL>" 'dired-jump
   "i" 'dired-find-here
   "J" 'dired-launch)
+
+(defun dired-git-here ()
+  (interactive)
+  (let* ((dir "/Users/shannoncole/ev/git/rmoney")
+         (bname (concat "dired git - " dir))
+         (buf (get-buffer-create bname)))
+    (with-current-buffer buf
+      (fundamental-mode)
+      (erase-buffer)
+      (cd dir)
+      ;; (insert "  " dir ":\n")
+      (shell-command "git ls-tree --name-only -r HEAD | xargs ls -l" buf)
+      (dired-mode dir)
+      ;; (dired-insert-set-properties (point-min) (point-max))
+      (set (make-local-variable 'dired-subdir-alist)
+	   (list (cons default-directory (point-min-marker)))))
+    (switch-to-buffer buf)))
