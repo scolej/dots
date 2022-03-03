@@ -157,7 +157,7 @@ colon followed by the line number."
               "a" 'apropos)
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
-  "<escape>" 'buffer-menu
+  "<escape>" 'explore-mode
   "`" 'buffer-menu-current-file
   "n" 'next-error
   "p" 'previous-error
@@ -388,18 +388,44 @@ file based on OFFSET."
 
 ;;
 
-(defun end-of-line-and-next ()
-  (interactive)
-  (when (= (point-at-eol) (point)) (forward-line))
-  (end-of-line))
+(defvar eol-bol-rep-last-dir nil
+  "Last direction moved by bol-and-advance or eol-and-advance. 1
+  indicates forwards, -1 indicates backwards.")
 
-(defun start-of-line-and-prev ()
-  (interactive)
-  (when (= (point-at-bol) (point)) (forward-line -1))
+(defun bol-and-advance (arg)
+  "Move to the beginning of line. If we're already there, move
+either forwards or backwards by one line, depending on the prefix
+arg and the last action. Use a prefix arg to move forward. The
+motion may be repeated without repeating the prefix arg."
+  (interactive "P")
+  (let* ((reverse (or arg
+                      (and
+                       (equal last-command 'bol-and-advance)
+                       (equal eol-bol-rep-last-dir 1))))
+         (dir (if reverse 1 -1)))
+    (setq eol-bol-rep-last-dir dir)
+    (if (= (point-at-bol) (point))
+        (forward-line dir)))
   (beginning-of-line))
 
-(gsk "C-e" 'end-of-line-and-next)
-(gsk "C-a" 'start-of-line-and-prev)
+(defun eol-and-advance (arg)
+  "Move to the end of line. If we're already there, move either
+forwards or backwards by one line, depending on the prefix arg
+and the last action. Use a prefix arg to move forward. The motion
+may be repeated without repeating the prefix arg."
+  (interactive "P")
+  (let* ((reverse (or arg
+                      (and
+                       (equal last-command 'eol-and-advance)
+                       (equal eol-bol-rep-last-dir -1))))
+         (dir (if reverse -1 1)))
+    (setq eol-bol-rep-last-dir dir)
+    (if (= (point-at-eol) (point))
+        (forward-line dir)))
+  (end-of-line))
+
+(gsk "C-e" 'eol-and-advance)
+(gsk "C-a" 'bol-and-advance)
 
 ;;
 
@@ -474,4 +500,18 @@ and replace the buffer contents with the output."
 
 (require 'company)
 (global-company-mode 1)
-(setq company-idle-delay 1)
+(setq company-idle-delay nil)
+
+;;
+
+(require 'explore-mode)
+
+;;
+
+(require 'help-mode)
+
+(defun revert-help-no-confirm ()
+  (interactive)
+  (help-mode-revert-buffer nil t))
+
+(define-key help-mode-map (kbd "g") 'revert-help-no-confirm)
