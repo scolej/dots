@@ -53,11 +53,13 @@
                   (default-directory)))
          (line (s-trim (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
          (linum (number-to-string (line-number-at-pos (point))))
-         (str (concat (file-relative-name abs root) ":" linum " " line)))
-    (kill-new str)
+         (str1 (concat (file-relative-name abs root) ":" linum " " line))
+         (str2 (concat str1 "\n")))
+    (kill-new str2)
     (let ((x-select-enable-primary t))
-      (x-select-text str))
-    (message (format "Copied: %s" str))))
+      (x-select-text str2))
+    ;; todo crumbs with %s in them !?
+    (message (format "Copied crumb: %s" str1))))
 
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
@@ -92,7 +94,7 @@ colon followed by the line number."
 ;;
 
 (load "grep-setup.el")
-;; (load "idle-highlight.el")
+(load "idle-highlight.el")
 (load "trails.el")
 (load "delete.el")
 (load "dupe-and-drag.el")
@@ -144,7 +146,8 @@ colon followed by the line number."
   "=" 'balance-windows
   "f" 'find-file
   "F" 'file-hopper
-  "g" 'google
+  "g" 'git-grep-symbol-at-point
+  "G" 'git-grep-root-symbol-at-point
   "b" 'switch-to-buffer
   "s" (keymap "l" 'highlight-lines-matching-regexp
               "r" 'highlight-regexp
@@ -165,10 +168,13 @@ colon followed by the line number."
   "y" (keymap "c" 'copy-crumb)
   "t" (keymap "l" 'toggle-truncate-lines
               "n" 'linum-mode
-              "f" 'auto-fill-mode)
+              "f" 'auto-fill-mode
+              "c" 'flycheck-mode)
   "v" 'view-mode
   "j" (keymap "b" 'bk-bfp-branch
-              "n" 'take-notes)
+              "n" 'take-notes
+              "N" 'jump-to-notes-dir
+              "g" 'github-current-branch)
   "C" 'compile))
 
 ;;
@@ -185,7 +191,8 @@ current buffer."
     (goto-char (point-min))
     (while (and (not (equal (point) (point-max)))
                 (not (equal buf (tabulated-list-get-id))))
-      (forward-line))))
+      (forward-line))
+    (recenter)))
 
 ;; doesn't work :(
 ;; (defun buffer-menu-toggle-sort ()
@@ -202,6 +209,7 @@ current buffer."
 
 (require 'pick)
 (gsk "<f1>" 'pick-select-buffer)
+(gsk "<kp-1>" 'pick-select-buffer)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
@@ -246,10 +254,11 @@ current buffer."
   "k" 'idle-highlight-keep
   "i" 'indent-rigidly
   ";" 'comment-dwim
-  "s" 'sort-lines
+  "'" 'swiper-selection
+  "S" 'sort-lines
   "o" 'occur-selection
-  ">" 'indent-right
-  "<" 'indent-left
+  "<tab>" 'indent-right
+  "<backtab>" 'indent-left
   "c" 'clone-region
   "x" 'exchange-point-and-mark)
 
@@ -301,8 +310,8 @@ current buffer."
 ;; Horizontal scrolling
 ;;
 
-(defun small-scroll-right () (interactive) (scroll-right 15 t))
-(defun small-scroll-left () (interactive) (scroll-left 15 t))
+(defun small-scroll-right () (interactive) (scroll-right 5 t))
+(defun small-scroll-left () (interactive) (scroll-left 5 t))
 (gsk "<C-prior>" 'small-scroll-right)
 (gsk "<C-next>" 'small-scroll-left)
 
@@ -446,11 +455,12 @@ may be repeated without repeating the prefix arg."
 
 ;;
 
-(defun call-process-buffer-replace (prog args)
+(defun call-process-buffer-replace (prog &rest args)
   "Send the entire contents of the current buffer to a command
 and replace the buffer contents with the output."
   ;; FIXME doc indicates you can pass nil for START; reality indicates otherwise.
-  (call-process-region (point-min) (point-max) prog t t nil args))
+  ;; TODO only replace if return code 0; otherwise show output in error buffer
+  (apply 'call-process-region (point-min) (point-max) prog t t nil args))
 
 (defun strip-ansi-current-buffer ()
   (interactive)
@@ -515,3 +525,89 @@ and replace the buffer contents with the output."
   (help-mode-revert-buffer nil t))
 
 (define-key help-mode-map (kbd "g") 'revert-help-no-confirm)
+
+;;
+
+(define-keys company-active-map
+  "<RET>" nil
+  "<return>" nil
+  "<tab>" 'company-complete-selection)
+(define-keys company-mode-map
+  "<RET>" nil
+  "<return>" nil
+  "<tab>" nil)
+
+;;
+
+;; (require 'selectrum)
+;; (require 'selectrum-prescient)
+;; (selectrum-mode)
+;; (selectrum-prescient-mode -1)
+;; (prescient-persist-mode -1)
+;; (setq completion-styles '(initials flex))
+;; doesn't work :( (define-key selectrum-minibuffer-map "<tab>" 'selectrum-insert-current-candidate)
+;; todo - how to get space separated regex??
+
+;; (require 'ivy)
+;; (ivy-mode -1)
+;; (setq ivy-)
+;; (setq ivy-display-functions-alist
+;;       '(
+;;         ;(ivy-completion-in-region . ivy-display-function-overlay)
+;;         (t)
+;;         ))
+
+(require 'swiper)
+(gsk "C-'" 'swiper)
+
+(defun swiper-selection ()
+  (interactive)
+  (let ((str (buffer-substring-no-properties (point) (mark))))
+    (deactivate-mark)
+    (swiper str)))
+
+(ivy-toggle-fuzzy)
+
+;;
+
+(require 'ansi-color)
+(defun display-ansi-colors ()
+  (interactive)
+  (ansi-color-apply-on-region (point-min) (point-max)))
+
+(define-derived-mode colour-log-view-mode fundamental-mode "colour log view mode"
+  (display-ansi-colors)
+  (view-mode)
+  ;; dissociate from file; we don't want to write any changes.
+  (setq buffer-file-name nil))
+
+;; (add-to-list 'auto-mode-alist '("\\.log\\'" . colour-log-view-mode))
+;; (setq auto-mode-alist (remove '("\\.log\\'" . colour-log-view-mode) auto-mode-alist))
+
+;;
+
+(gsk "<kp-decimal>" 'highlight-symbol-at-point)
+
+(setq hi-lock-face-defaults
+      '("hi-yellow" "hi-pink" "hi-green"
+        "hi-blue" "hi-salmon" "hi-aquamarine"
+        "hi-black-b" "hi-blue-b" "hi-red-b"
+        "hi-green-b"))
+
+;;
+
+
+(defun backward-end-of-word () (interactive) (backward-word 2) (forward-word))
+(defun forward-start-of-word () (interactive) (forward-word 2) (backward-word))
+
+(gsk "M-B" 'backward-end-of-word)
+(gsk "M-F" 'forward-start-of-word)
+
+;;
+
+(defun find-parent-readme ()
+  (interactive)
+  (find-file
+   (concat
+    (locate-dominating-file default-directory "README.md")
+    "README.md")))

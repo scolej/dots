@@ -21,6 +21,15 @@
 ;; ??
 ;; - f2 -> files in project which are open in a buffer
 ;; - C-f2 -> all files in project
+;;
+;; pick-rename-buffer - easily spin off a separate long-lived pick buffer;
+;; eg: write a filter for all the markdowns under a dir, then split off a
+;; new buffer with this search. can then easily switch back to it, hit g to
+;; update as necessary.
+;;
+;; ===> multi lines of filters?
+;;
+;; use buttons!
 
 (require 'subr-x)
 (require 'seq)
@@ -189,6 +198,12 @@ allows you to easily re-use the previous filter."
              (not (or (string-prefix-p " *Minibuf" n)
                       (equal bufname n)))))
          (buffer-list)))))))
+
+;; (defun pick-select-buffer-other-window ()
+;;   (interactive)
+;;   (let ((orig (selected-window)))
+;;     (other-window))
+;;   (with-selected-window (other-window)))
 
 (defun pick-filelist (prefix)
   (interactive "P")

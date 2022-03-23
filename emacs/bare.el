@@ -65,7 +65,7 @@
  mouse-autoselect-window 0.2
  revert-without-query '(".*")
  mouse-wheel-progressive-speed nil
- vc-handled-backends '()
+ vc-handled-backends '(git)
  case-fold-search t
  mouse-yank-at-point nil
 
@@ -87,6 +87,7 @@
  split-width-threshold nil)
 
 (setq-default indent-tabs-mode nil
+              tab-width 4
               truncate-lines t
               auto-hscroll-mode t
               hscroll-step 10

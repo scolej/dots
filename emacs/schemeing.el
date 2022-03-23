@@ -3,8 +3,13 @@
 ;;
 
 ;; todo
-;; - recover M-up/down
-;;   more often want to move sexps than do fancy splicing
+;;
+;; recover M-up/down
+;; more often want to move sexps than do fancy splicing
+;;
+;; inserting parens in comments is annoying
+;;
+;; lispy?
 
 (require 'paredit)
 (add-hook 'scheme-mode-hook 'paredit-mode)
@@ -71,7 +76,6 @@
   ")" 'paredit-close-square
   "{" 'paredit-wrap-round
   "M-w" 'dwim-sexp-copy
-  "<mouse-3>" 'kill-sexp
   "M-c" 'clone-sexp
   "C-\\" 'insert-lambda
   ;; "\\" nil

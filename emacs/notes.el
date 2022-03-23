@@ -16,6 +16,10 @@
     (interactive "M")
     (find-file (name-note-file-now title ".txt")))
 
+(defun jump-to-notes-dir ()
+    (interactive)
+    (find-file note-root))
+
 (defun take-notes-org (title)
     (interactive "M")
     (find-file (name-note-file-now title ".org")))
