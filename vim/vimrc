@@ -1,11 +1,10 @@
 syntax on
 filetype on
 map Y y$
-" imap <CR> <ESC> 
-nmap <silent> <Down> :wincmd j<CR>
-nmap <silent> <Left> :wincmd h<CR>
+nmap <silent> <Down> :bn<CR>
+nmap <silent> <Left> :bp<CR>
 nmap <silent> <Right> :wincmd l<CR>
-nmap <silent> <Up> :wincmd k<CR>
+nmap <silent> <Up> :bp k<CR>
 nmap <silent> <C-Up> :prev<CR>
 nmap <silent> <C-Down> :next<CR>
 nmap <silent> <KPlus> :cn<CR>

@@ -1,3 +1,11 @@
+;; todo - modeline dupes filename; just show buffer name
+
+;; todo
+;;
+;; - pressing M-j should preserve space after comment
+;;
+;; - M-j should work in haskell-mode
+
 ;;
 ;; Handier binding
 ;;
@@ -96,7 +104,7 @@ colon followed by the line number."
 (load "grep-setup.el")
 (load "idle-highlight.el")
 (load "trails.el")
-(load "delete.el")
+;; (load "delete.el") todo this fights the paredit binds :(
 (load "dupe-and-drag.el")
 (load "notes.el")
 (load "schemeing.el")
@@ -104,6 +112,7 @@ colon followed by the line number."
 (load "symbol-scan.el")
 (load "time-strings.el")
 (load "hopper.el")
+(load "mark.el")
 
 (load "custom-compile.el")
 (load "custom-dired.el")
@@ -113,12 +122,15 @@ colon followed by the line number."
 (load "custom-c.el")
 (load "custom-org.el")
 (load "custom-ruby.el")
+(load "custom-haskell.el")
+(load "custom-flycheck.el")
 
 ;;
 ;; Global bindings
 ;;
 
 (gsk "<kp-enter>" 'execute-extended-command)
+(gsk "<XF86Eject>" 'execute-extended-command)
 (gsk "<S-return>" 'yank)
 (gsk "<C-tab>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
@@ -166,7 +178,7 @@ colon followed by the line number."
   "p" 'previous-error
   "o" 'occur
   "y" (keymap "c" 'copy-crumb)
-  "t" (keymap "l" 'toggle-truncate-lines
+  "t" (keymap "l" 'visual-line-mode
               "n" 'linum-mode
               "f" 'auto-fill-mode
               "c" 'flycheck-mode)
@@ -176,6 +188,10 @@ colon followed by the line number."
               "N" 'jump-to-notes-dir
               "g" 'github-current-branch)
   "C" 'compile))
+
+;; todo - maybe better: compile-at-git-root
+;; which also maintains a per-root buffer and selects the right one.
+;; or even multi compile buffers per root; eg: (1) stack build (2) hlint.
 
 ;;
 ;; Buffer switching
@@ -216,6 +232,19 @@ current buffer."
 (gsk "<f2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
+
+;;
+;; Completion
+;;
+
+(setq completion-styles '(partial-completion))
+
+(require 'company)
+(global-company-mode 1)
+(setq company-idle-delay nil)
+
+(define-keys company-mode-map
+  "<M-tab>" 'company-complete)
 
 ;;
 ;; Indenting
@@ -268,12 +297,11 @@ current buffer."
 
 (setq-default
  fill-column 75
- ;; buffer-file-coding-system 'prefer-utf-8-unix
  mode-line-format
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
             "%*"))
-   " %b:%l:%c %f"))
+   " %b:%l:%c"))
 
 (setq
  next-screen-context-lines 2
@@ -492,6 +520,7 @@ and replace the buffer contents with the output."
         (visual-line-mode t))))
 
 (add-hook 'markdown-mode-hook 'maybe-visual-line-mode)
+(add-hook 'text-mode-hook 'maybe-visual-line-mode)
 
 ;;
 
@@ -505,16 +534,7 @@ and replace the buffer contents with the output."
 
 ;; todo dupe-to-other-window
 ;; todo rust format on save
-
-;;
-
-(require 'company)
-(global-company-mode 1)
-(setq company-idle-delay nil)
-
-;;
-
-(require 'explore-mode)
+;; todo template expand S-M-tab ?
 
 ;;
 
@@ -528,37 +548,7 @@ and replace the buffer contents with the output."
 
 ;;
 
-(define-keys company-active-map
-  "<RET>" nil
-  "<return>" nil
-  "<tab>" 'company-complete-selection)
-(define-keys company-mode-map
-  "<RET>" nil
-  "<return>" nil
-  "<tab>" nil)
-
-;;
-
-;; (require 'selectrum)
-;; (require 'selectrum-prescient)
-;; (selectrum-mode)
-;; (selectrum-prescient-mode -1)
-;; (prescient-persist-mode -1)
-;; (setq completion-styles '(initials flex))
-;; doesn't work :( (define-key selectrum-minibuffer-map "<tab>" 'selectrum-insert-current-candidate)
-;; todo - how to get space separated regex??
-
-;; (require 'ivy)
-;; (ivy-mode -1)
-;; (setq ivy-)
-;; (setq ivy-display-functions-alist
-;;       '(
-;;         ;(ivy-completion-in-region . ivy-display-function-overlay)
-;;         (t)
-;;         ))
-
 (require 'swiper)
-(gsk "C-'" 'swiper)
 
 (defun swiper-selection ()
   (interactive)
@@ -566,7 +556,7 @@ and replace the buffer contents with the output."
     (deactivate-mark)
     (swiper str)))
 
-(ivy-toggle-fuzzy)
+(gsk "C-'" 'swiper-selection)
 
 ;;
 
@@ -595,10 +585,22 @@ and replace the buffer contents with the output."
         "hi-green-b"))
 
 ;;
+;; Handy word motion complements.
+;;
 
+(defun backward-end-of-word ()
+  (interactive)
+  (cl-flet ((go (lambda () (re-search-backward "\\>" nil t))))
+    (when (= (point) (go))
+      (left-char)
+      (go))))
 
-(defun backward-end-of-word () (interactive) (backward-word 2) (forward-word))
-(defun forward-start-of-word () (interactive) (forward-word 2) (backward-word))
+(defun forward-start-of-word ()
+  (interactive)
+  (cl-flet ((go (lambda () (re-search-forward "\\<" nil t))))
+    (when (= (point) (go))
+      (right-char)
+      (go))))
 
 (gsk "M-B" 'backward-end-of-word)
 (gsk "M-F" 'forward-start-of-word)
@@ -611,3 +613,10 @@ and replace the buffer contents with the output."
    (concat
     (locate-dominating-file default-directory "README.md")
     "README.md")))
+
+;; todo - could handle README.txt as well
+
+;;
+
+;; (when (require 'csv-mode nil t)
+;;   (add-hook 'csv-mode-hook 'csv-align-mode))

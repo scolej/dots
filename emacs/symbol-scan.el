@@ -23,10 +23,11 @@
   (scan-for-symbol-at-point 'backward))
 
 (gsk "M-n" 'forward-symbol-at-point)
-(gsk "<mouse-3>" 'forward-symbol-at-point)
+;; (gsk "<mouse-3>" 'forward-symbol-at-point)
 
 (gsk "M-p" 'backward-symbol-at-point)
-(gsk "<mouse-4>" 'backward-symbol-at-point)
+;; (gsk "<mouse-4>" 'backward-symbol-at-point)
+
 
 ;; Would be better...
 ;; M-SPC toggles symbol at point as a highlight & candidate for M-n M-p

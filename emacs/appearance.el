@@ -1,13 +1,8 @@
 (defun theme-tweaks ()
   (set-face-attribute
    'mode-line nil
-   :height 110
-   :box nil
-   ;; :overline nil :underline nil
-   ;; :background "#f3f3f3"
-   ;; :foreground "#000"
-   ;; :inverse-video nil
-   )
+   :height 0.7
+   :box nil)
   (set-face-attribute
    'mode-line-inactive nil
    :inherit 'mode-line
@@ -32,11 +27,9 @@
 (defun switch-theme-dark ()
   (interactive)
   (switch-theme 'modus-vivendi)
- ;; (theme-tweaks)
-  )
+ (theme-tweaks))
 
 (defun switch-theme-light ()
   (interactive)
   (switch-theme 'modus-operandi)
-  ;;(theme-tweaks)
-  )
+ (theme-tweaks))
