@@ -1,3 +1,5 @@
+;; todo a minor mode that doesn't clobber paredit
+
 ;;
 ;; Stop killing text. Just delete it.
 ;;
@@ -38,4 +40,5 @@
 ;; (global-set-key (kbd "C-k") 'delete-forward-line)
 
 (global-set-key (kbd "<M-backspace>") 'delete-backward-word)
+(global-set-key (kbd "<C-backspace>") 'delete-backward-sexp)
 (global-set-key (kbd "M-d") 'delete-forward-word)

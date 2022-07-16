@@ -45,6 +45,12 @@
          (1- (match-end 0)))
        (point-at-eol))))
 
+;; todo
+;;
+;; attempt to resolve path relative to current git root
+;;
+;; attempt to resolve path as a substring of tracked files in git tree
+
 ;; FIXME its own history
 (defun file-hopper ()
   "Look at the path at point, and try to jump to an appropriate file."

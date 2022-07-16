@@ -27,9 +27,9 @@
 (defun switch-theme-dark ()
   (interactive)
   (switch-theme 'modus-vivendi)
- (theme-tweaks))
+  (theme-tweaks))
 
 (defun switch-theme-light ()
   (interactive)
   (switch-theme 'modus-operandi)
- (theme-tweaks))
+  (theme-tweaks))

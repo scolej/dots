@@ -16,11 +16,14 @@
 
 ;; (eldoc-mode -1)
 (fringe-mode nil)
-(menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (recentf-mode -1)
+
+(menu-bar-mode -1)
+;; (message default-frame-alist) ;; todo
+(setf (alist-get 'menu-bar-lines default-frame-alist) 0)
 
 (savehist-mode 1)
 (setq savehist-autosave-interval 120
@@ -84,7 +87,8 @@
  mouse-wheel-scroll-amount '(1 ((shift) . 10) ((control) . 20))
  use-dialog-box nil
  async-shell-command-buffer 'new-buffer
- split-width-threshold nil)
+ split-width-threshold nil
+ split-height-threshold nil)
 
 (setq-default indent-tabs-mode nil
               tab-width 4

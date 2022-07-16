@@ -8,7 +8,6 @@ alias ga='git add'
 alias gau='git add -u'
 alias gaus='git add -u && git status'
 alias gaud='git add -u && git diff'
-alias gauds='git add -u && git diff --staged'
 
 alias gb='git branch'
 alias gba='git branch -a'
@@ -56,18 +55,24 @@ gads() {
     git diff --staged "$@"
 }
 
+gauds() {
+    git add -u "$@"
+    git diff --staged
+}
+
 gas() {
     git add "$@"
     git status
 }
 
 gbg() {
-    args=
+    args=''
     while test -n "$1"; do
         args="$args -e $1" # I'm sure this will not work if any args have spaces.
         shift
     done
-    git branch -a | grep -i $args
+    # zsh-ism: https://stackoverflow.com/posts/32186224
+    git branch -a | grep -i ${=args}
 }
 
 gitbranchbyauthor() {

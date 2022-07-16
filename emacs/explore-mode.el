@@ -5,6 +5,8 @@
 
 (defvar explore-mode-map
   (let ((map (make-sparse-keymap)))
+    (suppress-keymap map)
+    (define-key map (kbd "f") 'file-hopper) ;; todo hurts dired & ibuffer
     (define-key map (kbd "u") 'dired-jump)
     (define-key map (kbd "SPC") 'scroll-up-command)
     (define-key map (kbd "<backspace>") 'scroll-down-command)
@@ -12,7 +14,9 @@
     (define-key map (kbd "<") 'beginning-of-buffer)
     (define-key map (kbd ">") 'end-of-buffer)
     ;;(define-key map (kbd "<backspace>") 'scroll-down-command)
-    (define-key map (kbd "l") 'recenter)
+    ;; (define-key map (kbd "l") 'recenter)
+    (define-key map (kbd "l") 'previous-buffer)
+    (define-key map (kbd "r") 'next-buffer)
     (define-key map (kbd "s") 'isearch-forward)
     (define-key map (kbd "g") 'git-grep-symbol-at-point)
     (define-key map (kbd "G") 'git-grep-root-symbol-at-point)
@@ -26,18 +30,13 @@
     (define-key map (kbd "2") 'split-window-vertically)
     (define-key map (kbd "1") 'delete-other-windows)
     (define-key map (kbd "0") 'delete-window)
-    (suppress-keymap map)
+    (define-key map (kbd "q") 'quit-window)
     map))
 
 (defun suppress-explore-mode-map ()
+  (message "suppres explore map")
   (add-to-list 'minor-mode-overriding-map-alist
                '(explore-mode . nil)))
-
-;; todo how to get it out of minibuffer local binding again???
-;; (defun stop-suppress-explore-mode-map ()
-;;   (setq minor-mode-overriding-map-alist
-;;         (delete '(explore-mode)
-;;                 minor-mode-overriding-map-alist)))
 
 (setq nothing-map (make-sparse-keymap))
 
@@ -54,5 +53,8 @@
         (add-hook 'minibuffer-setup-hook 'suppress-explore-mode-map))
     (progn
       (remove-hook 'minibuffer-setup-hook 'suppress-explore-mode-map))))
+
+;; hmm fzf redefines its hook each time ?
+;; (add-hook 'fzf-hook 'suppress-explore-mode-map)
 
 (provide 'explore-mode)

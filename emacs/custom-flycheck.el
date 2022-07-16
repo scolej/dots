@@ -1,6 +1,7 @@
 (require 'flycheck)
 
 (setq
+ flycheck-idle-change-delay 1
  flycheck-display-errors-delay 3
  flycheck-display-errors-function 'flycheck-display-error-messages)
 

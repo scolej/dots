@@ -27,7 +27,7 @@
       (if prefix (make-frame) (selected-frame))
     (let ((default-directory dir))
       (compilation-start
-       (concat "grep -EHIirn '" pattern "' " dir)
+       (concat "grep -EHIirn '" pattern "' " dir " | sort -n")
        'grep-mode
        (lambda (mode)
          (concat (string-join (list "*grep*" pattern dir) " - ")))))))

@@ -118,7 +118,8 @@
    (start-stack . 1)
    (test-assert . 1)
    (test-case . 1)
-   (let-assq . 2)))
+   (let-assq . 2)
+   (ctx . 1)))
 
 (defun scheme-load-this-file ()
   (interactive)

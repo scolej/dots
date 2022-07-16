@@ -2,6 +2,7 @@
 
 (require 'ruby-mode)
 (add-hook 'ruby-mode-hook 'yas-minor-mode)
+(add-hook 'ruby-mode-hook 'flycheck-mode)
 
 ;; (define-key ruby-mode-map (kbd "<tab>") 'yas-expand)
 

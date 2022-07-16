@@ -69,6 +69,16 @@
     ;; todo crumbs with %s in them !?
     (message (format "Copied crumb: %s" str1))))
 
+(defun copy-git-buffer-path ()
+  "Copy the Git-root-relative path to the current buffer's file."
+  (interactive)
+  (let* ((git-root (or (locate-dominating-file default-directory ".git") (error "not in a git repo")))
+         (full-path (or (buffer-file-name) default-directory))
+         (str (file-relative-name full-path git-root)))
+    (kill-new str)
+    (message (format "Copied: %s" str))))
+
+;; todo should these be git-aware?
 (defun copy-buffer-path ()
   "Copy the full path to the current buffer's file."
   (interactive)
@@ -123,6 +133,7 @@ colon followed by the line number."
 (load "custom-org.el")
 (load "custom-ruby.el")
 (load "custom-haskell.el")
+(load "custom-rust.el")
 (load "custom-flycheck.el")
 
 ;;
@@ -138,6 +149,13 @@ colon followed by the line number."
 (gsk "C-x l" 'align-regexp)
 (gsk "<f12>" 'save-all)
 (gsk "<f5>" 'revert-buffer)
+
+(gsk "M-z" 'zap-up-to-char)
+(gsk "S-M-z" 'zap-to-char)
+
+(gsk "<kp-6>" 'recenter)
+(gsk "<kp-9>" (lambda () (interactive) (recenter 0)))
+(gsk "<kp-3>" (lambda () (interactive) (recenter -1)))
 
 (define-keys minibuffer-local-map
   "<escape>" 'top-level
@@ -158,12 +176,13 @@ colon followed by the line number."
   "=" 'balance-windows
   "f" 'find-file
   "F" 'file-hopper
-  "g" 'git-grep-symbol-at-point
-  "G" 'git-grep-root-symbol-at-point
+  "g" (keymap "g" 'git-grep-symbol-at-point
+              "G" 'git-grep-root-symbol-at-point
+              "v" 'vc-git-grep)
   "b" 'switch-to-buffer
-  "s" (keymap "l" 'highlight-lines-matching-regexp
-              "r" 'highlight-regexp
-              "u" 'unhighlight-regexp)
+  "s" (keymap "g" 'google
+              "s" 'stackoverflow
+              "t" 'teclis)
   "h" (keymap "f" 'describe-function
               "v" 'describe-variable
               "k" 'describe-key
@@ -177,7 +196,10 @@ colon followed by the line number."
   "n" 'next-error
   "p" 'previous-error
   "o" 'occur
-  "y" (keymap "c" 'copy-crumb)
+  "y" (keymap "c" 'copy-crumb
+              "g" 'copy-git-buffer-path
+              "b" 'copy-buffer-path
+              "n" 'copy-buffer-path-and-line)
   "t" (keymap "l" 'visual-line-mode
               "n" 'linum-mode
               "f" 'auto-fill-mode
@@ -186,8 +208,19 @@ colon followed by the line number."
   "j" (keymap "b" 'bk-bfp-branch
               "n" 'take-notes
               "N" 'jump-to-notes-dir
-              "g" 'github-current-branch)
-  "C" 'compile))
+              "g" 'github-current-branch
+              "j" 'browse-url-at-point
+              "D" (lambda () (interactive) (find-file "~/Downloads")))
+  "C" 'compile-in-dir))
+
+(defun yank-or-kill ()
+  (interactive)
+  (if (region-active-p)
+      (kill-ring-save (mark) (point))
+    (yank)))
+(gsk "<mouse-3>" 'yank-or-kill)
+
+(gsk "<C-mouse-1>" 'xref-find-definitions)
 
 ;; todo - maybe better: compile-at-git-root
 ;; which also maintains a per-root buffer and selects the right one.
@@ -338,8 +371,8 @@ current buffer."
 ;; Horizontal scrolling
 ;;
 
-(defun small-scroll-right () (interactive) (scroll-right 5 t))
-(defun small-scroll-left () (interactive) (scroll-left 5 t))
+(defun small-scroll-right () (interactive) (scroll-right 5 nil))
+(defun small-scroll-left () (interactive) (scroll-left 5 nil))
 (gsk "<C-prior>" 'small-scroll-right)
 (gsk "<C-next>" 'small-scroll-left)
 
@@ -501,7 +534,7 @@ and replace the buffer contents with the output."
 
 ;;
 
-(add-hook 'text-mode-hook 'goto-address-mode)
+;; (add-hook 'text-mode-hook 'goto-address-mode)
 
 ;;
 
@@ -532,9 +565,19 @@ and replace the buffer contents with the output."
   (interactive "r")
   (shell-command-on-region beg end "jq" nil t))
 
+(defun pp-escaped-json (beg end)
+  (interactive "r")
+  (let* ((orig (buffer-substring-no-properties beg end))
+         (unescaped (replace-regexp-in-string
+                     (regexp-quote "\\\\") "\\"
+                     (replace-regexp-in-string
+                      (regexp-quote "\\\"") "\""
+                      orig))))
+    (delete-region beg end)
+    (insert unescaped)
+    (pp-json beg (point))))
+
 ;; todo dupe-to-other-window
-;; todo rust format on save
-;; todo template expand S-M-tab ?
 
 ;;
 
@@ -548,15 +591,25 @@ and replace the buffer contents with the output."
 
 ;;
 
+(require 'corfu)
+(global-corfu-mode)
+(setq tab-always-indent 'complete
+      corfu-auto-delay nil)
+
+;;
+
 (require 'swiper)
 
 (defun swiper-selection ()
   (interactive)
-  (let ((str (buffer-substring-no-properties (point) (mark))))
-    (deactivate-mark)
-    (swiper str)))
+  (if (region-active-p)
+      (let ((str (regexp-quote (buffer-substring-no-properties (point) (mark)))))
+        (deactivate-mark)
+        (swiper str))
+    (swiper)))
 
 (gsk "C-'" 'swiper-selection)
+(gsk "<kp-5>" 'swiper-selection)
 
 ;;
 
@@ -614,9 +667,8 @@ and replace the buffer contents with the output."
     (locate-dominating-file default-directory "README.md")
     "README.md")))
 
-;; todo - could handle README.txt as well
-
 ;;
 
-;; (when (require 'csv-mode nil t)
-;;   (add-hook 'csv-mode-hook 'csv-align-mode))
+(require 'yasnippet)
+(require 'yasnippet-snippets)
+(gsk "<S-C-tab>" 'yas-expand)

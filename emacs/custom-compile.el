@@ -10,6 +10,23 @@
 ;; from this dir. then i go to a previously opened rust project; f11 should
 ;; work there too.
 
+(defun guess-compilation-command (dir)
+  (let ((contents (directory-files dir))
+        (dir (expand-file-name dir)))
+    (cond
+     ((seq-contains contents "Cargo.toml") "cargo build")
+     ((seq-contains contents "timelog.scm") "GUILE_LOAD_PATH=/Users/shannoncole/ev/hours2 guile timelog.scm")
+     ((equal dir "/Users/shannoncole/rubyscratch/") "rub 02.rb")
+     (nil))))
+
+(defun compile-in-dir (dir cmd)
+  (interactive
+   (let* ((dir (read-directory-name "Compilation dir: "))
+          (cmd (read-string "Command: " (guess-compilation-command dir) 'compilation-command-history)))
+     (let ((default-directory dir)
+           (compilation-scroll-output 'first-error))
+       (compile cmd)))))
+
 (defun compilation-buffer-p (b)
   "Is the given buffer in a mode derived from compilation mode?"
   (with-current-buffer b
@@ -51,7 +68,8 @@ the current buffer, if it's a compilation mode!)"
 ;; I'll find it myself thank you very much.
 (defun recompile-inhibit-buffer ()
   (interactive)
-  (let ((display-buffer-overriding-action '(display-buffer-actually-no . nil)))
+  (let ((display-buffer-overriding-action '(display-buffer-actually-no . nil))
+        (compilation-scroll-output 'first-error))
     (recompile)))
 
 (gsk "<f11>" 'recompile-inhibit-buffer)
