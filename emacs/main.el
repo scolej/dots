@@ -135,6 +135,7 @@ colon followed by the line number."
 (load "custom-haskell.el")
 (load "custom-rust.el")
 (load "custom-flycheck.el")
+(load "custom-eglot.el")
 
 ;;
 ;; Global bindings
@@ -272,12 +273,27 @@ current buffer."
 
 (setq completion-styles '(partial-completion))
 
-(require 'company)
-(global-company-mode 1)
-(setq company-idle-delay nil)
+(require 'corfu)
 
-(define-keys company-mode-map
-  "<M-tab>" 'company-complete)
+(global-corfu-mode)
+
+(setq tab-always-indent 'complete
+      corfu-auto t
+      corfu-auto-delay 0.2
+      corfu-count 5)
+
+;; (define-keys completion-in-region-mode-map
+;;   "<return>" nil
+;;   "<tab>" 'corfu-insert)
+
+(define-keys corfu-map
+  "<tab>" 'corfu-next
+  "<backtab>" 'corfu-previous
+  "<up>" nil
+  "<down>" nil)
+
+(define-key completion-in-region-mode-map [remap next-line] nil)
+(define-key completion-in-region-mode-map [remap previous-line] nil)
 
 ;;
 ;; Indenting
@@ -591,10 +607,7 @@ and replace the buffer contents with the output."
 
 ;;
 
-(require 'corfu)
-(global-corfu-mode)
-(setq tab-always-indent 'complete
-      corfu-auto-delay nil)
+
 
 ;;
 

@@ -19,3 +19,6 @@
   (let ((default-directory (rust-root)))
     (start-process-shell-command "rustup" "*rust doc*"
                                  "rustup doc --core")))
+
+(setq
+ rust-format-on-save t)
