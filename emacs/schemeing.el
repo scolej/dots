@@ -82,8 +82,10 @@
   ;; "C-d" nil
 
   ;; shadow things which break sexps
-  "<C-backspace>" 'delete-backward-sexp
-  "<C-S-backspace>" 'delete-sexp-around-point
+  ;; "<C-backspace>" 'delete-backward-sexp
+  ;; "<C-S-backspace>" 'delete-sexp-around-point
+  ;; "<C-backspace>" nil
+  ;; "<C-S-backspace>" nil
 
   ;; my line moving breaks sexps
   ;; "<M-up>" nil
@@ -93,10 +95,9 @@
   "M-[" 'paredit-backward
   ;; "M-[" 'paredit-backward-up
 
-  "M-k" 'kill-sexp
-  "<M-SPC>" 'squish-space
-
-  "<M-up>" 'paredit-backward-up
+  ;; "M-k" 'kill-sexp
+  ;; "<M-SPC>" 'squish-space
+  ;; "<M-up>" 'paredit-backward-up
   )
 
 (defun squish-space ()

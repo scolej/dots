@@ -114,7 +114,6 @@ colon followed by the line number."
 (load "grep-setup.el")
 (load "idle-highlight.el")
 (load "trails.el")
-;; (load "delete.el") todo this fights the paredit binds :(
 (load "dupe-and-drag.el")
 (load "notes.el")
 (load "schemeing.el")
@@ -132,10 +131,15 @@ colon followed by the line number."
 (load "custom-c.el")
 (load "custom-org.el")
 (load "custom-ruby.el")
-(load "custom-haskell.el")
+;; (load "custom-haskell.el")
 (load "custom-rust.el")
 (load "custom-flycheck.el")
+
 (load "custom-eglot.el")
+(load "custom-lsp.el")
+
+(load "delete.el")
+(text-deletion-mode 1)
 
 ;;
 ;; Global bindings
@@ -145,6 +149,7 @@ colon followed by the line number."
 (gsk "<XF86Eject>" 'execute-extended-command)
 (gsk "<S-return>" 'yank)
 (gsk "<C-tab>" 'other-window)
+(gsk "<help>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
 (gsk "<M-SPC>" 'cycle-spacing)
 (gsk "C-x l" 'align-regexp)
@@ -192,7 +197,7 @@ colon followed by the line number."
               "a" 'apropos)
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
-  "<escape>" 'explore-mode
+  "<escape>" 'save-all
   "`" 'buffer-menu-current-file
   "n" 'next-error
   "p" 'previous-error
@@ -212,7 +217,10 @@ colon followed by the line number."
               "g" 'github-current-branch
               "j" 'browse-url-at-point
               "D" (lambda () (interactive) (find-file "~/Downloads")))
-  "C" 'compile-in-dir))
+  "C" 'compile-in-dir
+  "w" (keymap "d" 'dedicate-window
+              "w" 'mark-this-as-working-win)
+  ))
 
 (defun yank-or-kill ()
   (interactive)
@@ -264,14 +272,30 @@ current buffer."
 (pick-define-function-keys)
 
 (gsk "<f2>" 'buffer-menu-current-file)
+(gsk "<kp-2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
+
+;;
+;; Eldoc
+;;
+
+(setq
+ eldoc-echo-area-use-multiline-p nil)
 
 ;;
 ;; Completion
 ;;
 
-(setq completion-styles '(partial-completion))
+;; (icomplete-mode -1)
+;; (setq
+;;  icomplete-hide-common-prefix nil)
+
+;; (selectrum-mode -1)
+
+(vertico-mode 1)
+
+(setq completion-styles '(partial-completion flex))
 
 (require 'corfu)
 
@@ -279,7 +303,7 @@ current buffer."
 
 (setq tab-always-indent 'complete
       corfu-auto t
-      corfu-auto-delay 0.2
+      corfu-auto-delay 0.1
       corfu-count 5)
 
 ;; (define-keys completion-in-region-mode-map
@@ -292,8 +316,8 @@ current buffer."
   "<up>" nil
   "<down>" nil)
 
-(define-key completion-in-region-mode-map [remap next-line] nil)
-(define-key completion-in-region-mode-map [remap previous-line] nil)
+(define-key corfu-map [remap next-line] nil)
+(define-key corfu-map [remap previous-line] nil)
 
 ;;
 ;; Indenting
@@ -350,7 +374,7 @@ current buffer."
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
             "%*"))
-   " %b:%l:%c"))
+   " %b:%l:%c - %f"))
 
 (setq
  next-screen-context-lines 2
@@ -685,3 +709,41 @@ and replace the buffer contents with the output."
 (require 'yasnippet)
 (require 'yasnippet-snippets)
 (gsk "<S-C-tab>" 'yas-expand)
+
+;;
+
+(setq
+ tab-bar-close-button-show nil)
+
+(gsk "C-<next>" 'tab-bar-switch-to-next-tab)
+(gsk "C-<prior>" 'tab-bar-switch-to-prev-tab)
+(gsk "C-x t o" 'tab-bar-switch-to-recent-tab)
+
+;;
+
+;; todo this should be a list so we can find the first valid one, that way
+;; you can set one per tab?
+(defvar working-win nil)
+
+(defun mark-this-as-working-win ()
+  (interactive)
+  (setq working-win (selected-window)))
+
+;; todo - still some issues with `next-error` which seems to make TWO calls to display-buffer
+;; todo - also what about find-file - it gets derailed by this
+(defun display-buffer-in-working-win (buffer alist)
+  (let ((already (get-buffer-window buffer t)))
+    (cond
+     (already (select-window already))
+     ((and working-win (window-valid-p working-win))
+      (set-window-buffer working-win buffer)))))
+
+(setq
+ display-buffer-alist
+ '((".*" . (display-buffer-in-working-win . ())))
+ ;; nil
+ )
+
+(defun dedicate-window ()
+  (interactive)
+  (set-window-dedicated-p (selected-window) t))

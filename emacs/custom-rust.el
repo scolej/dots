@@ -22,3 +22,10 @@
 
 (setq
  rust-format-on-save t)
+
+;; (defun rust-customizations ()
+;;   (setq-local inhibit-clean-trailing-whitespace-mode t))
+
+;; (add-hook 'rust-mode-hook 'rust-customizations)
+
+;; (add-to-list 'project-vc-ignores "target/*")

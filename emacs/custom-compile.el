@@ -23,9 +23,9 @@
   (interactive
    (let* ((dir (read-directory-name "Compilation dir: "))
           (cmd (read-string "Command: " (guess-compilation-command dir) 'compilation-command-history)))
-     (let ((default-directory dir)
-           (compilation-scroll-output 'first-error))
-       (compile cmd)))))
+     (list dir cmd)))
+  (let ((default-directory dir))
+    (compile cmd)))
 
 (defun compilation-buffer-p (b)
   "Is the given buffer in a mode derived from compilation mode?"
@@ -68,8 +68,7 @@ the current buffer, if it's a compilation mode!)"
 ;; I'll find it myself thank you very much.
 (defun recompile-inhibit-buffer ()
   (interactive)
-  (let ((display-buffer-overriding-action '(display-buffer-actually-no . nil))
-        (compilation-scroll-output 'first-error))
+  (let ((display-buffer-overriding-action '(display-buffer-actually-no . nil)))
     (recompile)))
 
 (gsk "<f11>" 'recompile-inhibit-buffer)

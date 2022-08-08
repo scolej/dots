@@ -5,7 +5,7 @@
 
 (define-minor-mode clean-trailing-whitespace-mode
   "Minor mode to automatically clean trailing whitespace on save."
-  nil " tw" nil
+  :lighter " tw"
   (if clean-trailing-whitespace-mode
       (progn
         ;; Enable mode
@@ -22,8 +22,11 @@
     (beginning-of-buffer)
     (re-search-forward "[\t ]+$" nil t)))
 
+(defvar-local inhibit-clean-trailing-whitespace-mode nil)
+
 (defun maybe-tidy-whitespace-mode ()
-  (if (current-buffer-has-trailing-whitespace-p)
+  (if (or inhibit-clean-trailing-whitespace-mode
+          (current-buffer-has-trailing-whitespace-p))
       (setq show-trailing-whitespace t)
     (clean-trailing-whitespace-mode 1)))
 

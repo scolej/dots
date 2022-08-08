@@ -39,6 +39,13 @@
 ;; (global-set-key (kbd "C-M-k") 'delete-forward-sexp)
 ;; (global-set-key (kbd "C-k") 'delete-forward-line)
 
-(global-set-key (kbd "<M-backspace>") 'delete-backward-word)
-(global-set-key (kbd "<C-backspace>") 'delete-backward-sexp)
-(global-set-key (kbd "M-d") 'delete-forward-word)
+(define-minor-mode text-deletion-mode
+  "Simple re-bindings to avoid saving to kill-ring for common deletions."
+  :global t
+  :keymap
+  (let ((km (make-sparse-keymap)))
+    (define-key km (kbd "<M-backspace>") 'delete-backward-word)
+    (define-key km (kbd "<C-backspace>") 'delete-backward-sexp)
+    (define-key km (kbd "M-d") 'delete-forward-word)
+    (define-key km (kbd "<C-S-backspace>") 'delete-whole-line)
+    km))
