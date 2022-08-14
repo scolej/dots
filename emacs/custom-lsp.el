@@ -17,7 +17,7 @@
 (defun lsp-customizations ()
   (lsp-headerline-breadcrumb-mode -1)
   ;; todo - how to make this less annoying
-  ;; (setq-local auto-save-visited-interval 3)
+  ;; (setq-local auto-save-visited-interval 1)
   ;; (auto-save-visited-mode t)
   )
 

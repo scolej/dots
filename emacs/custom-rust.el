@@ -21,7 +21,7 @@
                                  "rustup doc --core")))
 
 (setq
- rust-format-on-save t)
+ rust-format-on-save nil)
 
 ;; (defun rust-customizations ()
 ;;   (setq-local inhibit-clean-trailing-whitespace-mode t))

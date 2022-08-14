@@ -113,7 +113,7 @@ colon followed by the line number."
 
 (load "grep-setup.el")
 (load "idle-highlight.el")
-(load "trails.el")
+;; (load "trails.el")
 (load "dupe-and-drag.el")
 (load "notes.el")
 (load "schemeing.el")
@@ -158,10 +158,6 @@ colon followed by the line number."
 
 (gsk "M-z" 'zap-up-to-char)
 (gsk "S-M-z" 'zap-to-char)
-
-(gsk "<kp-6>" 'recenter)
-(gsk "<kp-9>" (lambda () (interactive) (recenter 0)))
-(gsk "<kp-3>" (lambda () (interactive) (recenter -1)))
 
 (define-keys minibuffer-local-map
   "<escape>" 'top-level
@@ -267,12 +263,12 @@ current buffer."
 
 (require 'pick)
 (gsk "<f1>" 'pick-select-buffer)
-(gsk "<kp-1>" 'pick-select-buffer)
+;; (gsk "<kp-1>" 'pick-select-buffer)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
 (gsk "<f2>" 'buffer-menu-current-file)
-(gsk "<kp-2>" 'buffer-menu-current-file)
+;; (gsk "<kp-2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
 
@@ -296,6 +292,8 @@ current buffer."
 (vertico-mode 1)
 
 (setq completion-styles '(partial-completion flex))
+
+;;
 
 (require 'corfu)
 
@@ -740,10 +738,25 @@ and replace the buffer contents with the output."
 
 (setq
  display-buffer-alist
- '((".*" . (display-buffer-in-working-win . ())))
- ;; nil
+ ;; '((".*" . (display-buffer-in-working-win . ())))
+ nil
  )
 
 (defun dedicate-window ()
   (interactive)
   (set-window-dedicated-p (selected-window) t))
+
+;;
+
+(require 'flymake-diagnostic-at-point)
+(setq flymake-diagnostic-at-point-display-diagnostic-function
+      'flymake-diagnostic-at-point-display-minibuffer)
+(add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode)
+
+(gsk "C-<kp-add>" 'flymake-goto-next-error)
+(gsk "C-<kp-subtract>" 'flymake-goto-prev-error)
+
+;;
+
+(setq auto-save-visited-interval 0.5)
+(auto-save-visited-mode 1)

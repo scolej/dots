@@ -3,7 +3,7 @@
    note-root
    (format-time-string "%Y%m%d.%H%M%S")
    (if (string-empty-p title) "" (concat "." title))
-   ext))
+   "." ext))
 
 (defun take-notes (title)
     ;; (interactive
@@ -14,7 +14,7 @@
     ;;          (len (string-)))
     ;;      '("**" . 2)))) )
     (interactive "M")
-    (find-file (name-note-file-now title ".txt")))
+    (find-file (name-note-file-now title "txt")))
 
 (defun jump-to-notes-dir ()
     (interactive)
@@ -22,8 +22,12 @@
 
 (defun take-notes-org (title)
     (interactive "M")
-    (find-file (name-note-file-now title ".org")))
+    (find-file (name-note-file-now title "org")))
 
 (defun find-active-note ()
     (interactive)
     (find-file (concat note-root "active.txt")))
+
+(defun notes-import-file (file name)
+  (interactive "f\nM")
+  (copy-file file (name-note-file-now name (file-name-extension file))))
