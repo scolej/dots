@@ -1006,7 +1006,7 @@ Also bind `class' to ((class color) (min-colors 89))."
 ;;;; standard faces
 ;;;;; absolute essentials
    `(default ((,class :background ,bg-main :foreground ,fg-main)))
-   `(cursor ((,class :background "red")))
+   `(cursor ((,class :background "blue")))
    `(fringe ((,class :background
                      ,(if modus-operandi-theme-visible-fringes bg-inactive bg-main)
                      :foreground ,fg-main)))

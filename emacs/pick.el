@@ -177,13 +177,32 @@ keys: <kp-1>, <kp-2>..."
 ;;
 ;;
 
+;; (defun pick-select-buffer ()
+;;   (interactive)
+;;   (let ((bufname "*pick buffer*"))
+;;     (if (get-buffer bufname) (switch-to-buffer bufname)
+;;       (pick-buffer
+;;        bufname
+;;        (mapcar
+;;         (lambda (b)
+;;           (cons (let ((bf (buffer-file-name b))
+;;                       (bn (buffer-name b)))
+;;                   (if bf (concat bn " " bf) bn))
+;;                 (lambda () (switch-to-buffer b))))
+;;         (seq-filter
+;;          (lambda (b)
+;;            (let ((n (buffer-name b)))
+;;              (not (or (string-prefix-p " *Minibuf" n)
+;;                       (equal bufname n)))))
+;;          (buffer-list)))))))
+
 (defun pick-select-buffer (arg)
   "Select buffers.
 With a prefix arg, just jump back to previous pick buffer. This
 allows you to easily re-use the previous filter."
   (interactive "P")
   (let ((bufname "*pick buffer*"))
-    (if arg (switch-to-buffer bufname)
+    (if (and arg (get-buffer bufname)) (switch-to-buffer bufname)
       (pick-buffer
        bufname
        (mapcar

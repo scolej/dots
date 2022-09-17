@@ -8,6 +8,12 @@
    (concat "https://google.com/search?query="
            (url-encode-url term))))
 
+(defun rust-core (term)
+  (interactive "MRust core docs: ")
+  (browse-url
+   (concat "https://doc.rust-lang.org/core/?search="
+           (url-encode-url term))))
+
 (defun teclis (term)
   (interactive "MTeclis: ")
   (browse-url

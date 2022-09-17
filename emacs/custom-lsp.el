@@ -11,6 +11,7 @@
  lsp-modeline-code-actions-enable nil
  lsp-signature-auto-activate nil
  lsp-ui-sideline-enable nil
+ lsp-auto-execute-action nil
  )
 
 ;; setting lsp-headerline-breadcrumb-enable doesn't seem to make a difference
@@ -30,3 +31,8 @@
 (add-hook 'rust-mode-hook 'yas-minor-mode)
 
 (define-key lsp-mode-map (kbd "<mouse-3>") nil)
+(define-key lsp-mode-map (kbd "s-l r") 'lsp-rename)
+(define-key lsp-mode-map (kbd "s-l a") 'lsp-execute-code-action)
+
+
+

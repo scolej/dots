@@ -4,10 +4,11 @@
 ;; Stop killing text. Just delete it.
 ;;
 
-(defun delete-whole-line ()
-  (interactive)
-  (delete-region (line-beginning-position)
-                 (min (point-max) (1+ (line-end-position)))))
+(defun delete-whole-line (n)
+  (interactive "p")
+  (delete-region
+   (line-beginning-position)
+   (min (point-max) (+ 1 (line-end-position n)))))
 
 (defun delete-forward-word ()
   (interactive)

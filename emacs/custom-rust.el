@@ -29,3 +29,14 @@
 ;; (add-hook 'rust-mode-hook 'rust-customizations)
 
 ;; (add-to-list 'project-vc-ignores "target/*")
+
+(setq lsp-rust-analyzer-cargo-watch-command "clippy")
+
+(setq lsp-rust-analyzer-cargo-override-command
+      nil
+      ;; (vector "rust-analyzer"
+      ;;         ;;"--target-dir" "tmp-ra"
+      ;;         ;;"--message-format=json"
+      ;;         "diagnostics"
+      ;;         )
+      )

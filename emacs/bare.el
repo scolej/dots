@@ -9,10 +9,11 @@
 
 (require 'savehist)
 
-(blink-cursor-mode -1)
-;; (setq blink-cursor-interval 0.2
-;;       blink-cursor-delay 0.2
-;;       blink-cursor-blinks 20)
+(blink-cursor-mode 1)
+(setq blink-cursor-interval 0.2
+      blink-cursor-delay 0.2
+      blink-cursor-blinks 0)
+(setq-default cursor-in-non-selected-windows 'box)
 
 ;; (eldoc-mode -1)
 (fringe-mode nil)
@@ -47,7 +48,7 @@
  version-control t
  auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save/" t))
  auto-save-timeout 30
- auto-save-interval 100
+ auto-save-interval 0
  create-lockfiles nil
 
  inhibit-startup-screen t
@@ -102,5 +103,6 @@
 
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "M-g") 'goto-line)
+(global-set-key (kbd "C-x C-z") nil) ; by default this is suspend-frame, i never want this
 
 (setenv "PAGER" "cat")

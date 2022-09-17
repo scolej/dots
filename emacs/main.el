@@ -178,13 +178,15 @@ colon followed by the line number."
   "=" 'balance-windows
   "f" 'find-file
   "F" 'file-hopper
-  "g" (keymap "g" 'git-grep-symbol-at-point
-              "G" 'git-grep-root-symbol-at-point
-              "v" 'vc-git-grep)
+  "g" 'rg
+  ;; "g" (keymap "g" 'git-grep-symbol-at-point
+  ;;             "G" 'git-grep-root-symbol-at-point
+  ;;             "v" 'vc-git-grep)
   "b" 'switch-to-buffer
   "s" (keymap "g" 'google
               "s" 'stackoverflow
-              "t" 'teclis)
+              "t" 'teclis
+              "r" 'rust-core)
   "h" (keymap "f" 'describe-function
               "v" 'describe-variable
               "k" 'describe-key
@@ -202,7 +204,7 @@ colon followed by the line number."
               "g" 'copy-git-buffer-path
               "b" 'copy-buffer-path
               "n" 'copy-buffer-path-and-line)
-  "t" (keymap "l" 'visual-line-mode
+  "t" (keymap "l" 'toggle-truncate-lines
               "n" 'linum-mode
               "f" 'auto-fill-mode
               "c" 'flycheck-mode)
@@ -217,6 +219,8 @@ colon followed by the line number."
   "w" (keymap "d" 'dedicate-window
               "w" 'mark-this-as-working-win)
   ))
+
+(gsk "<f19>" 'previous-buffer)
 
 (defun yank-or-kill ()
   (interactive)
@@ -289,7 +293,7 @@ current buffer."
 
 ;; (selectrum-mode -1)
 
-(vertico-mode 1)
+;; (vertico-mode 1)
 
 (setq completion-styles '(partial-completion flex))
 
@@ -300,8 +304,8 @@ current buffer."
 (global-corfu-mode)
 
 (setq tab-always-indent 'complete
-      corfu-auto t
-      corfu-auto-delay 0.1
+      corfu-auto nil
+      corfu-auto-delay nil
       corfu-count 5)
 
 ;; (define-keys completion-in-region-mode-map
@@ -758,5 +762,6 @@ and replace the buffer contents with the output."
 
 ;;
 
-(setq auto-save-visited-interval 0.5)
+(setq auto-save-visited-interval 1)
 (auto-save-visited-mode 1)
+
