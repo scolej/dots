@@ -287,27 +287,8 @@ current buffer."
 ;; Completion
 ;;
 
-(setq completion-styles '(partial-completion flex))
-
-;;
-
-(require 'corfu)
-
-(global-corfu-mode)
-
-(setq tab-always-indent 'complete
-      corfu-auto nil
-      corfu-auto-delay nil
-      corfu-count 5)
-
-(define-keys corfu-map
-  "<tab>" 'corfu-next
-  "<backtab>" 'corfu-previous
-  "<up>" nil
-  "<down>" nil)
-
-(define-key corfu-map [remap next-line] nil)
-(define-key corfu-map [remap previous-line] nil)
+(setq completion-styles '(partial-completion flex)
+      tab-always-indent 'complete)
 
 ;;
 ;; Indenting
@@ -361,8 +342,10 @@ current buffer."
   "S" 'sort-lines
   "s" 'surround-region
   "o" 'occur-selection
-  "<tab>" 'indent-right
-  "<backtab>" 'indent-left
+  ;; "<tab>" 'indent-right
+  ;; "<backtab>" 'indent-left
+  ;; "<tab>" nil
+  ;; "<backtab>" nil
   "c" 'clone-region
   "x" 'exchange-point-and-mark
   "\"" (lambda () (interactive (surround-region "\"")))
@@ -766,3 +749,14 @@ and replace the buffer contents with the output."
 
 (setq auto-save-visited-interval 1)
 (auto-save-visited-mode 1)
+
+;;
+
+(defun mark-sexp-forward ()
+  (interactive)
+  (unless (region-active-p)
+    (set-mark (point)))
+  (forward-sexp))
+
+;; (gsk "<tab>" 'mark-sexp-forward)
+
