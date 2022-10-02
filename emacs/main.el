@@ -163,6 +163,8 @@ colon followed by the line number."
   "<escape>" 'top-level
   "<tab>" 'minibuffer-complete)
 
+(require 'rg)
+
 (gsk
  "<escape>"
  (keymap
@@ -267,12 +269,10 @@ current buffer."
 
 (require 'pick)
 (gsk "<f1>" 'pick-select-buffer)
-;; (gsk "<kp-1>" 'pick-select-buffer)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
 (gsk "<f2>" 'buffer-menu-current-file)
-;; (gsk "<kp-2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
 
@@ -287,14 +287,6 @@ current buffer."
 ;; Completion
 ;;
 
-;; (icomplete-mode -1)
-;; (setq
-;;  icomplete-hide-common-prefix nil)
-
-;; (selectrum-mode -1)
-
-;; (vertico-mode 1)
-
 (setq completion-styles '(partial-completion flex))
 
 ;;
@@ -307,10 +299,6 @@ current buffer."
       corfu-auto nil
       corfu-auto-delay nil
       corfu-count 5)
-
-;; (define-keys completion-in-region-mode-map
-;;   "<return>" nil
-;;   "<tab>" 'corfu-insert)
 
 (define-keys corfu-map
   "<tab>" 'corfu-next
@@ -350,6 +338,17 @@ current buffer."
 
 ;;
 
+(defun surround-region (before &optional after)
+  (interactive "M")
+  (save-excursion
+    (goto-char (min (point) (mark)))
+    (insert before))
+  (save-excursion
+    (goto-char (max (point) (mark)))
+    (insert (or after before))))
+
+;;
+
 (require 'selected)
 
 (define-keys selected-keymap
@@ -360,11 +359,19 @@ current buffer."
   ";" 'comment-dwim
   "'" 'swiper-selection
   "S" 'sort-lines
+  "s" 'surround-region
   "o" 'occur-selection
   "<tab>" 'indent-right
   "<backtab>" 'indent-left
   "c" 'clone-region
-  "x" 'exchange-point-and-mark)
+  "x" 'exchange-point-and-mark
+  "\"" (lambda () (interactive (surround-region "\"")))
+  "{" (lambda () (interactive (surround-region "{" "}")))
+  "<" (lambda () (interactive (surround-region "<" ">")))
+  "'" (lambda () (interactive (surround-region "'")))
+  "(" (lambda () (interactive (surround-region "(" ")")))
+  "[" (lambda () (interactive (surround-region "[" "]")))
+  )
 
 (selected-global-mode)
 
@@ -719,7 +726,7 @@ and replace the buffer contents with the output."
 
 (gsk "C-<next>" 'tab-bar-switch-to-next-tab)
 (gsk "C-<prior>" 'tab-bar-switch-to-prev-tab)
-(gsk "C-x t o" 'tab-bar-switch-to-recent-tab)
+;; (gsk "C-x t o" 'tab-bar-switch-to-recent-tab)
 
 ;;
 
@@ -752,11 +759,6 @@ and replace the buffer contents with the output."
 
 ;;
 
-(require 'flymake-diagnostic-at-point)
-(setq flymake-diagnostic-at-point-display-diagnostic-function
-      'flymake-diagnostic-at-point-display-minibuffer)
-(add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode)
-
 (gsk "C-<kp-add>" 'flymake-goto-next-error)
 (gsk "C-<kp-subtract>" 'flymake-goto-prev-error)
 
@@ -764,4 +766,3 @@ and replace the buffer contents with the output."
 
 (setq auto-save-visited-interval 1)
 (auto-save-visited-mode 1)
-

@@ -9,13 +9,15 @@
 
 (require 'savehist)
 
-(blink-cursor-mode 1)
-(setq blink-cursor-interval 0.2
-      blink-cursor-delay 0.2
-      blink-cursor-blinks 0)
-(setq-default cursor-in-non-selected-windows 'box)
+(blink-cursor-mode -1)
 
-;; (eldoc-mode -1)
+;; when you inevitably forget: the reason to not use the bar is that
+;; clicking to position point is ever so slightly off; but off enought to
+;; be disconcerting.
+(setq-default
+ cursor-type 'box
+ cursor-in-non-selected-windows nil)
+
 (fringe-mode nil)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
