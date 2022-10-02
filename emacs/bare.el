@@ -4,8 +4,9 @@
 
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
-(setq-default cursor-type 'box
-              cursor-in-non-selected-windows 'hollow)
+(setq-default
+ cursor-type 'box
+ cursor-in-non-selected-windows 'hollow)
 
 (require 'savehist)
 
@@ -25,7 +26,6 @@
 (recentf-mode -1)
 
 (menu-bar-mode -1)
-;; (message default-frame-alist) ;; todo
 (setf (alist-get 'menu-bar-lines default-frame-alist) 0)
 
 (savehist-mode 1)
@@ -68,7 +68,7 @@
  set-mark-command-repeat-pop nil
  ring-bell-function 'ignore
  linum-format "%4d"
- mouse-autoselect-window 0.2
+ mouse-autoselect-window 0.1
  revert-without-query '(".*")
  mouse-wheel-progressive-speed nil
  vc-handled-backends '(git)

@@ -70,10 +70,10 @@
     (unless (stringp symbol) (error "not a symbol"))
     (grep-here symbol)))
 
-(global-set-key (kbd "C-x G") 'git-grep-root-symbol-at-point)
-(global-set-key (kbd "C-x g") 'git-grep-symbol-at-point)
+;; (global-set-key (kbd "C-x G") 'git-grep-root-symbol-at-point)
+;; (global-set-key (kbd "C-x g") 'git-grep-symbol-at-point)
 
-(define-key grep-mode-map (kbd "r") 'rgr-here)
+;; (define-key grep-mode-map (kbd "r") 'rgr-here)
 
-(require 'dired)
-(define-key dired-mode-map (kbd "r") 'rgr-here)
+;; (require 'dired)
+;; (define-key dired-mode-map (kbd "r") 'rgr-here)

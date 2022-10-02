@@ -181,9 +181,7 @@ colon followed by the line number."
   "f" 'find-file
   "F" 'file-hopper
   "g" 'rg
-  ;; "g" (keymap "g" 'git-grep-symbol-at-point
-  ;;             "G" 'git-grep-root-symbol-at-point
-  ;;             "v" 'vc-git-grep)
+  "G" 'rg-project
   "b" 'switch-to-buffer
   "s" (keymap "g" 'google
               "s" 'stackoverflow
@@ -221,6 +219,8 @@ colon followed by the line number."
   "w" (keymap "d" 'dedicate-window
               "w" 'mark-this-as-working-win)
   ))
+
+;; todo rg always specify -M
 
 (gsk "<f19>" 'previous-buffer)
 

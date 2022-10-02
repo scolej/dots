@@ -16,11 +16,7 @@
 
 ;; setting lsp-headerline-breadcrumb-enable doesn't seem to make a difference
 (defun lsp-customizations ()
-  (lsp-headerline-breadcrumb-mode -1)
-  ;; todo - how to make this less annoying
-  ;; (setq-local auto-save-visited-interval 1)
-  ;; (auto-save-visited-mode t)
-  )
+  (lsp-headerline-breadcrumb-mode -1))
 
 (add-hook 'lsp-mode-hook 'lsp-customizations)
 
@@ -35,4 +31,5 @@
 (define-key lsp-mode-map (kbd "s-l a") 'lsp-execute-code-action)
 
 
-
+;; todo, would like: when i find a file, if it's under a workspace dir,
+;; then connect, otherwise do nothing; don't ask

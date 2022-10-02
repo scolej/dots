@@ -37,3 +37,5 @@
 (define-key ruby-mode-map (kbd "C-c r") 'ruby-ri)
 
 (modify-syntax-entry ?@ "_" ruby-mode-syntax-table)
+
+
