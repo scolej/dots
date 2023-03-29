@@ -34,12 +34,16 @@
 (require 'subr-x)
 (require 'seq)
 
-(defvar-local pick-options nil)
+(defvar-local pick-options nil
+  "The list of candidates we're selecting from in this buffer.")
 
 (defun pick-buffer (name options)
-  "Create a picking buffer named NAME and fill it with OPTIONS."
-  (let ((buf (get-buffer name)))
-    (when buf (kill-buffer buf)))
+  "Create a picking buffer named NAME and fill it with OPTIONS. An
+option is a pair where the first element is the string to display
+and the second element is a function to call when the option is
+selected."
+  ;; (let ((buf (get-buffer name)))
+  ;;   (when buf (kill-buffer buf)))
   (let ((buf (get-buffer-create name)))
     (with-current-buffer buf
       (erase-buffer)
@@ -54,16 +58,16 @@
 
 (defun pick-write-buffer (options)
   (let ((i 1))
-    (dolist (o (seq-take options 100))
+    (dolist (o (seq-take options 20))
       (pick-write-line i (car o) (cdr o))
       (setq i (1+ i)))))
 
 (defun pick-write-line (i text action)
   (if (<= i 9) (insert (format "%2d " i)) (insert "   "))
-  (insert (string-trim text))
-  ;; fixme, enter doesn't work at end of line?
-  (put-text-property (point-at-bol) (min (point-max) (1+ (point-at-eol))) 'field action)
-  (insert "\n"))
+  (let ((p0 (point)))
+    (insert (string-trim text))
+    (make-text-button p0 (point) 'action (lambda (unused) (funcall action)))
+    (insert "\n")))
 
 ;;
 ;;
@@ -80,11 +84,15 @@
   "Hook run on buffer change.
 Change is from BEG to END with PRE chars previously in this
 range."
-  ;; FIXME only if change is on first line
-  (when pick-idle-timer
-    (cancel-timer pick-idle-timer))
-  (setq pick-idle-timer
-        (run-at-time pick-idle-delay nil 'pick-rewrite (current-buffer))))
+  ;; Only do anything if the change is on the first line.
+  (when (let ((p0 (point-min))
+              (p1 (save-excursion (beginning-of-buffer)
+                                  (point-at-eol))))
+          (or (<= p0 beg p1)
+              (<= p0 end p1)))
+    (when pick-idle-timer (cancel-timer pick-idle-timer))
+    (setq pick-idle-timer
+          (run-at-time pick-idle-delay nil 'pick-rewrite (current-buffer)))))
 
 (defun contains-all (words str)
   "Return t if every element of the list WORDS is a substring of STR."
@@ -93,14 +101,26 @@ range."
      (string-match-p (regexp-quote s) str))
    words))
 
+(defun contains-none (words str)
+  "Return t if no element in the list WORDS is a substring of STR."
+  (seq-every-p
+   (lambda (s)
+     (not (string-match-p (regexp-quote s) str)))
+   words))
+
 (defun pick-filter (str options)
-  (seq-filter
-   (lambda (o) (contains-all (split-string str) (car o)))
-   options))
+  (let* ((words (split-string str))
+         (groups (seq-group-by (lambda (w) (string-prefix-p "!" w)) words))
+         (pwords (alist-get nil groups '()))
+         (nwords (mapcar (lambda (s) (substring s 1)) (alist-get t groups '()))))
+    (seq-filter
+     (lambda (o)
+       (and (contains-all pwords (car o))
+            (contains-none nwords (car o))))
+     options)))
 
 (defun pick-rewrite (buf)
-  "Rewrite the pick buffer into BUF.
-Adding and remov hooks/timers as necessary."
+  "Rewrite the pick buffer into BUF."
   (with-current-buffer buf
     (when pick-idle-timer (cancel-timer pick-idle-timer))
     (remove-hook 'after-change-functions 'pick-after-change t)
@@ -114,17 +134,15 @@ Adding and remov hooks/timers as necessary."
         (delete-region (point) (point-max))
         (insert "\n")
         (pick-write-buffer
-         (funcall 'pick-filter filter-string pick-options))))
+         (pick-filter filter-string pick-options))))
     (add-hook 'after-change-functions 'pick-after-change nil t)))
 
 ;;
 ;;
 ;;
 
-(defun pick-select (f)
-  "Bury the picking buffer & invoke the given function."
-  ;; (quit-window)
-  (funcall f))
+(defun forward-past-number ()
+  (forward-char 3))
 
 (defun pick-select-dwim ()
   (interactive)
@@ -133,16 +151,17 @@ Adding and remov hooks/timers as necessary."
     (pick-select-current)))
 
 (defun pick-select-current ()
-  "Examine text property 'field under point and invoke that function."
-  (let ((f (get-text-property (point) 'field)))
-    (pick-select f)))
+  "Little wrapper around push-button so we can press enter when
+point is at the start of the line before the button."
+  (beginning-of-line)
+  (forward-past-number)
+  (push-button))
 
 (defun pick-select-nth (n)
-  (let ((f (save-excursion
-             (goto-char (point-min))
-             (goto-line (1+ n))
-             (get-text-property (point) 'field))))
-    (pick-select f)))
+  (save-excursion
+    (goto-char (point-min))
+    (goto-line (1+ n))
+    (pick-select-current)))
 
 (dolist (i (number-sequence 1 9))
   (fset (intern (concat "pick-select-" (number-to-string i)))
@@ -196,6 +215,8 @@ keys: <kp-1>, <kp-2>..."
 ;;                       (equal bufname n)))))
 ;;          (buffer-list)))))))
 
+;; todo - select buffer in same mode / with same extension
+
 (defun pick-select-buffer (arg)
   "Select buffers.
 With a prefix arg, just jump back to previous pick buffer. This
@@ -218,16 +239,38 @@ allows you to easily re-use the previous filter."
                       (equal bufname n)))))
          (buffer-list)))))))
 
+;; (defun pick-select-buffer-other-window-below ()
+;;   (interactive)
+;;   (select-window (split-window-below))
+;;   (funcall-interactively 'pick-select-buffer nil))
+
+;; (defun pick-select-buffer-other-window-right ()
+;;   (interactive)
+;;   (select-window (split-window-right))
+;;   (funcall-interactively 'pick-select-buffer nil))
+
+;; (defun pick-select-buffer-other-window-right ()
+;;   (interactive)
+;;   (select-window (split-window-right))
+;;   (funcall-interactively 'pick-select-buffer nil))
+
+;; (defun pick-select-buffer-other-window ()
+;;   (interactive)
+;;   (pop-to-buffer (get-buffer "*pick buffer"))
+;;   (funcall-interactively 'pick-select-buffer nil))
+
 ;; (defun pick-select-buffer-other-window ()
 ;;   (interactive)
 ;;   (let ((orig (selected-window)))
 ;;     (other-window))
 ;;   (with-selected-window (other-window)))
 
+;; todo sort by recency based on open buffers?
 (defun pick-filelist (prefix)
   (interactive "P")
+  (pick-list-git-files)
   (let ((bufname "*filelist*"))
-    (if prefix (switch-to-buffer bufname)
+    (if (and prefix (get-buffer bufname)) (switch-to-buffer bufname)
       (pick-buffer
        bufname
        (let* ((name "filelist")
@@ -250,8 +293,9 @@ allows you to easily re-use the previous filter."
   (interactive)
   (let ((n "*pick*")
         (default-directory (locate-dominating-file default-directory ".git")))
+    (unless default-directory (error "not in a git repo"))
     (shell-command
-     (concat "git ls-tree -r HEAD | awk '{ print $4 }' > filelist;"
+     (concat "git ls-tree -r --name-only HEAD > filelist;"
              "echo Found $(wc -l < filelist) files")
      (get-buffer-create n))))
 
