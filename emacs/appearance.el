@@ -1,7 +1,7 @@
 (defun theme-tweaks ()
   (set-face-attribute
    'mode-line nil
-   :height 0.7
+   ;; :height 0.7
    :box nil)
   (set-face-attribute
    'mode-line-inactive nil

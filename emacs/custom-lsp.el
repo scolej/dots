@@ -23,8 +23,8 @@
 (require 'yasnippet)
 (add-hook 'lsp-mode-hook 'yas-minor-mode)
 
-(add-hook 'rust-mode-hook 'lsp)
-(add-hook 'rust-mode-hook 'yas-minor-mode)
+;; (add-hook 'rust-mode-hook 'lsp)
+;; (add-hook 'rust-mode-hook 'yas-minor-mode)
 
 (define-key lsp-mode-map (kbd "<mouse-3>") nil)
 (define-key lsp-mode-map (kbd "s-l r") 'lsp-rename)

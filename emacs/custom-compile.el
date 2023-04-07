@@ -14,7 +14,7 @@
   (let ((contents (directory-files dir))
         (dir (expand-file-name dir)))
     (cond
-     ((seq-contains contents "Cargo.toml") "cargo build")
+     ((seq-contains contents "Cargo.toml") "cargo fmt && cargo test")
      ((seq-contains contents "timelog.scm") "GUILE_LOAD_PATH=/Users/shannoncole/ev/hours2 guile timelog.scm")
      ((equal dir "/Users/shannoncole/rubyscratch/") "rub 02.rb")
      (nil))))
@@ -71,12 +71,12 @@ the current buffer, if it's a compilation mode!)"
   (let ((display-buffer-overriding-action '(display-buffer-actually-no . nil)))
     (recompile)))
 
-(gsk "<f11>" 'recompile-inhibit-buffer)
+(gsk "<f11>" 'recompile)
 (gsk "<kp-add>" 'next-error)
 (gsk "<kp-subtract>" 'previous-error)
 
 (defun use-smaller-text () (text-scale-set -1))
-;; (remove-hook 'compilation-mode-hook 'use-smaller-text)
+(add-hook 'compilation-mode-hook 'use-smaller-text)
 
 (defun compile-date-trigger-in-git-root ()
   "Find the Git root and start a compilation buffer which just

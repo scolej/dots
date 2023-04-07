@@ -143,3 +143,20 @@ gsum() {
 gdetachhead() {
     git checkout "$(git rev-parse HEAD)"
 }
+
+
+
+# gl --format='%h %<(30)%aN %s' -- backend/statistics2-service/ | grep -v -e depend -e batch-brew | less
+#
+# gl --format='%h %cs %<(30)%aN %s' -- backend/statistics2-service/spec/nom_service/consumers/galactus_spec.rb | grep -v -e depend -e batch-brew -e autosurgeon | less
+
+# Fast-forward to a branch with the same name on a remote.
+#
+# You could do this by setting the upstream, but often it makes more sense
+# to use master as the upstream because you're merging with it more often.
+# But commits still sometimes land on your branch outside your control, so
+# it's nice to have an easy way to get them.
+gmergesame() {
+    remote=${1-origin}
+    git merge --ff-only "$remote/$(git rev-parse --abbrev-ref HEAD)"
+}

@@ -130,6 +130,8 @@
 
 
 
+(require 'compile)
+
 (defvar compilation-guile-font-lock-keywords '())
 (defvar compilation-guile-scroll-output t)
 (defvar compilation-guile-error-regexp-alist

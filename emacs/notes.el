@@ -18,7 +18,8 @@
 
 (defun jump-to-notes-dir ()
     (interactive)
-    (find-file note-root))
+    (find-file note-root)
+    (end-of-buffer))
 
 (defun take-notes-org (title)
     (interactive "M")

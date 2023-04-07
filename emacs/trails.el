@@ -25,10 +25,11 @@
 (defvar-local inhibit-clean-trailing-whitespace-mode nil)
 
 (defun maybe-tidy-whitespace-mode ()
-  (if (or inhibit-clean-trailing-whitespace-mode
-          (current-buffer-has-trailing-whitespace-p))
-      (setq show-trailing-whitespace t)
-    (clean-trailing-whitespace-mode 1)))
+  (cond
+   (inhibit-clean-trailing-whitespace-mode nil)
+   ((current-buffer-has-trailing-whitespace-p)
+    (setq show-trailing-whitespace t))
+   (clean-trailing-whitespace-mode 1)))
 
 (add-hook 'find-file-hook 'maybe-tidy-whitespace-mode)
 (add-hook 'after-save-hook 'maybe-tidy-whitespace-mode)

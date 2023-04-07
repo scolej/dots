@@ -2,3 +2,7 @@
 \#*
 *~
 TAGS
+trigger
+filelist
+*.log
+conflicts.txt

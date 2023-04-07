@@ -27,7 +27,7 @@
 (defun idle-highlight-set-timer ()
   (when idle-highlight-timer (cancel-timer idle-highlight-timer))
   (setq idle-highlight-timer
-        (run-at-time 0.5 nil 'idle-highlight-region)))
+        (run-at-time 0.2 nil 'idle-highlight-region)))
 
 (defun idle-highlight-region ()
   (when mark-active

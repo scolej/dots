@@ -1,16 +1,10 @@
 ;; todo - modeline dupes filename; just show buffer name
 
-;; todo
-;;
-;; - pressing M-j should preserve space after comment
-;;
-;; - M-j should work in haskell-mode
-
 ;;
 ;; Handier binding
 ;;
 
-(require 'cl)
+;; (require 'cl)
 
 (defun define-keys (keymap &rest keys)
   "Make multiple bindings in a map."
@@ -38,65 +32,6 @@
   "Unconditionally kill the current buffer."
   (interactive) (kill-buffer nil))
 
-(defun copy-path-git ()
-  "Copy the git-relative path to the current file."
-  (interactive)
-  (let* ((root (or (locate-dominating-file default-directory ".git")
-                   (error "not in a git repo")))
-         (abs (or (buffer-file-name)
-                  (default-directory)))
-         (str (file-relative-name abs root)))
-    (kill-new str)
-    (let ((x-select-enable-primary t))
-      (x-select-text str))
-    (message (format "Copied: %s" str))))
-
-;; TODO there's some factoring here for sure
-(defun copy-crumb ()
-  "Copy file path, line number, and trimmed line."
-  (interactive)
-  (let* ((root (or (locate-dominating-file default-directory ".git")
-                   (error "not in a git repo")))
-         (abs (or (buffer-file-name)
-                  (default-directory)))
-         (line (s-trim (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
-         (linum (number-to-string (line-number-at-pos (point))))
-         (str1 (concat (file-relative-name abs root) ":" linum " " line))
-         (str2 (concat str1 "\n")))
-    (kill-new str2)
-    (let ((x-select-enable-primary t))
-      (x-select-text str2))
-    ;; todo crumbs with %s in them !?
-    (message (format "Copied crumb: %s" str1))))
-
-(defun copy-git-buffer-path ()
-  "Copy the Git-root-relative path to the current buffer's file."
-  (interactive)
-  (let* ((git-root (or (locate-dominating-file default-directory ".git") (error "not in a git repo")))
-         (full-path (or (buffer-file-name) default-directory))
-         (str (file-relative-name full-path git-root)))
-    (kill-new str)
-    (message (format "Copied: %s" str))))
-
-;; todo should these be git-aware?
-(defun copy-buffer-path ()
-  "Copy the full path to the current buffer's file."
-  (interactive)
-  (let ((str (cond (buffer-file-name)
-                   (default-directory))))
-    (kill-new str)
-    (message (format "Copied: %s" str))))
-
-(defun copy-buffer-path-and-line ()
-  "Copy the full path to the current buffer's file and append a
-colon followed by the line number."
-  (interactive)
-  (let ((s (concat (buffer-file-name)
-                   ":"
-                   (number-to-string (line-number-at-pos (point))))))
-    (kill-new s)
-    (message (format "Copied: %s" s))))
-
 (defun kill-buffer-process ()
   "Unconditionally kill any process in the current buffer."
   (interactive)
@@ -109,11 +44,16 @@ colon followed by the line number."
   (switch-to-buffer
    (url-retrieve-synchronously url)))
 
+(defun close-all-other-buffers ()
+  (interactive)
+  (mapc 'kill-buffer (delete (current-buffer) (buffer-list))))
+
 ;;
 
-(load "grep-setup.el")
+(load "copy-where.el")
+;; (load "grep-setup.el")
 (load "idle-highlight.el")
-;; (load "trails.el")
+(load "trails.el") 
 (load "dupe-and-drag.el")
 (load "notes.el")
 (load "schemeing.el")
@@ -133,7 +73,8 @@ colon followed by the line number."
 (load "custom-ruby.el")
 ;; (load "custom-haskell.el")
 (load "custom-rust.el")
-(load "custom-flycheck.el")
+;; (load "custom-flycheck.el")
+(load "custom-js.el")
 
 (load "custom-eglot.el")
 (load "custom-lsp.el")
@@ -146,9 +87,10 @@ colon followed by the line number."
 ;;
 
 (gsk "<kp-enter>" 'execute-extended-command)
+(define-key minibuffer-mode-map (kbd "<kp-enter>") 'previous-line-or-history-element)
+
 (gsk "<XF86Eject>" 'execute-extended-command)
 (gsk "<S-return>" 'yank)
-(gsk "<C-tab>" 'other-window)
 (gsk "<help>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
 (gsk "<M-SPC>" 'cycle-spacing)
@@ -164,63 +106,7 @@ colon followed by the line number."
   "<tab>" 'minibuffer-complete)
 
 (require 'rg)
-
-(gsk
- "<escape>"
- (keymap
-  "DEL" 'dired-jump
-  "k" 'really-kill-buffer
-  "e" 'eval-buffer
-  "c" 'make-frame
-  "q" 'quit-window
-  "0" 'delete-window
-  "1" 'delete-other-windows
-  "2" 'split-window-below
-  "3" 'split-window-right
-  "=" 'balance-windows
-  "f" 'find-file
-  "F" 'file-hopper
-  "g" 'rg
-  "G" 'rg-project
-  "b" 'switch-to-buffer
-  "s" (keymap "g" 'google
-              "s" 'stackoverflow
-              "t" 'teclis
-              "r" 'rust-core)
-  "h" (keymap "f" 'describe-function
-              "v" 'describe-variable
-              "k" 'describe-key
-              "m" 'describe-mode
-              "i" 'info
-              "a" 'apropos)
-  "<left>" 'previous-buffer
-  "<right>" 'next-buffer
-  "<escape>" 'save-all
-  "`" 'buffer-menu-current-file
-  "n" 'next-error
-  "p" 'previous-error
-  "o" 'occur
-  "y" (keymap "c" 'copy-crumb
-              "g" 'copy-git-buffer-path
-              "b" 'copy-buffer-path
-              "n" 'copy-buffer-path-and-line)
-  "t" (keymap "l" 'toggle-truncate-lines
-              "n" 'linum-mode
-              "f" 'auto-fill-mode
-              "c" 'flycheck-mode)
-  "v" 'view-mode
-  "j" (keymap "b" 'bk-bfp-branch
-              "n" 'take-notes
-              "N" 'jump-to-notes-dir
-              "g" 'github-current-branch
-              "j" 'browse-url-at-point
-              "D" (lambda () (interactive) (find-file "~/Downloads")))
-  "C" 'compile-in-dir
-  "w" (keymap "d" 'dedicate-window
-              "w" 'mark-this-as-working-win)
-  ))
-
-;; todo rg always specify -M
+(setq rg-command-line-flags '("-M" "300" "--sort" "path"))
 
 (gsk "<f19>" 'previous-buffer)
 
@@ -232,6 +118,17 @@ colon followed by the line number."
 (gsk "<mouse-3>" 'yank-or-kill)
 
 (gsk "<C-mouse-1>" 'xref-find-definitions)
+
+(gsk "C-x C-t" 'tab-new)
+(gsk "s-t" 'tab-new)
+(gsk "s-w" 'tab-close)
+(gsk "C-<next>" 'tab-bar-switch-to-next-tab)
+(gsk "C-<prior>" 'tab-bar-switch-to-prev-tab)
+(gsk "C-S-<next>" 'tab-bar-move-tab)
+(gsk "C-S-<prior>" 'tab-bar-move-tab-backward)
+
+(gsk "<C-tab>" 'other-window)
+
 
 ;; todo - maybe better: compile-at-git-root
 ;; which also maintains a per-root buffer and selects the right one.
@@ -254,25 +151,12 @@ current buffer."
       (forward-line))
     (recenter)))
 
-;; doesn't work :(
-;; (defun buffer-menu-toggle-sort ()
-;;   (interactive)
-;;   (setq-local
-;;    tabulated-list-sort-key
-;;    (if (and (listp tabulated-list-sort-key)
-;;             (equal "File" (car tabulated-list-sort-key)))
-;;        '("C" . nil)
-;;      '("File" . nil)))
-;;   (tabulated-list-init-header)
-;;   (tabulated-list-print t))
-;; (define-key Buffer-menu-mode-map "<f1>" 'buffer-menu-toggle-sort)
-
 (require 'pick)
 (gsk "<f1>" 'pick-select-buffer)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
-(gsk "<f2>" 'buffer-menu-current-file)
+;; (gsk "<f2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
 
@@ -287,8 +171,9 @@ current buffer."
 ;; Completion
 ;;
 
-(setq completion-styles '(partial-completion flex)
-      tab-always-indent 'complete)
+(setq
+ completion-styles '(partial-completion flex)
+ tab-always-indent 'complete)
 
 ;;
 ;; Indenting
@@ -330,43 +215,13 @@ current buffer."
 
 ;;
 
-(require 'selected)
-
-(define-keys selected-keymap
-  "<return>" 'kill-ring-save
-  "r" 'query-replace-maybe-region
-  "k" 'idle-highlight-keep
-  "i" 'indent-rigidly
-  ";" 'comment-dwim
-  "'" 'swiper-selection
-  "S" 'sort-lines
-  "s" 'surround-region
-  "o" 'occur-selection
-  ;; "<tab>" 'indent-right
-  ;; "<backtab>" 'indent-left
-  ;; "<tab>" nil
-  ;; "<backtab>" nil
-  "c" 'clone-region
-  "x" 'exchange-point-and-mark
-  "\"" (lambda () (interactive (surround-region "\"")))
-  "{" (lambda () (interactive (surround-region "{" "}")))
-  "<" (lambda () (interactive (surround-region "<" ">")))
-  "'" (lambda () (interactive (surround-region "'")))
-  "(" (lambda () (interactive (surround-region "(" ")")))
-  "[" (lambda () (interactive (surround-region "[" "]")))
-  )
-
-(selected-global-mode)
-
-;;
-
 (setq-default
  fill-column 75
  mode-line-format
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
             "%*"))
-   " %b:%l:%c - %f"))
+   " %f:%l:%c"))
 
 (setq
  next-screen-context-lines 2
@@ -391,22 +246,17 @@ current buffer."
 (when (boundp 'terminal-prog)
   (defun term-here ()
     (interactive)
-    ;; FIXME
-    ;; a better solution than patching values from other places
-    (let ((process-environment
-           (cons "PAGER=less" process-environment)))
-      (start-process "term" nil terminal-prog)))
-  (global-set-key (kbd "C-x t") 'term-here))
+    (start-process "term" nil terminal-prog)))
 
 
 ;;
 ;; Horizontal scrolling
 ;;
 
-(defun small-scroll-right () (interactive) (scroll-right 5 nil))
-(defun small-scroll-left () (interactive) (scroll-left 5 nil))
-(gsk "<C-prior>" 'small-scroll-right)
-(gsk "<C-next>" 'small-scroll-left)
+;; (defun small-scroll-right () (interactive) (scroll-right 5 nil))
+;; (defun small-scroll-left () (interactive) (scroll-left 5 nil))
+;; (gsk "<C-prior>" 'small-scroll-right)
+;; (gsk "<C-next>" 'small-scroll-left)
 
 ;;
 ;; Query replace using region
@@ -459,6 +309,12 @@ selection, otherwise call query-replace-regexp as normal."
 
 (defun new-line-above () (interactive) (new-line 'up))
 (defun new-line-below () (interactive) (new-line nil))
+
+(defun open-line-below-and-indent ()
+  (interactive)
+  (newline 2)
+  (forward-line -1)
+  (funcall indent-line-function))
 
 (gsk "C-S-o" 'new-line-above)
 (gsk "C-o" 'new-line-below)
@@ -589,7 +445,7 @@ and replace the buffer contents with the output."
 
 ;;
 
-(setq scroll-preserve-screen-position t)
+(setq scroll-preserve-screen-position nil)
 
 ;;
 
@@ -707,10 +563,6 @@ and replace the buffer contents with the output."
 (setq
  tab-bar-close-button-show nil)
 
-(gsk "C-<next>" 'tab-bar-switch-to-next-tab)
-(gsk "C-<prior>" 'tab-bar-switch-to-prev-tab)
-;; (gsk "C-x t o" 'tab-bar-switch-to-recent-tab)
-
 ;;
 
 ;; todo this should be a list so we can find the first valid one, that way
@@ -738,7 +590,13 @@ and replace the buffer contents with the output."
 
 (defun dedicate-window ()
   (interactive)
-  (set-window-dedicated-p (selected-window) t))
+  (set-window-dedicated-p (selected-window) t)
+  (message "this window is now dedicated"))
+
+(defun undedicate-window ()
+  (interactive)
+  (set-window-dedicated-p (selected-window) nil)
+  (message "this window is no longer dedicated"))
 
 ;;
 
@@ -748,7 +606,7 @@ and replace the buffer contents with the output."
 ;;
 
 (setq auto-save-visited-interval 1)
-(auto-save-visited-mode 1)
+(auto-save-visited-mode -1)
 
 ;;
 
@@ -760,3 +618,144 @@ and replace the buffer contents with the output."
 
 ;; (gsk "<tab>" 'mark-sexp-forward)
 
+;;
+;; Selected
+;;
+
+(require 'selected)
+
+(define-keys selected-keymap
+  "<return>" 'kill-ring-save
+  "r" 'query-replace-maybe-region
+  "k" 'idle-highlight-keep
+  "i" 'indent-rigidly
+  ";" 'comment-dwim
+  "'" 'swiper-selection
+  "S" 'sort-lines
+  "s" 'surround-region
+  "o" 'occur-selection
+  ;; "<tab>" 'indent-right
+  ;; "<backtab>" 'indent-left
+  ;; "<tab>" nil
+  ;; "<backtab>" nil
+  "c" 'clone-region
+  "x" 'exchange-point-and-mark
+  "\"" (lambda () (interactive (surround-region "\"")))
+  "{" (lambda () (interactive (surround-region "{" "}")))
+  "<" (lambda () (interactive (surround-region "<" ">")))
+  "'" (lambda () (interactive (surround-region "'")))
+  "`" (lambda () (interactive (surround-region "`")))
+  "(" (lambda () (interactive (surround-region "(" ")")))
+  "[" (lambda () (interactive (surround-region "[" "]")))
+  "n" 'forward-search-region
+  "p" 'backward-search-region)
+
+(selected-global-mode)
+
+;;
+;; Mega leader map
+;;
+
+(gsk "C-<escape>" 'dired-jump)
+
+(gsk
+ "<escape>"
+ (keymap
+  "DEL" 'dired-jump
+  "k" 'really-kill-buffer
+  "e" 'eval-buffer
+  "c" 'make-frame
+  "q" 'quit-window
+  "0" 'delete-window
+  "1" 'delete-other-windows
+  "2" 'split-window-below
+  "3" 'split-window-right
+  "=" 'balance-windows
+  "f" 'find-file
+  "F" 'file-hopper
+  "g" 'rg
+  "G" 'rg-project-all
+  "b" 'switch-to-buffer
+  "s" (keymap "g" 'google
+              "s" 'stackoverflow
+              "t" 'teclis
+              "r" 'rust-core)
+  "h" (keymap "f" 'describe-function
+              "v" 'describe-variable
+              "k" 'describe-key
+              "m" 'describe-mode
+              "i" 'info
+              "a" 'apropos)
+  "<left>" 'previous-buffer
+  "<right>" 'next-buffer
+  "<escape>" 'save-all
+  "`" 'buffer-menu-current-file
+  "n" 'next-error
+  "p" 'previous-error
+  "o" 'occur
+  "y" (keymap "c" 'copy-crumb
+              "g" 'copy-git-buffer-path
+              "b" 'copy-buffer-path
+              "n" 'copy-buffer-path-and-line)
+  "t" (keymap "l" 'toggle-truncate-lines
+              "n" 'linum-mode
+              "f" 'auto-fill-mode
+              "r" 'refill-mode
+              "c" 'flymake-mode)
+  "v" 'view-mode
+  "j" (keymap "b" 'bk-bfp-branch
+              "n" 'take-notes
+              "N" 'jump-to-notes-dir
+              "g" 'github-current-branch
+              "j" 'browse-url-at-point
+              "D" (lambda () (interactive) (find-file "~/Downloads")))
+  "C" 'compile-in-dir
+  "w" (keymap "d" 'dedicate-window
+              "w" 'mark-this-as-working-win)
+  "r" 'query-replace-resume
+  ))
+
+;;
+
+(rg-define-search rg-dired :dir current)
+(rg-define-search rg-project-all :dir project :files "*")
+;; (rg-define-search rg-all :files "*")
+
+(define-keys
+  dired-mode-map
+  "<left>" 'dired-jump
+  "<right>" 'dired-find-file
+  "r" 'rg-dired)
+
+;;
+
+(setq completion-styles '(partial-completion flex))
+
+;;
+
+(require 'corfu)
+
+(define-keys corfu-map
+  "<tab>" 'corfu-complete
+  "<escape>" 'corfu-quit
+  "<return>" nil
+  "RET" nil
+  "M-n" 'corfu-next
+  "M-p" 'corfu-previous
+  "<up>" nil
+  "<down>" nil)
+(define-key corfu-map [remap next-line] nil)
+(define-key corfu-map [remap previous-line] nil)
+
+(global-corfu-mode)
+
+(setq
+ tab-always-indent 'complete
+ corfu-auto t
+ corfu-auto-delay 0.1
+ corfu-count 5)
+
+;;
+
+(setq auto-save-visited-interval 1)
+(auto-save-visited-mode 1)

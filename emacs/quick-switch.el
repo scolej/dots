@@ -4,8 +4,10 @@
   (setf (alist-get reg quick-switch-buffers) (current-buffer)))
 
 (defun quick-switch-jump (reg)
-  (switch-to-buffer
-   (alist-get reg quick-switch-buffers)))
+  (let ((display-buffer-alist '((".*" . ((display-buffer-reuse-window
+                                          display-buffer-same-window) . nil)))))
+    (pop-to-buffer
+     (alist-get reg quick-switch-buffers))))
 
 (define-minor-mode quick-switch
   "Buffer switching keys."
@@ -16,8 +18,7 @@
       (define-key km (kbd (format "C-M-%c" c))
         `(lambda () (interactive) (quick-switch-put-buffer ,c)))
       (let ((jump `(lambda () (interactive) (quick-switch-jump ,c))))
-        (define-key km (kbd (format "M-%c" c)) jump)
-        (define-key km (kbd (format "<kp-%c>" c)) jump)))
+        (define-key km (kbd (format "M-%c" c)) jump)))
     km))
 
 

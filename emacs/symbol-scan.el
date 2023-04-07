@@ -18,6 +18,8 @@
   (interactive)
   (scan-for-symbol-at-point 'forward))
 
+;; todo and if region is active?
+
 (defun backward-symbol-at-point ()
   (interactive)
   (scan-for-symbol-at-point 'backward))
@@ -31,3 +33,20 @@
 
 ;; Would be better...
 ;; M-SPC toggles symbol at point as a highlight & candidate for M-n M-p
+
+(defun forward-search-region (min max)
+  (interactive "r")
+  (let ((str (buffer-substring-no-properties min max)))
+    (unless (search-forward-regexp (regexp-quote str)) (error "region not found"))
+    (push-mark (match-beginning 0))
+    (activate-mark)))
+
+(defun backward-search-region (min max)
+  (interactive "r")
+  (let ((str (buffer-substring-no-properties min max)))
+    (unless (save-excursion
+              (goto-char min)
+              (search-backward-regexp (regexp-quote str))) (error "region not found"))
+    (goto-char (match-end 0))
+    (push-mark (match-beginning 0))
+    (activate-mark)))

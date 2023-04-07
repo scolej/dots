@@ -4,10 +4,6 @@
 
 (setq custom-file "~/.emacs.d/ignore-me.el")
 
-(setq-default
- cursor-type 'box
- cursor-in-non-selected-windows 'hollow)
-
 (require 'savehist)
 
 (blink-cursor-mode -1)
@@ -17,7 +13,7 @@
 ;; be disconcerting.
 (setq-default
  cursor-type 'box
- cursor-in-non-selected-windows nil)
+ cursor-in-non-selected-windows 'hollow)
 
 (fringe-mode nil)
 (scroll-bar-mode -1)
@@ -41,7 +37,7 @@
 (setq
  load-prefer-newer t
  save-interprogram-paste-before-kill t
- backup-by-copying nil         ; fixme breaks on windows for remote drives?
+ backup-by-copying nil
 
  backup-directory-alist '((".*" . "~/.emacs.d/saves"))
  delete-old-versions t
@@ -83,28 +79,28 @@
 
  ;; Things which this affects:
  ;; - 'up' in Info mode
- scroll-conservatively 0
+ scroll-conservatively 1
  scroll-margin 0
  scroll-step 0
 
  mouse-wheel-scroll-amount '(1 ((shift) . 10) ((control) . 20))
  use-dialog-box nil
  async-shell-command-buffer 'new-buffer
- split-width-threshold nil
+
+ split-width-threshold 200
  split-height-threshold nil)
 
-(setq-default indent-tabs-mode nil
-              tab-width 4
-              truncate-lines t
-              auto-hscroll-mode t
-              hscroll-step 10
-              hscroll-margin 2
-              buffer-file-coding-system 'utf-8-unix)
+(setq-default
+ indent-tabs-mode nil
+ tab-width 4
+ truncate-lines t
+ auto-hscroll-mode t
+ hscroll-step 10
+ hscroll-margin 2
+ buffer-file-coding-system 'utf-8-unix)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "C-x C-z") nil) ; by default this is suspend-frame, i never want this
-
-(setenv "PAGER" "cat")

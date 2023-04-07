@@ -2,10 +2,14 @@
 
 (require 'ruby-mode)
 (add-hook 'ruby-mode-hook 'yas-minor-mode)
-(add-hook 'ruby-mode-hook 'flycheck-mode)
+;; (remove-hook 'ruby-mode-hook 'flycheck-mode)
+;; (remove-hook 'ruby-mode-hook 'flymake-mode)
 
 ;; (define-key ruby-mode-map (kbd "<tab>") 'yas-expand)
 
+(require 'ansi-color)
+
+;; todo a minor mode that you can repeatedly query, back/forth etc
 (defun ruby-ri (arg)
   (interactive "P")
   (let* ((thing (thing-at-point 'symbol t))
@@ -14,11 +18,15 @@
                  nil nil nil nil thing))
          (query (if (string-empty-p input) thing input))
          (default-directory "~"))
-    (async-shell-command
-     (string-join (list "ri" query) " ")
-     (get-buffer-create "*ri*"))))
-
-;; todo don't scroll
+    (let ((buf (get-buffer-create "*ri*")))
+      (with-current-buffer buf
+        (read-only-mode -1)
+        (erase-buffer)
+        (call-process "ri" nil buf nil "--no-pager" "--no-interactive" "--format=ansi" query)
+        (ansi-color-apply-on-region (point-min) (point-max))
+        (beginning-of-buffer)
+        (view-mode))
+      (display-buffer buf))))
 
 ;; (defun ruby-ri-gem (arg)
 ;;   (interactive "P")
@@ -37,5 +45,11 @@
 (define-key ruby-mode-map (kbd "C-c r") 'ruby-ri)
 
 (modify-syntax-entry ?@ "_" ruby-mode-syntax-table)
+
+(defun ruby-customizations ()
+  ;; (add-hook 'after-save-hook 'prettier-format nil t)
+  (setq-local inhibit-clean-trailing-whitespace-mode t))
+
+(add-hook 'ruby-mode-hook 'ruby-customizations)
 
 

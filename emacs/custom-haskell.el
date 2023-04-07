@@ -46,3 +46,9 @@
 ;;         (delete-backward-char 1)))))
 
 ;; function for position at start of line
+
+;; todo
+;;
+;; - pressing M-j should preserve space after comment
+;;
+;; - M-j should work in haskell-mode

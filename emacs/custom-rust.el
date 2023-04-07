@@ -20,13 +20,12 @@
     (start-process-shell-command "rustup" "*rust doc*"
                                  "rustup doc --core")))
 
-(setq
- rust-format-on-save nil)
+(setq rust-format-on-save nil)
 
-;; (defun rust-customizations ()
-;;   (setq-local inhibit-clean-trailing-whitespace-mode t))
+(defun rust-customizations ()
+  (setq-local inhibit-clean-trailing-whitespace-mode t))
 
-;; (add-hook 'rust-mode-hook 'rust-customizations)
+(add-hook 'rust-mode-hook 'rust-customizations)
 
 ;; (add-to-list 'project-vc-ignores "target/*")
 
