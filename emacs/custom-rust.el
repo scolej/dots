@@ -26,6 +26,7 @@
   (setq-local inhibit-clean-trailing-whitespace-mode t))
 
 (add-hook 'rust-mode-hook 'rust-customizations)
+(add-hook 'rust-mode-hook 'corfu-mode)
 
 ;; (add-to-list 'project-vc-ignores "target/*")
 

@@ -2,7 +2,7 @@
 
 (setq
  eglot-confirm-server-initiated-edits nil
- eglot-send-changes-idle-time 1
+ eglot-send-changes-idle-time 2
  ;; todo eglot-workspace-configuration '((:rust-analyzer . (:checkOnSave "clippy")))
  )
 

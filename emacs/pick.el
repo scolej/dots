@@ -73,7 +73,7 @@ selected."
 ;;
 ;;
 
-(defcustom pick-idle-delay 0.3
+(defcustom pick-idle-delay 0.5
   "Seconds to wait until refreshing the picking buffer.")
 
 (defvar-local pick-idle-timer nil
@@ -239,64 +239,17 @@ allows you to easily re-use the previous filter."
                       (equal bufname n)))))
          (buffer-list)))))))
 
-;; (defun pick-select-buffer-other-window-below ()
-;;   (interactive)
-;;   (select-window (split-window-below))
-;;   (funcall-interactively 'pick-select-buffer nil))
-
-;; (defun pick-select-buffer-other-window-right ()
-;;   (interactive)
-;;   (select-window (split-window-right))
-;;   (funcall-interactively 'pick-select-buffer nil))
-
-;; (defun pick-select-buffer-other-window-right ()
-;;   (interactive)
-;;   (select-window (split-window-right))
-;;   (funcall-interactively 'pick-select-buffer nil))
-
-;; (defun pick-select-buffer-other-window ()
-;;   (interactive)
-;;   (pop-to-buffer (get-buffer "*pick buffer"))
-;;   (funcall-interactively 'pick-select-buffer nil))
-
-;; (defun pick-select-buffer-other-window ()
-;;   (interactive)
-;;   (let ((orig (selected-window)))
-;;     (other-window))
-;;   (with-selected-window (other-window)))
-
-;; todo sort by recency based on open buffers?
-(defun pick-filelist (prefix)
+(defun pick-git (prefix)
   (interactive "P")
-  (pick-list-git-files)
-  (let ((bufname "*filelist*"))
-    (if (and prefix (get-buffer bufname)) (switch-to-buffer bufname)
-      (pick-buffer
-       bufname
-       (let* ((name "filelist")
-              (dir (file-name-as-directory
-                    (locate-dominating-file default-directory name)))
-              (filelist (concat dir name))
-              items '())
-         (with-temp-buffer
-           (insert-file-contents filelist)
-           (while (< (point) (point-max))
-             (let* ((line (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-                    (f (concat dir line))
-                    (fun (lambda () (find-file f))))
-               (setq items (cons (cons line fun) items))
-               (forward-line 1))))
-         items)))))
-
-(defun pick-list-git-files ()
-  "Make a file with lines for every file tracked by Git."
-  (interactive)
-  (let ((n "*pick*")
-        (default-directory (locate-dominating-file default-directory ".git")))
-    (unless default-directory (error "not in a git repo"))
-    (shell-command
-     (concat "git ls-tree -r --name-only HEAD > filelist;"
-             "echo Found $(wc -l < filelist) files")
-     (get-buffer-create n))))
+  (let ((default-directory (or (locate-dominating-file default-directory ".git") (error "not in a git repo"))))
+    (kill-buffer "*git file list*")
+    (call-process "git" nil (get-buffer-create "*git file list*") nil "ls-tree" "-r" "--name-only" "HEAD")
+    (let ((bufname "*pick git files*"))
+      (if (and prefix (get-buffer bufname)) (switch-to-buffer bufname)
+        (pick-buffer
+         bufname
+         (mapcar
+          (lambda (f) (cons f (lambda () (find-file (concat default-directory f)))))
+          (split-string (with-current-buffer "*git file list*" (buffer-string)) "\n" t)))))))
 
 (provide 'pick)

@@ -1,7 +1,7 @@
 (defun theme-tweaks ()
   (set-face-attribute
    'mode-line nil
-   ;; :height 0.7
+   :height 0.9
    :box nil)
   (set-face-attribute
    'mode-line-inactive nil
@@ -17,8 +17,7 @@
    'vertical-border nil
    :inherit 'mode-line :inverse-video t)
   ;; (set-face-attribute 'fixed-pitch-serif nil :family 'unspecified)
-  (set-cursor-color "#f200ff")
-  )
+  (set-cursor-color "#f200ff"))
 
 (defun switch-theme (new-theme)
   (interactive)

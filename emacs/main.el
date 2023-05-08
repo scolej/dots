@@ -50,6 +50,9 @@
 
 ;;
 
+(load "delete.el")
+(text-deletion-mode 1)
+
 (load "copy-where.el")
 ;; (load "grep-setup.el")
 (load "idle-highlight.el")
@@ -79,8 +82,8 @@
 (load "custom-eglot.el")
 (load "custom-lsp.el")
 
-(load "delete.el")
-(text-deletion-mode 1)
+
+
 
 ;;
 ;; Global bindings
@@ -126,6 +129,10 @@
 (gsk "C-<prior>" 'tab-bar-switch-to-prev-tab)
 (gsk "C-S-<next>" 'tab-bar-move-tab)
 (gsk "C-S-<prior>" 'tab-bar-move-tab-backward)
+
+(gsk "M-<wheel-down>" 'tab-bar-switch-to-next-tab)
+(gsk "M-<wheel-up>" 'tab-bar-switch-to-prev-tab)
+
 
 (gsk "<C-tab>" 'other-window)
 
@@ -216,7 +223,7 @@ current buffer."
 ;;
 
 (setq-default
- fill-column 75
+ fill-column 80
  mode-line-format
  '((:eval (if (get-buffer-process (current-buffer))
               '(:propertize ">>>" face (:background "orange"))
@@ -257,6 +264,9 @@ current buffer."
 ;; (defun small-scroll-left () (interactive) (scroll-left 5 nil))
 ;; (gsk "<C-prior>" 'small-scroll-right)
 ;; (gsk "<C-next>" 'small-scroll-left)
+
+(setq mouse-wheel-tilt-scroll t
+      mouse-wheel-flip-direction t)
 
 ;;
 ;; Query replace using region
@@ -560,8 +570,16 @@ and replace the buffer contents with the output."
 
 ;;
 
+(defun tab-bar-name-first-window ()
+  (truncate-string-to-width
+   (buffer-name (window-buffer (frame-first-window)))
+   tab-bar-tab-name-truncated-max nil nil "…"))
+
 (setq
- tab-bar-close-button-show nil)
+ tab-bar-close-button-show nil
+ tab-bar-tab-name-function 'tab-bar-name-first-window
+ tab-bar-tab-name-truncated-max 20)
+
 
 ;;
 
@@ -602,6 +620,9 @@ and replace the buffer contents with the output."
 
 (gsk "C-<kp-add>" 'flymake-goto-next-error)
 (gsk "C-<kp-subtract>" 'flymake-goto-prev-error)
+
+(gsk "C-M-n" 'flymake-goto-next-error)
+(gsk "C-M-p" 'flymake-goto-prev-error)
 
 ;;
 
@@ -747,15 +768,22 @@ and replace the buffer contents with the output."
 (define-key corfu-map [remap next-line] nil)
 (define-key corfu-map [remap previous-line] nil)
 
-(global-corfu-mode)
-
 (setq
  tab-always-indent 'complete
  corfu-auto t
  corfu-auto-delay 0.1
  corfu-count 5)
 
+(add-hook 'emacs-lisp-mode-hook 'corfu-mode)
+
 ;;
 
 (setq auto-save-visited-interval 1)
 (auto-save-visited-mode 1)
+
+;;
+
+;; (gsk "M-<right>" 'forward-sexp)
+;; (gsk "M-<left>" 'backward-sexp)
+;; (gsk "M-<up>" 'backward-up-list)
+;; (gsk "M-<down>" 'down-list)

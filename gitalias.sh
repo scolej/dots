@@ -160,3 +160,8 @@ gmergesame() {
     remote=${1-origin}
     git merge --ff-only "$remote/$(git rev-parse --abbrev-ref HEAD)"
 }
+
+grebasesame() {
+    remote=${1-origin}
+    git rebase "$remote/$(git rev-parse --abbrev-ref HEAD)"
+}

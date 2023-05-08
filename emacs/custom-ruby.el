@@ -43,6 +43,9 @@
 ;;      (get-buffer-create "*ri*"))))
 
 (define-key ruby-mode-map (kbd "C-c r") 'ruby-ri)
+(define-key ruby-mode-map (kbd "C-c C-f") nil)
+(define-key ruby-mode-map (kbd "C-M-n") nil)
+(define-key ruby-mode-map (kbd "C-M-p") nil)
 
 (modify-syntax-entry ?@ "_" ruby-mode-syntax-table)
 
