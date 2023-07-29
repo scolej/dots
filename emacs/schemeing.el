@@ -109,7 +109,8 @@
 (mapc
  (lambda (p)
    (put (car p) 'scheme-indent-function (cdr p)))
- '((match . 1)
+ '((apply . 1)
+   (match . 1)
    (match-let . 1)
    (set-fields . 1)
    (eval-when . 1)

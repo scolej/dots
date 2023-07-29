@@ -1,4 +1,9 @@
+;; -*- lexical-binding: t -*-
+
 ;; todo would hydra do this more easily and with a help popup?
+;;
+;; trouble is the nesting story, you can nest them, but it's not that nice
+;; https://github.com/abo-abo/hydra/wiki/Nesting-Hydras
 
 (defun rapid-cat-next ()
   (interactive)
@@ -17,6 +22,9 @@
   (insert txt)
   (rapid-cat-next))
 
+(defun make-insertion (txt)
+  (lambda () (interactive) (insert-and-continue txt)))
+
 (defun delete-paragraph ()
   (interactive)
   (deactivate-mark)
@@ -31,51 +39,46 @@
     (delete-blank-lines))
   (rapid-cat-next))
 
+(defun keymap (&rest bindings)
+  "Make a new keymap with bindings. Return that map."
+  (let ((map (make-sparse-keymap)))
+    (apply 'define-keys map bindings)
+    map))
+
 (define-minor-mode rapid-cat-orange
   "rapidly insert transaction categories for orange account history"
   :keymap
-  (let ((km (make-sparse-keymap)))
-    (define-key km (kbd "<tab>") 'rapid-cat-next)
-    (define-key km (kbd "C-g") (lambda () (interactive ) (rapid-cat-orange -1)))
-    (define-key km (kbd "d") (lambda () (interactive ) (delete-paragraph)))
-    (define-key km (kbd "a")
-      (let ((km (make-sparse-keymap)))
-        (define-key km (kbd "o") (lambda () (interactive) (insert-and-continue "assets:offset")))
-        (define-key km (kbd "r") (lambda () (interactive) (insert-and-continue "assets:orange")))
-        km))
-    (define-key km (kbd "l")
-      (let ((km (make-sparse-keymap)))
-        (define-key km (kbd "e") (lambda () (interactive) (insert-and-continue "expenses:allowance:emma")))
-        (define-key km (kbd "s") (lambda () (interactive) (insert-and-continue "expenses:allowance:shannon")))
-        km))
-    (define-key km (kbd "b") (lambda () (interactive) (insert-and-continue "expenses:baby")))
-    (define-key km (kbd "c")
-      (let ((km (make-sparse-keymap)))
-        (define-key km (kbd "p") (lambda () (interactive) (insert-and-continue "expenses:car:petrol")))
-        (define-key km (kbd "r") (lambda () (interactive) (insert-and-continue "expenses:car:rego")))
-        (define-key km (kbd "i") (lambda () (interactive) (insert-and-continue "expenses:car:insurance")))
-        km))
-    (define-key km (kbd "h")
-      (let ((km (make-sparse-keymap)))
-        (define-key km (kbd "h") (lambda () (interactive) (insert-and-continue "expenses:assorted house")))
-        (define-key km (kbd "r") (lambda () (interactive) (insert-and-continue "expenses:assorted house:rates")))
-        (define-key km (kbd "i") (lambda () (interactive) (insert-and-continue "expenses:assorted house:insurance")))
-        km))
-    (define-key km (kbd "e") (lambda () (interactive) (insert-and-continue "expenses:eating out")))
-    (define-key km (kbd "f") (lambda () (interactive) (insert-and-continue "expenses:gifts")))
-    (define-key km (kbd "g") (lambda () (interactive) (insert-and-continue "expenses:groceries")))
-    (define-key km (kbd "i") (lambda () (interactive) (insert-and-continue "expenses:home improvements")))
-    (define-key km (kbd "k") (lambda () (interactive) (insert-and-continue "expenses:car:parking")))
-    (define-key km (kbd "m") (lambda () (interactive) (insert-and-continue "expenses:medical")))
-    (define-key km (kbd "r") (lambda () (interactive) (insert-and-continue "expenses:public transport")))
-    (define-key km (kbd "t") (lambda () (interactive) (insert-and-continue "expenses:entertainment")))
-    (define-key km (kbd "u")
-      (let ((km (make-sparse-keymap)))
-        (define-key km (kbd "w") (lambda () (interactive) (insert-and-continue "expenses:utilities:water")))
-        (define-key km (kbd "e") (lambda () (interactive) (insert-and-continue "expenses:utilities:elec")))
-        (define-key km (kbd "g") (lambda () (interactive) (insert-and-continue "expenses:utilities:gas")))
-        (define-key km (kbd "i") (lambda () (interactive) (insert-and-continue "expenses:utilities:internet")))
-        km))
-    km)
+  (keymap
+   "<tab>" 'rapid-cat-next
+   "<escape>" (lambda () (interactive) (rapid-cat-orange -1) (deactivate-mark))
+   "d" 'delete-paragraph
+   "a" (keymap "o" (make-insertion "assets:offset")
+               "r" (make-insertion "assets:orange"))
+   "l" (keymap "e" (make-insertion "expenses:allowance:emma")
+               "s" (make-insertion "expenses:allowance:shannon"))
+   "b" (make-insertion "expenses:baby")
+   "c" (keymap "p" (make-insertion "expenses:car:petrol")
+               "r" (make-insertion "expenses:car:rego")
+               "i" (make-insertion "expenses:car:insurance"))
+   "h" (keymap "h" (make-insertion "expenses:assorted house")
+               "r" (make-insertion "expenses:assorted house:rates")
+               "c" (make-insertion "expenses:assorted house:owners corp")
+               "i" (make-insertion "expenses:assorted house:insurance"))
+   "e" (make-insertion "expenses:eating out")
+   "f" (make-insertion "expenses:gifts")
+   "g" (make-insertion "expenses:groceries")
+   "i" (make-insertion "expenses:home improvements")
+   "k" (make-insertion "expenses:car:parking")
+   "m" (make-insertion "expenses:medical")
+   "r" (make-insertion "expenses:public transport")
+   "t" (make-insertion "expenses:entertainment")
+   "u" (keymap "w" (make-insertion "expenses:utilities:water")
+               "e" (make-insertion "expenses:utilities:elec")
+               "g" (make-insertion "expenses:utilities:gas")
+               "i" (make-insertion "expenses:utilities:internet")))
   (when rapid-cat-orange
     (rapid-cat-next)))
+
+(define-minor-mode rapid-cat-idle
+  "a single binding to easily start rapid catting"
+  :keymap (keymap "C-c C-c" (lambda () (interactive) (rapid-cat-orange 1))))

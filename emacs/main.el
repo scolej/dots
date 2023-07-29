@@ -217,7 +217,11 @@ current buffer."
  completion-styles '(partial-completion flex)
  tab-always-indent 'complete)
 
+
 (defun enable-dabbrev-capf () (add-to-list 'completion-at-point-functions 'cape-dabbrev))
+
+;; (add-to-list 'completion-at-point-functions 'cape-dabbrev)
+
 
 ;;
 ;; Indenting
@@ -791,6 +795,14 @@ and replace the buffer contents with the output."
 
 (setq completion-styles '(partial-completion flex))
 
+;; todo when emacs 29, can use a built-in
+(require 'cape)
+(defun enable-dabbref-capf ()
+  (add-to-list 'completion-at-point-functions 'cape-dabbrev))
+
+(add-hook 'c-mode-hook 'enable-dabbref-capf)
+(add-hook 'c-mode-hook 'corfu-mode)
+
 ;;
 
 (require 'corfu)
@@ -836,6 +848,7 @@ and replace the buffer contents with the output."
 ;; (gsk "M-<left>" 'backward-sexp)
 ;; (gsk "M-<up>" 'backward-up-list)
 ;; (gsk "M-<down>" 'down-list)
+
 
 (set-face-attribute
  'mode-line nil
@@ -932,3 +945,7 @@ and replace the buffer contents with the output."
 ;; TODO
 ;; 
 ;;  define a new ibuffer col that's either the full filename or buffer name
+;;
+
+(require 'dumb-jump)
+(add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
