@@ -17,7 +17,9 @@
    'vertical-border nil
    :inherit 'mode-line :inverse-video t)
   ;; (set-face-attribute 'fixed-pitch-serif nil :family 'unspecified)
-  (set-cursor-color "#f200ff"))
+  (set-face-attribute
+   'cursor nil
+   :background "#f200ff"))
 
 (defun switch-theme (new-theme)
   (interactive)

@@ -56,7 +56,6 @@
 (load "copy-where.el")
 ;; (load "grep-setup.el")
 (load "idle-highlight.el")
-(load "trails.el") 
 (load "dupe-and-drag.el")
 (load "notes.el")
 (load "schemeing.el")
@@ -80,9 +79,13 @@
 (load "custom-js.el")
 
 (load "custom-eglot.el")
-(load "custom-lsp.el")
+;; (load "custom-lsp.el")
 
+;; (load "trails.el")
 
+(setq-default show-trailing-whitespace t)
+(set-face-attribute 'trailing-whitespace nil
+                    :background "#ffeeee")
 
 
 ;;
@@ -90,10 +93,11 @@
 ;;
 
 (gsk "<kp-enter>" 'execute-extended-command)
-(define-key minibuffer-mode-map (kbd "<kp-enter>") 'previous-line-or-history-element)
+;; (define-key minibuffer-mode-map (kbd "<kp-enter>") 'previous-line-or-history-element)
 
 (gsk "<XF86Eject>" 'execute-extended-command)
 (gsk "<S-return>" 'yank)
+(gsk "<S-backspace>" 'kill-region)
 (gsk "<help>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
 (gsk "<M-SPC>" 'cycle-spacing)
@@ -119,8 +123,12 @@
       (kill-ring-save (mark) (point))
     (yank)))
 (gsk "<mouse-3>" 'yank-or-kill)
+(gsk "<S-mouse-3>" 'yank)
 
-(gsk "<C-mouse-1>" 'xref-find-definitions)
+
+(gsk "<C-mouse-1>" 'xref-find-definitions-at-mouse)
+(gsk "C-<down-mouse-1>" nil)
+
 
 (gsk "C-x C-t" 'tab-new)
 (gsk "s-t" 'tab-new)
@@ -130,8 +138,10 @@
 (gsk "C-S-<next>" 'tab-bar-move-tab)
 (gsk "C-S-<prior>" 'tab-bar-move-tab-backward)
 
-(gsk "M-<wheel-down>" 'tab-bar-switch-to-next-tab)
-(gsk "M-<wheel-up>" 'tab-bar-switch-to-prev-tab)
+(gsk "C-<wheel-down>" 'tab-bar-switch-to-next-tab)
+(gsk "C-<wheel-up>" 'tab-bar-switch-to-prev-tab)
+(gsk "C-S-<wheel-right>" 'tab-bar-move-tab)
+(gsk "C-S-<wheel-left>" 'tab-bar-move-tab-backward)
 
 
 (gsk "<C-tab>" 'other-window)
@@ -163,6 +173,12 @@ current buffer."
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
+(defun pick-select-buffer-other-window ()
+  (interactive)
+  (let ((default-directory default-directory))
+    (other-window 1)
+    (pick-select-buffer nil)))
+
 ;; (gsk "<f2>" 'buffer-menu-current-file)
 
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
@@ -181,6 +197,8 @@ current buffer."
 (setq
  completion-styles '(partial-completion flex)
  tab-always-indent 'complete)
+
+(defun enable-dabbrev-capf () (add-to-list 'completion-at-point-functions 'cape-dabbrev))
 
 ;;
 ;; Indenting
@@ -288,7 +306,7 @@ selection, otherwise call query-replace-regexp as normal."
         (goto-char (min (point) (mark)))
         (let ((rep (read-from-minibuffer
                     (format "Replace %s with: " str)
-                    nil nil nil nil str))
+                    str nil nil nil nil))
               (str-esc (regexp-quote str)))
           (setq query-replace-previous (cons str-esc rep))
           (query-replace-regexp str-esc rep)))
@@ -432,29 +450,6 @@ and replace the buffer contents with the output."
 
 ;;
 
-;; (add-hook 'text-mode-hook 'goto-address-mode)
-
-;;
-
-(defun maybe-visual-line-mode ()
-  "Look at the first 10 lines of the current buffer. If any
-  are longer than 80 chars, turn on visual-line-mode."
-  (let ((lines-to-consider 10)
-        (trigger-length 80)
-        (found-long-line nil))
-    (while (and (<= (line-number-at-pos) lines-to-consider)
-                (not found-long-line))
-      (setq found-long-line
-            (> trigger-length (- (point-at-eol) (point-at-bol))))
-      (forward-line))
-    (if found-long-line
-        (visual-line-mode t))))
-
-(add-hook 'markdown-mode-hook 'maybe-visual-line-mode)
-(add-hook 'text-mode-hook 'maybe-visual-line-mode)
-
-;;
-
 (setq scroll-preserve-screen-position nil)
 
 ;;
@@ -493,18 +488,18 @@ and replace the buffer contents with the output."
 
 ;;
 
-(require 'swiper)
+;; (require 'swiper)
 
-(defun swiper-selection ()
-  (interactive)
-  (if (region-active-p)
-      (let ((str (regexp-quote (buffer-substring-no-properties (point) (mark)))))
-        (deactivate-mark)
-        (swiper str))
-    (swiper)))
+;; (defun swiper-selection ()
+;;   (interactive)
+;;   (if (region-active-p)
+;;       (let ((str (regexp-quote (buffer-substring-no-properties (point) (mark)))))
+;;         (deactivate-mark)
+;;         (swiper str))
+;;     (swiper)))
 
-(gsk "C-'" 'swiper-selection)
-(gsk "<kp-5>" 'swiper-selection)
+;; (gsk "C-'" 'swiper-selection)
+;; (gsk "<kp-5>" 'swiper-selection)
 
 ;;
 
@@ -524,7 +519,7 @@ and replace the buffer contents with the output."
 
 ;;
 
-(gsk "<kp-decimal>" 'highlight-symbol-at-point)
+;; (gsk "<kp-decimal>" 'highlight-symbol-at-point)
 
 (setq hi-lock-face-defaults
       '("hi-yellow" "hi-pink" "hi-green"
@@ -577,8 +572,10 @@ and replace the buffer contents with the output."
 
 (setq
  tab-bar-close-button-show nil
- tab-bar-tab-name-function 'tab-bar-name-first-window
- tab-bar-tab-name-truncated-max 20)
+ ;; tab-bar-tab-name-function 'tab-bar-name-first-window
+ tab-bar-tab-name-function 'tab-bar-tab-name-current
+ tab-bar-tab-name-truncated-max 20
+ tab-bar-show 1)
 
 
 ;;
@@ -669,7 +666,10 @@ and replace the buffer contents with the output."
   "(" (lambda () (interactive (surround-region "(" ")")))
   "[" (lambda () (interactive (surround-region "[" "]")))
   "n" 'forward-search-region
-  "p" 'backward-search-region)
+  "p" 'backward-search-region
+  "e" 'eval-region
+  "<escape>" 'keyboard-quit
+  "!" 'sh-region)
 
 (selected-global-mode)
 
@@ -709,7 +709,7 @@ and replace the buffer contents with the output."
               "a" 'apropos)
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
-  "<escape>" 'save-all
+  "<escape>" 'dired-jump
   "`" 'buffer-menu-current-file
   "n" 'next-error
   "p" 'previous-error
@@ -718,7 +718,7 @@ and replace the buffer contents with the output."
               "g" 'copy-git-buffer-path
               "b" 'copy-buffer-path
               "n" 'copy-buffer-path-and-line)
-  "t" (keymap "l" 'toggle-truncate-lines
+  "t" (keymap "l" 'visual-line-mode
               "n" 'linum-mode
               "f" 'auto-fill-mode
               "r" 'refill-mode
@@ -729,11 +729,18 @@ and replace the buffer contents with the output."
               "N" 'jump-to-notes-dir
               "g" 'github-current-branch
               "j" 'browse-url-at-point
-              "D" (lambda () (interactive) (find-file "~/Downloads")))
+              "D" (lambda () (interactive) (find-file "~/Downloads"))
+              "d" 'jump-to-dev-env
+              ;; "a" aws-jumper-keymap
+              )
   "C" 'compile-in-dir
   "w" (keymap "d" 'dedicate-window
               "w" 'mark-this-as-working-win)
   "r" 'query-replace-resume
+  "d" (keymap "p" 'profiler-start)
+  "x" 'delete-trailing-whitespace
+  "<f1>" 'pick-select-buffer-other-window
+  "!" 'sh-region
   ))
 
 ;;
@@ -775,6 +782,14 @@ and replace the buffer contents with the output."
  corfu-count 5)
 
 (add-hook 'emacs-lisp-mode-hook 'corfu-mode)
+(add-hook 'terraform-mode-hook 'corfu-mode)
+(add-hook 'text-mode-hook 'corfu-mode)
+(add-hook 'markdown-mode-hook 'corfu-mode)
+(add-hook 'ruby-mode-hook 'corfu-mode)
+(add-hook 'js-mode-hook 'corfu-mode)
+
+
+(set-face-attribute 'corfu-default nil :family "Monospace" :height 0.95)
 
 ;;
 
@@ -787,3 +802,87 @@ and replace the buffer contents with the output."
 ;; (gsk "M-<left>" 'backward-sexp)
 ;; (gsk "M-<up>" 'backward-up-list)
 ;; (gsk "M-<down>" 'down-list)
+
+(set-face-attribute
+ 'mode-line nil
+ :inherit 'variable-pitch)
+
+(set-face-attribute
+ 'mode-line-inactive nil
+ :weight 'unspecified)
+
+;;
+
+;; todo use overlays to make it visible
+
+(defvar-local manual-marks '())
+(defun manual-mark-toggle ()
+  (interactive)
+  (let ((p (point-marker)))
+    (if (seq-contains-p manual-marks p (lambda (a b) (eq (marker-position a) (marker-position b))))
+        (progn
+          (setq manual-marks (delete p manual-marks))
+          (message "marker removed"))
+      (progn
+        (add-to-list 'manual-marks p)
+        (sort manual-marks '<)
+        (message "marker added")))))
+(defun manual-mark-next ()
+  (interactive)
+  (let* ((p (point))
+         (target (car (seq-filter (lambda (x) (> (marker-position x) p)) manual-marks))))
+    (goto-char (marker-position target))))
+(defun manual-mark-prev ()
+  (interactive)
+  (let* ((p (point))
+         (target (car (seq-filter (lambda (x) (< (marker-position x) p)) (reverse manual-marks)))))
+    (goto-char (marker-position target))))
+
+(gsk "C-/" 'manual-mark-toggle)
+(gsk "C-." 'manual-mark-next)
+(gsk "C-," 'manual-mark-prev)
+
+;; (gsk "<kp-enter>" 'manual-mark-toggle)
+;; (gsk "<kp-add>" 'manual-mark-next)
+;; (gsk "<kp-subtract>" 'manual-mark-prev)
+
+;;
+;;
+;;
+
+;; todo turns out this is way too intrustive, i always accidentally type S-space
+
+;; (defun activate-mark-select-forward-word ()
+;;   (interactive)
+;;   (unless mark-active (set-mark (point)) (activate-mark))
+;;   (forward-word))
+
+;; (define-key dired-mode-map (kbd "<S-SPC>") nil)
+;; (gsk "<S-SPC>" 'activate-mark-select-forward-word)
+
+(defun select-this-line ()
+  (interactive)
+  (beginning-of-line)
+  (set-mark (pos-bol))
+  (forward-line 1)
+  (activate-mark))
+(gsk "<M-SPC>" 'select-this-line)
+
+;;
+
+(defun sh-region ()
+  (interactive)
+  (let ((beg) (end))
+    (if (region-active-p)
+        (progn
+          (setq beg (region-beginning))
+          (setq end (region-end)))
+      (progn
+          (setq beg (pos-bol))
+          (setq end (pos-eol))))
+    (let ((txt (buffer-substring-no-properties beg end)))
+      (deactivate-mark)
+      (goto-char end)
+      (end-of-line)
+      (newline)
+      (shell-command txt (current-buffer)))))

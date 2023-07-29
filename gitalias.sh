@@ -33,6 +33,7 @@ alias gla="g log --format='%h %<(15,trunc)%an %s'" # One-line log with the autho
 alias glmb='git log --oneline ^$(git merge-base @{u} HEAD) HEAD'
 
 alias grl='git reflog'
+alias grl9='git reflog -n 9'
 
 alias grc='git rebase --continue'
 alias gri='git rebase -i --autosquash --autostash'
@@ -49,6 +50,11 @@ alias gsh='git show HEAD'
 alias gtl='git tag -l'
 
 alias gwl='git worktree list'
+
+gcobm() {
+    git checkout -b "$1" origin/master
+}
+
 
 gads() {
     git add "$@"
@@ -92,9 +98,9 @@ gg() {
     git --no-pager -c color.ui=always status > "$t1" 2>&1 &
     p1=$!
 
-    t2=$(mktemp)
-    git --no-pager -c color.ui=always log --oneline --decorate -n 10 --graph > "$t2" 2>&1 &
-    p2=$!
+    # t2=$(mktemp)
+    # git --no-pager -c color.ui=always log --oneline --decorate -n 10 --graph > "$t2" 2>&1 &
+    # p2=$!
 
     t3=$(mktemp)
     echo 'we have' >> "$t3"
@@ -111,10 +117,10 @@ gg() {
     git --no-pager -c color.ui=always diff > "$t5" 2>&1 &
     p5=$!
 
-    wait $p1 $p2 $p3 $p4 $p5 > /dev/null
+    wait $p1 $p3 $p4 $p5 > /dev/null
 
     all=$(mktemp)
-    { cat "$t1" ; echo ; cat "$t2" ; echo ; cat "$t3"; echo ; cat "$t4"; echo ; cat "$t5"; } >> "$all"
+    { cat "$t1" ; echo ; cat "$t3"; echo ; cat "$t4"; echo ; cat "$t5"; } >> "$all"
 
     clear
     less -SRX "$all"
@@ -163,5 +169,5 @@ gmergesame() {
 
 grebasesame() {
     remote=${1-origin}
-    git rebase "$remote/$(git rev-parse --abbrev-ref HEAD)"
+    git rebase --autostash "$remote/$(git rev-parse --abbrev-ref HEAD)"
 }

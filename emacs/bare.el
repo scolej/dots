@@ -56,6 +56,7 @@
  dired-clean-confirm-killing-deleted-buffers nil
  dired-use-ls-dired nil
  dired-recursive-deletes 'top           ; always?
+ dired-free-space nil
 
  require-final-newline t
  mode-require-final-newline t
@@ -102,5 +103,5 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "M-g") 'goto-line)
+(global-set-key (kbd "M-g") 'goto-line) ; why press the same key twice?
 (global-set-key (kbd "C-x C-z") nil) ; by default this is suspend-frame, i never want this

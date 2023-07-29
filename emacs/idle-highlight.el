@@ -6,6 +6,7 @@
 ;; - use a unique face to not blow away manual highlights
 ;; - use overlays?
 ;; - Easily jump forward & backward between highlighted locations.
+;; - set a local to enable idle highlight symbol
 
 (require 'subr-x)
 

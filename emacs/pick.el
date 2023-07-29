@@ -46,6 +46,7 @@ selected."
   ;;   (when buf (kill-buffer buf)))
   (let ((buf (get-buffer-create name)))
     (with-current-buffer buf
+      (remove-hook 'after-change-functions 'pick-after-change t)
       (erase-buffer)
       (insert "\n")
       (pick-write-buffer options)
@@ -58,7 +59,7 @@ selected."
 
 (defun pick-write-buffer (options)
   (let ((i 1))
-    (dolist (o (seq-take options 20))
+    (dolist (o (seq-take options 100))
       (pick-write-line i (car o) (cdr o))
       (setq i (1+ i)))))
 
@@ -73,7 +74,7 @@ selected."
 ;;
 ;;
 
-(defcustom pick-idle-delay 0.5
+(defcustom pick-idle-delay 0.3
   "Seconds to wait until refreshing the picking buffer.")
 
 (defvar-local pick-idle-timer nil
@@ -241,15 +242,20 @@ allows you to easily re-use the previous filter."
 
 (defun pick-git (prefix)
   (interactive "P")
-  (let ((default-directory (or (locate-dominating-file default-directory ".git") (error "not in a git repo"))))
-    (kill-buffer "*git file list*")
-    (call-process "git" nil (get-buffer-create "*git file list*") nil "ls-tree" "-r" "--name-only" "HEAD")
-    (let ((bufname "*pick git files*"))
-      (if (and prefix (get-buffer bufname)) (switch-to-buffer bufname)
+  (let ((bufname "*pick git files*")
+        (default-directory (or (locate-dominating-file default-directory ".git") (error "not in a git repo"))))
+    (if (and prefix (get-buffer bufname))
+        (switch-to-buffer bufname)
+      (progn
+        (when (get-buffer bufname) (kill-buffer bufname))
+        ;; (call-process "git" nil (get-buffer-create bufname) nil "ls-tree" "-r" "--name-only" "HEAD")
+        (call-process-shell-command "git ls-tree -r --name-only HEAD | grep -v -e web-client/vendorPackages -e web-client/vendorModules -e wiris -e base-images/gitlab-container-registry" nil bufname )
         (pick-buffer
          bufname
          (mapcar
           (lambda (f) (cons f (lambda () (find-file (concat default-directory f)))))
-          (split-string (with-current-buffer "*git file list*" (buffer-string)) "\n" t)))))))
+          (split-string (with-current-buffer bufname (buffer-string)) "\n" t)))))))
+
+;; (add-to-list 'tab-line-exclude-modes 'pick-mode)
 
 (provide 'pick)

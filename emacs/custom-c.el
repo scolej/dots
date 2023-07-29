@@ -2,6 +2,8 @@
    ;; fixme does it even work?
   (setq-local parens-require-spaces nil)
   (setq-local c-basic-offset 2)
+  (setq-local comment-start "// ")
+  (setq-local comment-end "")
   (electric-indent-mode 1))
 
 (add-hook 'c-mode-hook 'c-setup)

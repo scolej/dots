@@ -10,19 +10,24 @@
 ;; from this dir. then i go to a previously opened rust project; f11 should
 ;; work there too.
 
-(defun guess-compilation-command (dir)
+(defun guess-compilation-command (dir filename)
   (let ((contents (directory-files dir))
         (dir (expand-file-name dir)))
     (cond
+     ((string-suffix-p ".sh" filename) (concat "sh " filename))
+     ((string-suffix-p ".rb" filename) (concat "ruby " filename))
      ((seq-contains contents "Cargo.toml") "cargo fmt && cargo test")
      ((seq-contains contents "timelog.scm") "GUILE_LOAD_PATH=/Users/shannoncole/ev/hours2 guile timelog.scm")
+     ((string-suffix-p ".hs" (buffer-file-name)) (concat "runhaskell " (buffer-file-name)))
      ((equal dir "/Users/shannoncole/rubyscratch/") "rub 02.rb")
      (nil))))
 
 (defun compile-in-dir (dir cmd)
   (interactive
    (let* ((dir (read-directory-name "Compilation dir: "))
-          (cmd (read-string "Command: " (guess-compilation-command dir) 'compilation-command-history)))
+          (cmd (read-string "Command: "
+                            (guess-compilation-command dir (file-relative-name (buffer-file-name) dir))
+                            'compilation-command-history)))
      (list dir cmd)))
   (let ((default-directory dir))
     (compile cmd)))

@@ -8,16 +8,11 @@
 
 (define-key eglot-mode-map (kbd "C-c a") 'eglot-code-actions)
 
-;;
+(put 'eglot-note 'flymake-overlay-control nil)
+(put 'eglot-warning 'flymake-overlay-control nil)
+(put 'eglot-error 'flymake-overlay-control nil)
 
-;; todo how to disable the annoying buttons?
+(defun eglot-customizations ()
+  (eglot-inlay-hints-mode -1))
 
-;; (defun eglot-setup ()
-;;   (setq-local mouse-1-click-follows-link nil))
-
-;; (add-hook eglot-managed-mode-hook 'eglot-setup)
-
-
-;; (put 'eglot-node 'flymake-overlay-control nil)
-;; (put 'eglot-warning 'flymake-overlay-control nil)
-;; (put 'eglot-error 'flymake-overlay-control nil)
+(add-hook 'eglot-managed-mode-hook 'eglot-customizations)
