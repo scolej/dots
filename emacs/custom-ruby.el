@@ -48,6 +48,7 @@
 (define-key ruby-mode-map (kbd "C-M-p") nil)
 
 (modify-syntax-entry ?@ "_" ruby-mode-syntax-table)
+(modify-syntax-entry ?: "_" ruby-mode-syntax-table)
 
 (defun ruby-customizations ()
   ;; (add-hook 'after-save-hook 'prettier-format nil t)

@@ -30,6 +30,8 @@ alias glll='git log --pretty -p'
 alias gl9='gl -n9'
 alias gla="g log --format='%h %<(15,trunc)%an %s'" # One-line log with the author as well
 
+alias gpuf="git push --force-with-lease"
+
 alias glmb='git log --oneline ^$(git merge-base @{u} HEAD) HEAD'
 
 alias grl='git reflog'

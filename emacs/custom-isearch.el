@@ -13,4 +13,4 @@
 
 (setq isearch-allow-scroll t
       isearch-wrap-function '(lambda nil)
-      isearch-yank-on-move t)
+      isearch-yank-on-move nil)

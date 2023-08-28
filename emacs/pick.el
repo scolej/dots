@@ -109,6 +109,54 @@ range."
      (not (string-match-p (regexp-quote s) str)))
    words))
 
+;; This is way harder than it looks. Consider the query string "regisreadmemd"
+;; and 2 cases "data-warehouse-service/migrations/README-FIRST.md" and
+;; "operations/docker/registry/README.md". Because "re" hits "waREhouse" and "r"
+;; hits "opeRations", the first one is a better match even though if you skipped
+;; the first "r" in the second case then it'd likely win. You almost have to,
+;; first consider all the "r"s, then extend the search to "re" and see if any of
+;; the previous "r" hits can be extended, then take that one and so on. ie: keep
+;; extending the search string until there's no match, then use the longest hit
+;; as the hit, drop that part of the search string, and continue. just requiring
+;; the user to delimit with spaces makes the whole thing easier and more precise
+;; and faster.
+;;
+;; (defun fuzzy-score (query test-string)
+;;   (setf test-string (downcase test-string))
+;;   (catch 'done
+;;     (let ((score 0))
+;;       (dolist (c (string-to-list query) score)
+;;         (when (> 0 score) (throw 'done 0))
+;;         (let ((pos (seq-position test-string c)))
+;;           (cond
+;;            ((null pos)
+;;             (setf score (- score 1)))
+;;            ((= pos 0)
+;;             (setf score (+ 2 score)
+;;                   test-string (substring test-string 1)))
+;;            ((> pos 0)
+;;             (setf score (+ 1 score)
+;;                   test-string (substring test-string (1+ pos))))))))))
+
+;; (defun pick-filter (str options)
+;;   (seq-sort-by
+;;    (lambda (x) (fuzzy-score str (car x)))
+;;    #'>
+;;    options))
+
+;; (defun pick-filter (str options)
+;;   (mapcar
+;;    #'cdr
+;;    (seq-sort-by
+;;     #'car #'>
+;;     (seq-filter
+;;      (lambda (x) (> (car x) 0))
+;;      (mapcar
+;;       (lambda (x) (cons (fuzzy-score str (car x)) x))
+;;       options))))
+
+;; todo map, filter then sort
+
 (defun pick-filter (str options)
   (let* ((words (split-string str))
          (groups (seq-group-by (lambda (w) (string-prefix-p "!" w)) words))

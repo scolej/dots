@@ -9,13 +9,14 @@
 (blink-cursor-mode -1)
 
 ;; when you inevitably forget: the reason to not use the bar is that
-;; clicking to position point is ever so slightly off; but off enought to
+;; clicking to position point is ever so slightly off; but off enough to
 ;; be disconcerting.
 (setq-default
- cursor-type 'box
+ cursor-type '(bar . 3)
  cursor-in-non-selected-windows 'hollow)
 
 (fringe-mode nil)
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
@@ -65,7 +66,7 @@
  set-mark-command-repeat-pop nil
  ring-bell-function 'ignore
  linum-format "%4d"
- mouse-autoselect-window 0.1
+ mouse-autoselect-window 0
  revert-without-query '(".*")
  mouse-wheel-progressive-speed nil
  vc-handled-backends '(git)
@@ -84,7 +85,7 @@
  scroll-margin 0
  scroll-step 0
 
- mouse-wheel-scroll-amount '(1 ((shift) . 10) ((control) . 20))
+ mouse-wheel-scroll-amount '(10 ((shift) . 20) ((control) . 30))
  use-dialog-box nil
  async-shell-command-buffer 'new-buffer
 

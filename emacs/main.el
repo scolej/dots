@@ -108,9 +108,22 @@
 (gsk "M-z" 'zap-up-to-char)
 (gsk "S-M-z" 'zap-to-char)
 
+(defun kill-region-or-word ()
+  (interactive)
+  (if (region-active-p)
+    (call-interactively 'kill-region)
+    (call-interactively 'delete-backward-word)))
+
+(gsk "C-w" 'kill-region-or-word)
+
 (define-keys minibuffer-local-map
-  "<escape>" 'top-level
-  "<tab>" 'minibuffer-complete)
+             "<escape>" 'top-level
+             "<tab>" 'minibuffer-complete)
+
+(define-keys isearch-mode-map
+             "<escape>" 'isearch-exit
+             "<return>" 'isearch-repeat-forward
+             "<S-return>" 'isearch-repeat-backward)
 
 (require 'rg)
 (setq rg-command-line-flags '("-M" "300" "--sort" "path"))
@@ -129,6 +142,8 @@
 (gsk "<C-mouse-1>" 'xref-find-definitions-at-mouse)
 (gsk "C-<down-mouse-1>" nil)
 
+(gsk "s-g" nil)
+
 
 (gsk "C-x C-t" 'tab-new)
 (gsk "s-t" 'tab-new)
@@ -146,7 +161,6 @@
 
 (gsk "<C-tab>" 'other-window)
 
-
 ;; todo - maybe better: compile-at-git-root
 ;; which also maintains a per-root buffer and selects the right one.
 ;; or even multi compile buffers per root; eg: (1) stack build (2) hlint.
@@ -154,6 +168,9 @@
 ;;
 ;; Buffer switching
 ;;
+
+(setq ibuffer-format-save ibuffer-formats)
+(setq ibuffer-formats (append ibuffer-formats '((mark " " filename-and-process))))
 
 (defun buffer-menu-current-file ()
   "Opens the buffer menu, sorted by file, and moves point to the
@@ -167,6 +184,8 @@ current buffer."
                 (not (equal buf (tabulated-list-get-id))))
       (forward-line))
     (recenter)))
+
+(gsk "M-<f1>" 'ibuffer)
 
 (require 'pick)
 (gsk "<f1>" 'pick-select-buffer)
@@ -216,6 +235,8 @@ current buffer."
   (interactive "r")
   (let ((deactivate-mark nil))
     (indent-rigidly beg end -4)))
+
+(setq c-basic-offset 4)
 
 ;;
 
@@ -445,8 +466,10 @@ and replace the buffer contents with the output."
 
 (defun tidy-rubbish-buffer ()
   (interactive)
-  (strip-ansi-current-buffer)
-  (delete-trailing-whitespace))
+  (read-only-mode -1)
+  (save-excursion
+    (strip-ansi-current-buffer)
+    (delete-trailing-whitespace)))
 
 ;;
 
@@ -749,11 +772,20 @@ and replace the buffer contents with the output."
 (rg-define-search rg-project-all :dir project :files "*")
 ;; (rg-define-search rg-all :files "*")
 
+(defun rg-region-immediate ()
+  (interactive)
+  (if (region-active-p)
+    (let ((q (buffer-substring-no-properties (point) (mark))))
+      (rg-project q "*"))
+    (call-interactively 'rg-project-all)))
+
+(gsk "s-F" 'rg-region-immediate)
+
 (define-keys
-  dired-mode-map
-  "<left>" 'dired-jump
-  "<right>" 'dired-find-file
-  "r" 'rg-dired)
+ dired-mode-map
+ "<left>" 'dired-jump
+ "<right>" 'dired-find-file
+ "r" 'rg-dired)
 
 ;;
 
@@ -785,8 +817,10 @@ and replace the buffer contents with the output."
 (add-hook 'terraform-mode-hook 'corfu-mode)
 (add-hook 'text-mode-hook 'corfu-mode)
 (add-hook 'markdown-mode-hook 'corfu-mode)
-(add-hook 'ruby-mode-hook 'corfu-mode)
 (add-hook 'js-mode-hook 'corfu-mode)
+
+(add-hook 'ruby-mode-hook 'corfu-mode)
+(add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
 
 
 (set-face-attribute 'corfu-default nil :family "Monospace" :height 0.95)
@@ -814,6 +848,7 @@ and replace the buffer contents with the output."
 ;;
 
 ;; todo use overlays to make it visible
+;; todo use a global hash so you can rever the buffer and not lose marks
 
 (defvar-local manual-marks '())
 (defun manual-mark-toggle ()
@@ -886,3 +921,14 @@ and replace the buffer contents with the output."
       (end-of-line)
       (newline)
       (shell-command txt (current-buffer)))))
+
+;; TODO
+;;
+;; buffer rings. a file with lists of filepaths; each paragraph is a group that you can easily loop through.
+;;
+;; could paste in a list of git conflicts and then cycle through all the files.
+
+
+;; TODO
+;; 
+;;  define a new ibuffer col that's either the full filename or buffer name

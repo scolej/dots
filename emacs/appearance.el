@@ -2,17 +2,18 @@
   (set-face-attribute
    'mode-line nil
    :height 0.9
-   :box nil)
+   :box nil
+   :background "#eeeeff")
   (set-face-attribute
    'mode-line-inactive nil
    :inherit 'mode-line
-   :foreground 'unspecified :background 'unspecified
+   :foreground 'unspecified :background "#eeeeee"
    :box 'unspecified :weight 'unspecified)
   (set-face-attribute
    'fringe nil
    :inherit 'default
    :background 'unspecified
-   :foreground 'unspecified)
+   :foreground "#aaaaaa")
   (set-face-attribute
    'vertical-border nil
    :inherit 'mode-line :inverse-video t)
@@ -35,3 +36,15 @@
   (interactive)
   (switch-theme 'modus-operandi)
   (theme-tweaks))
+
+(set-face-attribute
+   'markdown-header-face-1 nil
+   :height 1.3)
+
+(set-face-attribute
+ 'markdown-header-face-2 nil
+ :height 1.2)
+
+(set-face-attribute
+ 'markdown-header-face-3 nil
+ :height 1.1)

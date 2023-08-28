@@ -26,7 +26,7 @@
   (interactive
    (let* ((dir (read-directory-name "Compilation dir: "))
           (cmd (read-string "Command: "
-                            (guess-compilation-command dir (file-relative-name (buffer-file-name) dir))
+                            (guess-compilation-command dir (when (buffer-file-name) (file-relative-name (buffer-file-name) dir)))
                             'compilation-command-history)))
      (list dir cmd)))
   (let ((default-directory dir))

@@ -31,7 +31,7 @@
         (run-at-time 0.2 nil 'idle-highlight-region)))
 
 (defun idle-highlight-region ()
-  (when mark-active
+  (when (region-active-p)
     (idle-highlight-clean)
     (let ((str (buffer-substring-no-properties (point) (mark))))
       (unless (string-blank-p str)
