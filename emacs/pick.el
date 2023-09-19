@@ -95,12 +95,76 @@ range."
     (setq pick-idle-timer
           (run-at-time pick-idle-delay nil 'pick-rewrite (current-buffer)))))
 
+(defun make-pairs (a b)
+  (let ((as (if (listp a) a (list a)))
+        (bs (if (listp b) b (list b))))
+    (let (vals '())
+      (dolist (a as)
+        (dolist (b bs)
+          (setq vals (cons (cons a b) vals))))
+      (reverse vals))))
+
+(ert-deftest test-pairs-1 ()
+  (should (equal '((1 . 2))
+              (make-pairs 1 2))))
+(ert-deftest test-pairs-2 ()
+  (should (equal '((1 . 2) (1 . 3))
+              (make-pairs 1 '(2 3)))))
+(ert-deftest test-pairs-3 ()
+  (should (equal '((1 . 3) (1 . 4) (2 . 3) (2 . 4))
+              (make-pairs '(1 2) '(3 4)))))
+(ert-deftest test-pairs-4 ()
+  (should (equal '((1 . 3) (2 . 3))
+              (make-pairs '(1 2) 3))))
+
+(defun ordered? (items)
+  "Are items ordered? Each element of ITEMS may be either a value or
+a list of values. We return T if there is an any ordering of
+ITEMS which is ascending. When we encounter a element which is a
+list, we test each element of the list as a candidate for
+satisfying the ordering."
+  (let ((head (car items))
+        (tail (cdr items)))
+    (if (null tail) t
+        (let* ((next (car tail))
+               (pairs (make-pairs head next)))
+          (if (seq-find
+               (lambda (pair) (< (car pair) (cdr pair)))
+               pairs)
+              (ordered? tail)
+            nil)))))
+
+(ert-deftest test1 () (should (ordered? '(1 2 3))))
+(ert-deftest test2 () (should (ordered? '((1 4) 2 3))))
+(ert-deftest test3 () (should (ordered? '(1 (2 4) 3))))
+(ert-deftest test3 () (should (ordered? '(1 2 (1 3)))))
+(ert-deftest test4 () (should (not (ordered? '(1 2 (1 1))))))
+(ert-deftest test5 () (should (not (ordered? '(5 (2 7) (1 1))))))
+
+(defun string-substring-indices (needle haystack)
+  (let ((continue t)
+        (result '())
+        (i 0))
+    (while continue
+      (setq i (string-search needle haystack i))
+      (if i
+          (progn
+            (setq result (cons i result)
+                  i (1+ i)))
+        (setq continue nil)))
+    (reverse result)))
+
+(ert-deftest string-substring-test-1 ()
+  (should (equal '(1 5) (string-substring-indices "fo" "ofobafo"))))
+
 (defun contains-all (words str)
   "Return t if every element of the list WORDS is a substring of STR."
-  (seq-every-p
-   (lambda (s)
-     (string-match-p (regexp-quote s) str))
-   words))
+  (let ((hits (mapcar
+               (lambda (word) (string-substring-indices word str))
+               words)))
+    (and (not (seq-contains-p hits nil))
+         (or (= (length hits) 1)
+             (ordered? hits)))))
 
 (defun contains-none (words str)
   "Return t if no element in the list WORDS is a substring of STR."
@@ -183,7 +247,9 @@ range."
         (delete-region (point) (point-max))
         (insert "\n")
         (pick-write-buffer
-         (pick-filter filter-string pick-options))))
+         (pick-filter filter-string pick-options)
+         ;; todo include the unordered matches as well
+         )))
     (add-hook 'after-change-functions 'pick-after-change nil t)))
 
 ;;
@@ -307,3 +373,5 @@ allows you to easily re-use the previous filter."
 ;; (add-to-list 'tab-line-exclude-modes 'pick-mode)
 
 (provide 'pick)
+
+
