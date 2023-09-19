@@ -73,3 +73,5 @@
 current major-mode has implemented and replace it with the
 simplest thing imaginable."
   :keymap stupid-indent-mode-map)
+
+(provide 'stupid-indent-mode)

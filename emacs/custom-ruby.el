@@ -46,13 +46,15 @@
 (define-key ruby-mode-map (kbd "C-c C-f") nil)
 (define-key ruby-mode-map (kbd "C-M-n") nil)
 (define-key ruby-mode-map (kbd "C-M-p") nil)
+(define-key ruby-mode-map (kbd "<f12>") 'prettier-format)
 
-(modify-syntax-entry ?@ "_" ruby-mode-syntax-table)
-(modify-syntax-entry ?: "_" ruby-mode-syntax-table)
+(modify-syntax-entry ?@ "." ruby-mode-syntax-table)
+(modify-syntax-entry ?: "." ruby-mode-syntax-table)
 
 (defun ruby-customizations ()
   ;; (add-hook 'after-save-hook 'prettier-format nil t)
-  (setq-local inhibit-clean-trailing-whitespace-mode t))
+  (setq-local inhibit-clean-trailing-whitespace-mode t
+              fill-column 100))
 
 (add-hook 'ruby-mode-hook 'ruby-customizations)
 

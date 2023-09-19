@@ -93,3 +93,13 @@ the trigger file."
         (default-directory
           (locate-dominating-file default-directory ".git")))
     (compile "date > trigger")))
+
+(defun tickle-dominating-trigger ()
+  (interactive)
+  (save-all)
+  (let ((default-directory
+         (or (locate-dominating-file default-directory "trigger")
+             (error "Couldn't find dominating trigger file, can you make it?"))))
+    (shell-command "date > trigger")))
+
+(gsk "<f10>" 'tickle-dominating-trigger)

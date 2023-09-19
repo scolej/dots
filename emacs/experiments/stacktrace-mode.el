@@ -51,6 +51,12 @@ and return the first non-nil result."
                      (find-file-other-window full-path)
                      (goto-line linum))))))))
 
+(defun yank-stackstrack ()
+  (interactive)
+  (save-excursion
+    (when (region-active-p) (delete-region (point) (mark)))
+    (yank)
+    (stacktrace-add-buttons)))
 
 ;; or maybe just: file name and number in git repo mode
 ;;

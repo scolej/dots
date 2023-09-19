@@ -105,13 +105,20 @@
 (gsk "<f12>" 'save-all)
 (gsk "<f5>" 'revert-buffer)
 
+(gsk "C-;" 'comment-line)
+
 (gsk "M-z" 'zap-up-to-char)
 (gsk "S-M-z" 'zap-to-char)
+
+(gsk "C-1" 'delete-other-windows)
+(gsk "C-2" 'split-window-below)
+(gsk "C-3" 'split-window-right)
+(gsk "C-0" 'delete-window)
 
 (defun kill-region-or-word ()
   (interactive)
   (if (region-active-p)
-    (call-interactively 'kill-region)
+      (call-interactively 'kill-region)
     (call-interactively 'delete-backward-word)))
 
 (gsk "C-w" 'kill-region-or-word)
@@ -122,8 +129,11 @@
 
 (define-keys isearch-mode-map
              "<escape>" 'isearch-exit
-             "<return>" 'isearch-repeat-forward
-             "<S-return>" 'isearch-repeat-backward)
+             "<down>" 'isearch-repeat-forward
+             "<up>" 'isearch-repeat-backward)
+(define-keys isearch-minibuffer-local-map
+             "<down>" nil
+             "<up>")
 
 (require 'rg)
 (setq rg-command-line-flags '("-M" "300" "--sort" "path"))
@@ -268,10 +278,13 @@ current buffer."
 (setq-default
  fill-column 80
  mode-line-format
- '((:eval (if (get-buffer-process (current-buffer))
-              '(:propertize ">>>" face (:background "orange"))
-            "%*"))
-   " %f:%l:%c"))
+ '((:eval (cond
+           ((get-buffer-process (current-buffer))
+            '(:propertize ">>>" face (:background "orange")))
+           ((and (buffer-file-name) (buffer-modified-p))
+            '(:propertize "+" face (:background "yellow")))))
+   (:eval (or (buffer-file-name) (buffer-name)))
+   ":%l:%c"))
 
 (setq
  next-screen-context-lines 2
@@ -331,7 +344,7 @@ selection, otherwise call query-replace-regexp as normal."
         (goto-char (min (point) (mark)))
         (let ((rep (read-from-minibuffer
                     (format "Replace %s with: " str)
-                    str nil nil nil nil))
+                    nil nil nil nil str))
               (str-esc (regexp-quote str)))
           (setq query-replace-previous (cons str-esc rep))
           (query-replace-regexp str-esc rep)))
@@ -642,16 +655,16 @@ and replace the buffer contents with the output."
 
 ;;
 
-(gsk "C-<kp-add>" 'flymake-goto-next-error)
-(gsk "C-<kp-subtract>" 'flymake-goto-prev-error)
+;; (gsk "C-<kp-add>" 'flymake-goto-next-error)
+;; (gsk "C-<kp-subtract>" 'flymake-goto-prev-error)
 
-(gsk "C-M-n" 'flymake-goto-next-error)
-(gsk "C-M-p" 'flymake-goto-prev-error)
+;; (gsk "C-M-n" 'flymake-goto-next-error)
+;; (gsk "C-M-p" 'flymake-goto-prev-error)
 
 ;;
 
-(setq auto-save-visited-interval 1)
-(auto-save-visited-mode -1)
+(setq auto-save-visited-interval 2)
+(auto-save-visited-mode 1)
 
 ;;
 
@@ -749,7 +762,7 @@ and replace the buffer contents with the output."
               "n" 'linum-mode
               "f" 'auto-fill-mode
               "r" 'refill-mode
-              "c" 'flymake-mode)
+              "c" 'flycheck-mode)
   "v" 'view-mode
   "j" (keymap "b" 'bk-bfp-branch
               "n" 'take-notes
@@ -807,22 +820,26 @@ and replace the buffer contents with the output."
 
 (require 'corfu)
 
+(setq corfu-preselect 'prompt)
+
 (define-keys corfu-map
-  "<tab>" 'corfu-complete
-  "<escape>" 'corfu-quit
-  "<return>" nil
-  "RET" nil
-  "M-n" 'corfu-next
-  "M-p" 'corfu-previous
-  "<up>" nil
-  "<down>" nil)
+             "<tab>" 'corfu-next
+             "<backtab>" 'corfu-previous
+             "<escape>" 'corfu-quit
+             "<return>" nil
+             "RET" nil
+             "M-n" 'corfu-next
+             "M-p" 'corfu-previous
+             "<up>" nil
+             "<down>" nil)
+
 (define-key corfu-map [remap next-line] nil)
 (define-key corfu-map [remap previous-line] nil)
 
 (setq
  tab-always-indent 'complete
- corfu-auto t
- corfu-auto-delay 0.1
+ corfu-auto nil
+ corfu-auto-delay 0.5
  corfu-count 5)
 
 (add-hook 'emacs-lisp-mode-hook 'corfu-mode)

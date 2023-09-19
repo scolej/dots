@@ -85,7 +85,7 @@
  scroll-margin 0
  scroll-step 0
 
- mouse-wheel-scroll-amount '(10 ((shift) . 20) ((control) . 30))
+ mouse-wheel-scroll-amount '(2)
  use-dialog-box nil
  async-shell-command-buffer 'new-buffer
 
@@ -99,7 +99,9 @@
  auto-hscroll-mode t
  hscroll-step 10
  hscroll-margin 2
- buffer-file-coding-system 'utf-8-unix)
+ buffer-file-coding-system 'utf-8-unix
+ save-silently t
+ electric-indent-inhibit t)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 

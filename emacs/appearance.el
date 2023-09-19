@@ -3,7 +3,7 @@
    'mode-line nil
    :height 0.9
    :box nil
-   :background "#eeeeff")
+   :background "#ccccff")
   (set-face-attribute
    'mode-line-inactive nil
    :inherit 'mode-line
@@ -48,3 +48,12 @@
 (set-face-attribute
  'markdown-header-face-3 nil
  :height 1.1)
+
+(set-face-attribute
+ 'tab-bar-tab nil
+ :box 'unspecified
+ :background "#eeeeff")
+
+(set-face-attribute
+ 'tab-bar-tab-inactive nil
+ :box 'unspecified)

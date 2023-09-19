@@ -30,6 +30,8 @@
 ;; ===> multi lines of filters?
 ;;
 ;; use buttons!
+;;
+;; todo - when sorting filter hits, sort those that match chunks in order first
 
 (require 'subr-x)
 (require 'seq)
@@ -166,11 +168,14 @@ satisfying the ordering."
          (or (= (length hits) 1)
              (ordered? hits)))))
 
+;; (contains-all '("two" "one") "one two")
+;; (contains-all '("work" "item") "work_item_pb_api")
+
 (defun contains-none (words str)
   "Return t if no element in the list WORDS is a substring of STR."
   (seq-every-p
    (lambda (s)
-     (not (string-match-p (regexp-quote s) str)))
+     (not (string-match-p (regexp-quote (downcase s)) (downcase str))))
    words))
 
 ;; This is way harder than it looks. Consider the query string "regisreadmemd"
@@ -225,7 +230,8 @@ satisfying the ordering."
   (let* ((words (split-string str))
          (groups (seq-group-by (lambda (w) (string-prefix-p "!" w)) words))
          (pwords (alist-get nil groups '()))
-         (nwords (mapcar (lambda (s) (substring s 1)) (alist-get t groups '()))))
+         (nwords (mapcar (lambda (s) (substring s 1)) (alist-get t groups '())))
+         )
     (seq-filter
      (lambda (o)
        (and (contains-all pwords (car o))

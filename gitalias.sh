@@ -2,14 +2,23 @@
 
 export GIT_MERGE_AUTOEDIT=no
 
-alias g='git'
+# alias g='git'
+
+g() {
+    if test "$#" -eq 0; then
+        git status && git log --oneline -n 9
+    else
+        git "$@"
+    fi
+}
 
 alias ga='git add'
+alias gap='git add -p'
 alias gau='git add -u'
 alias gaus='git add -u && git status'
 alias gaud='git add -u && git diff'
 
-alias gb='git branch'
+alias gb='git branch --sort=authordate'
 alias gba='git branch -a'
 alias gbr='git branch -r'
 

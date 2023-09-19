@@ -4,12 +4,12 @@
 
 ;; (setq haskell-interactive-popup-errors nil)
 
-(require 'format-all)
-(add-hook 'haskell-mode-hook 'format-all-mode)
-(add-hook 'haskell-mode-hook 'format-all-ensure-formatter)
+;; (require 'format-all)
+;; (add-hook 'haskell-mode-hook 'format-all-mode)
+;; (add-hook 'haskell-mode-hook 'format-all-ensure-formatter)
 
 ;; probably doesn't belong here...
-(add-to-list 'format-all-default-formatters '("Haskell" fourmolu))
+;; (add-to-list 'format-all-default-formatters '("Haskell" fourmolu))
 
 
 ;; ------------------
@@ -52,3 +52,11 @@
 ;; - pressing M-j should preserve space after comment
 ;;
 ;; - M-j should work in haskell-mode
+
+(require 'haskell-mode)
+(require 'stupid-indent-mode)
+(define-keys haskell-mode-map
+             "<tab>" 'stupid-indent
+             "<backtab>" 'stupid-deindent
+             "<S-tab>" 'stupid-deindent
+             )
