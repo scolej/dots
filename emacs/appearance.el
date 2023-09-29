@@ -37,14 +37,13 @@
   (switch-theme 'modus-operandi)
   (theme-tweaks))
 
+(require 'markdown-mode)
 (set-face-attribute
-   'markdown-header-face-1 nil
-   :height 1.3)
-
+ 'markdown-header-face-1 nil
+ :height 1.3)
 (set-face-attribute
  'markdown-header-face-2 nil
  :height 1.2)
-
 (set-face-attribute
  'markdown-header-face-3 nil
  :height 1.1)

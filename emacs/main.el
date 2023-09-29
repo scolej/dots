@@ -127,16 +127,14 @@
              "<escape>" 'top-level
              "<tab>" 'minibuffer-complete)
 
+(require 'isearch)
 (define-keys isearch-mode-map
              "<escape>" 'isearch-exit
              "<down>" 'isearch-repeat-forward
              "<up>" 'isearch-repeat-backward)
-(define-keys isearch-minibuffer-local-map
-             "<down>" nil
-             "<up>")
-
-(require 'rg)
-(setq rg-command-line-flags '("-M" "300" "--sort" "path"))
+;; (define-keys isearch-minibuffer-local-map
+;;              "<down>" nil
+;;              "<up>")
 
 (gsk "<f19>" 'previous-buffer)
 
@@ -785,18 +783,22 @@ and replace the buffer contents with the output."
 
 ;;
 
+(require 'rg)
+
+(setq rg-command-line-flags '("-M" "300" "--sort" "path"))
+
 (rg-define-search rg-dired :dir current)
 (rg-define-search rg-project-all :dir project :files "*")
 ;; (rg-define-search rg-all :files "*")
 
-(defun rg-region-immediate ()
+(defun rg-dwim ()
   (interactive)
   (if (region-active-p)
     (let ((q (buffer-substring-no-properties (point) (mark))))
       (rg-project q "*"))
-    (call-interactively 'rg-project-all)))
+    (call-interactively 'rg)))
 
-(gsk "s-F" 'rg-region-immediate)
+(gsk "s-g" 'rg-dwim)
 
 (define-keys
  dired-mode-map
@@ -927,10 +929,11 @@ and replace the buffer contents with the output."
 
 (defun select-this-line ()
   (interactive)
-  (beginning-of-line)
-  (set-mark (pos-bol))
-  (forward-line 1)
-  (activate-mark))
+  (if (region-active-p) (forward-line 1)
+    (beginning-of-line)
+    (set-mark (pos-bol))
+    (forward-line 1)
+    (activate-mark)))
 (gsk "<M-SPC>" 'select-this-line)
 
 ;;
