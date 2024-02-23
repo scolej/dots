@@ -16,7 +16,7 @@
     (cond
      ((string-suffix-p ".sh" filename) (concat "sh " filename))
      ((string-suffix-p ".rb" filename) (concat "ruby " filename))
-     ((seq-contains contents "Cargo.toml") "cargo fmt && cargo test")
+     ((seq-contains contents "Cargo.toml") "cargo fmt && cargo build")
      ((seq-contains contents "timelog.scm") "GUILE_LOAD_PATH=/Users/shannoncole/ev/hours2 guile timelog.scm")
      ((string-suffix-p ".hs" (buffer-file-name)) (concat "runhaskell " (buffer-file-name)))
      ((equal dir "/Users/shannoncole/rubyscratch/") "rub 02.rb")

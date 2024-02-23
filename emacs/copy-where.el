@@ -20,15 +20,17 @@
                    (error "not in a git repo")))
          (abs (or (buffer-file-name)
                   (default-directory)))
-         (line (s-trim (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
          (linum (number-to-string (line-number-at-pos (point))))
-         (str1 (concat (file-relative-name abs root) ":" linum " " line))
-         (str2 (concat str1 "\n")))
-    (kill-new str2)
+         (prefix (concat (file-relative-name abs root) ":" linum))
+         (body (if (region-active-p)
+                   (concat "\n" (buffer-substring-no-properties (point) (mark)) "\n")
+                 (concat " " (s-trim (buffer-substring-no-properties (point-at-bol) (point-at-eol))) "\n")))
+         (copy-str (concat prefix body)))
+    (kill-new copy-str)
     (let ((x-select-enable-primary t))
-      (x-select-text str2))
+      (x-select-text copy-str))
     ;; todo crumbs with %s in them !?
-    (message (format "Copied crumb: %s" str1))))
+    (message (format "Copied crumb."))))
 
 (defun copy-git-buffer-path ()
   "Copy the Git-root-relative path to the current buffer's file."

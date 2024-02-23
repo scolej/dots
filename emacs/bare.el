@@ -12,7 +12,8 @@
 ;; clicking to position point is ever so slightly off; but off enough to
 ;; be disconcerting.
 (setq-default
- cursor-type '(bar . 3)
+ ;; cursor-type '(bar . 3)
+ cursor-type t
  cursor-in-non-selected-windows 'hollow)
 
 (fringe-mode nil)
@@ -101,7 +102,7 @@
  hscroll-margin 2
  buffer-file-coding-system 'utf-8-unix
  save-silently t
- electric-indent-inhibit t)
+ electric-indent-inhibit nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 

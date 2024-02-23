@@ -47,6 +47,7 @@
 (define-key ruby-mode-map (kbd "C-M-n") nil)
 (define-key ruby-mode-map (kbd "C-M-p") nil)
 (define-key ruby-mode-map (kbd "<f12>") 'prettier-format)
+(define-key ruby-mode-map (kbd "<backtab>") 'yas-expand)
 
 (modify-syntax-entry ?@ "." ruby-mode-syntax-table)
 (modify-syntax-entry ?: "." ruby-mode-syntax-table)

@@ -1,7 +1,7 @@
 (defun theme-tweaks ()
   (set-face-attribute
    'mode-line nil
-   :height 0.9
+   :height 0.8
    :box nil
    :background "#ccccff")
   (set-face-attribute

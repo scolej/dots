@@ -1,5 +1,9 @@
 ;;; -*- lexical-binding: t -*-
 
+;; todo for files, only show full path, but abbreviate home dir etc
+
+;; todo should be able to append a line number and go straight to that line
+
 ;; Ideas
 ;;
 ;; what is shown initially (when no filter) is somewhat useless
@@ -76,7 +80,7 @@ selected."
 ;;
 ;;
 
-(defcustom pick-idle-delay 0.3
+(defcustom pick-idle-delay 0.4
   "Seconds to wait until refreshing the picking buffer.")
 
 (defvar-local pick-idle-timer nil
@@ -229,13 +233,14 @@ satisfying the ordering."
 (defun pick-filter (str options)
   (let* ((words (split-string str))
          (groups (seq-group-by (lambda (w) (string-prefix-p "!" w)) words))
-         (pwords (alist-get nil groups '()))
-         (nwords (mapcar (lambda (s) (substring s 1)) (alist-get t groups '())))
+         (pwords (mapcar #'downcase (alist-get nil groups '())))
+         (nwords (mapcar (lambda (s) (downcase (substring s 1))) (alist-get t groups '())))
          )
     (seq-filter
      (lambda (o)
-       (and (contains-all pwords (car o))
-            (contains-none nwords (car o))))
+       (let ((str (downcase (car o))))
+         (and (contains-all pwords str)
+              (contains-none nwords str))))
      options)))
 
 (defun pick-rewrite (buf)
@@ -369,7 +374,12 @@ allows you to easily re-use the previous filter."
       (progn
         (when (get-buffer bufname) (kill-buffer bufname))
         ;; (call-process "git" nil (get-buffer-create bufname) nil "ls-tree" "-r" "--name-only" "HEAD")
-        (call-process-shell-command "git ls-tree -r --name-only HEAD | grep -v -e web-client/vendorPackages -e web-client/vendorModules -e wiris -e base-images/gitlab-container-registry" nil bufname )
+        ;; (call-process-shell-command
+        ;;  "find . -type d"
+        ;;  nil bufname)
+        (call-process-shell-command
+         "git ls-tree -r --name-only HEAD | grep -v -e web-client/vendorPackages -e web-client/vendorModules -e wiris -e base-images/gitlab-container-registry"
+         nil bufname)
         (pick-buffer
          bufname
          (mapcar

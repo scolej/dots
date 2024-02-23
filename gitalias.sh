@@ -42,6 +42,7 @@ alias gla="g log --format='%h %<(15,trunc)%an %s'" # One-line log with the autho
 alias gpuf="git push --force-with-lease"
 
 alias glmb='git log --oneline ^$(git merge-base @{u} HEAD) HEAD'
+alias gllmb='git log --pretty ^$(git merge-base @{u} HEAD) HEAD'
 
 alias grl='git reflog'
 alias grl9='git reflog -n 9'

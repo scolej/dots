@@ -110,10 +110,10 @@
 (gsk "M-z" 'zap-up-to-char)
 (gsk "S-M-z" 'zap-to-char)
 
-(gsk "C-1" 'delete-other-windows)
-(gsk "C-2" 'split-window-below)
-(gsk "C-3" 'split-window-right)
-(gsk "C-0" 'delete-window)
+;; (gsk "C-1" 'delete-other-windows)
+;; (gsk "C-2" 'split-window-below)
+;; (gsk "C-3" 'split-window-right)
+;; (gsk "C-0" 'delete-window)
 
 (defun kill-region-or-word ()
   (interactive)
@@ -129,9 +129,12 @@
 
 (require 'isearch)
 (define-keys isearch-mode-map
-             "<escape>" 'isearch-exit
+             "<escape>" 'isearch-abort
+             "<f9>" 'isearch-repeat-forward
              "<down>" 'isearch-repeat-forward
              "<up>" 'isearch-repeat-backward)
+(gsk "C-/" 'isearch-forward)
+(gsk "<f9>" 'isearch-forward)
 ;; (define-keys isearch-minibuffer-local-map
 ;;              "<down>" nil
 ;;              "<up>")
@@ -177,8 +180,8 @@
 ;; Buffer switching
 ;;
 
-(setq ibuffer-format-save ibuffer-formats)
-(setq ibuffer-formats (append ibuffer-formats '((mark " " filename-and-process))))
+;; (setq ibuffer-format-save ibuffer-formats)
+;; (setq ibuffer-formats (append ibuffer-formats '((mark " " filename-and-process))))
 
 (defun buffer-menu-current-file ()
   "Opens the buffer menu, sorted by file, and moves point to the
@@ -304,11 +307,10 @@ current buffer."
 
 ;;
 
-(when (boundp 'terminal-prog)
-  (defun term-here ()
-    (interactive)
-    (start-process "term" nil terminal-prog)))
-
+;; (when (boundp 'terminal-prog)
+;;   (defun term-here ()
+;;     (interactive)
+;;     (start-process "term" nil terminal-prog)))
 
 ;;
 ;; Horizontal scrolling
@@ -707,7 +709,8 @@ and replace the buffer contents with the output."
   "p" 'backward-search-region
   "e" 'eval-region
   "<escape>" 'keyboard-quit
-  "!" 'sh-region)
+  "!" 'sh-region
+  "m" 'copy-crumb)
 
 (selected-global-mode)
 
@@ -791,20 +794,29 @@ and replace the buffer contents with the output."
 (rg-define-search rg-project-all :dir project :files "*")
 ;; (rg-define-search rg-all :files "*")
 
-(defun rg-dwim ()
-  (interactive)
-  (if (region-active-p)
-    (let ((q (buffer-substring-no-properties (point) (mark))))
-      (rg-project q "*"))
-    (call-interactively 'rg)))
+;; (defun rg-name-function ()
+;;   ;; (format "*rg: %s*" (gethash :pattern rg-cur-search))
+;;   (format "*rg: %s*" pattern))
+;; (setq rg-buffer-name nil)
+
+(defun rg-dwim (prefix)
+  (interactive "P")
+  (if prefix (call-interactively 'rg)
+    (if (region-active-p)
+        (let ((q (buffer-substring-no-properties (point) (mark))))
+          (rg-project q "*"))
+      (call-interactively 'rg-project-all))))
 
 (gsk "s-g" 'rg-dwim)
+(gsk "s-G" 'rg)
 
 (define-keys
  dired-mode-map
- "<left>" 'dired-jump
- "<right>" 'dired-find-file
  "r" 'rg-dired)
+
+;;  "<left>" 'dired-jump
+;;  "<right>" 'dired-find-file
+
 
 ;;
 
@@ -840,7 +852,7 @@ and replace the buffer contents with the output."
 
 (setq
  tab-always-indent 'complete
- corfu-auto nil
+ corfu-auto t
  corfu-auto-delay 0.5
  corfu-count 5)
 
@@ -860,6 +872,9 @@ and replace the buffer contents with the output."
 
 (setq auto-save-visited-interval 1)
 (auto-save-visited-mode 1)
+
+(defun server-edit-save-first () (interactive) (save-buffer) (call-interactively 'server-edit))
+(gsk "C-x #" 'server-edit-save-first)
 
 ;;
 
@@ -882,32 +897,32 @@ and replace the buffer contents with the output."
 ;; todo use overlays to make it visible
 ;; todo use a global hash so you can rever the buffer and not lose marks
 
-(defvar-local manual-marks '())
-(defun manual-mark-toggle ()
-  (interactive)
-  (let ((p (point-marker)))
-    (if (seq-contains-p manual-marks p (lambda (a b) (eq (marker-position a) (marker-position b))))
-        (progn
-          (setq manual-marks (delete p manual-marks))
-          (message "marker removed"))
-      (progn
-        (add-to-list 'manual-marks p)
-        (sort manual-marks '<)
-        (message "marker added")))))
-(defun manual-mark-next ()
-  (interactive)
-  (let* ((p (point))
-         (target (car (seq-filter (lambda (x) (> (marker-position x) p)) manual-marks))))
-    (goto-char (marker-position target))))
-(defun manual-mark-prev ()
-  (interactive)
-  (let* ((p (point))
-         (target (car (seq-filter (lambda (x) (< (marker-position x) p)) (reverse manual-marks)))))
-    (goto-char (marker-position target))))
+;; (defvar-local manual-marks '())
+;; (defun manual-mark-toggle ()
+;;   (interactive)
+;;   (let ((p (point-marker)))
+;;     (if (seq-contains-p manual-marks p (lambda (a b) (eq (marker-position a) (marker-position b))))
+;;         (progn
+;;           (setq manual-marks (delete p manual-marks))
+;;           (message "marker removed"))
+;;       (progn
+;;         (add-to-list 'manual-marks p)
+;;         (sort manual-marks '<)
+;;         (message "marker added")))))
+;; (defun manual-mark-next ()
+;;   (interactive)
+;;   (let* ((p (point))
+;;          (target (car (seq-filter (lambda (x) (> (marker-position x) p)) manual-marks))))
+;;     (goto-char (marker-position target))))
+;; (defun manual-mark-prev ()
+;;   (interactive)
+;;   (let* ((p (point))
+;;          (target (car (seq-filter (lambda (x) (< (marker-position x) p)) (reverse manual-marks)))))
+;;     (goto-char (marker-position target))))
 
-(gsk "C-/" 'manual-mark-toggle)
-(gsk "C-." 'manual-mark-next)
-(gsk "C-," 'manual-mark-prev)
+;; (gsk "C-/" 'manual-mark-toggle)
+;; (gsk "C-." 'manual-mark-next)
+;; (gsk "C-," 'manual-mark-prev)
 
 ;; (gsk "<kp-enter>" 'manual-mark-toggle)
 ;; (gsk "<kp-add>" 'manual-mark-next)
@@ -969,3 +984,104 @@ and replace the buffer contents with the output."
 
 (require 'dumb-jump)
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+
+;;
+
+(defun bring-and-insert-image (orig new)
+  (interactive "fImage file:\nMNew name:")
+  (copy-file orig (file-name-concat default-directory new) 1)
+  (insert new))
+
+;; (gsk "<mouse-6>" 'tab-bar-switch-to-next-tab)
+;; (gsk "<mouse-7>" 'tab-bar-switch-to-prev-tab)
+
+(use-package balanced-windows
+  :config
+  (balanced-windows-mode))
+
+(let ((colour "#f200ff"))
+  ;; todo why do i need both?
+  (set-cursor-color colour)
+  (set-face-attribute
+   'cursor nil
+   :background colour))
+
+;;
+
+(require 'point-undo)
+(gsk "<M-left>" 'point-undo)
+(gsk "<M-right>" 'point-redo)
+
+;;
+
+(defun rufo-format ()
+  (save-buffer)
+  (let* ((file (buffer-file-name))
+         (default-directory (file-name-directory file))
+         (out-buffer (get-buffer-create "*rufo*")))
+    (with-current-buffer out-buffer (erase-buffer))
+    (let ((result
+           (call-process "rufo" nil out-buffer nil "-x" file)))
+      (if (equal 0 result)
+          (progn
+            (revert-buffer nil t t)
+            (message "formatted!")
+            (bury-buffer out-buffer))
+        (display-buffer out-buffer)))))
+
+;; (defun rubocop-format ()
+;;   (save-buffer)
+;;   (let* ((file (buffer-file-name))
+;;          (default-directory (file-name-directory file))
+;;          (out-buffer (get-buffer-create "*rubocop*")))
+;;     (with-current-buffer out-buffer (erase-buffer))
+;;     (let ((result
+;;            (call-process "rubocop" nil out-buffer nil "-d" "-x" file)
+;;                                         ;(call-process "pwd" nil out-buffer nil)
+;;            ))
+;;       (if (equal 0 result)
+;;           (progn
+;;             (revert-buffer nil t t)
+;;             (message "formatted!")
+;;             (bury-buffer out-buffer))
+;;         (display-buffer out-buffer)))))
+
+(defun format-buffer ()
+  (interactive)
+  (cond
+   ((string-prefix-p "/Users/shannoncole/stile/" buffer-file-name) (prettier-format))
+   ((and (eq major-mode 'ruby-mode)) (rufo-format))
+   (t (error "don't know how to format"))))
+
+;;
+
+(gsk "M-u" 'er/expand-region)
+
+;;
+
+(gsk "M-o" 'swiper)
+
+;;
+
+(gsk "C-x +" 'global-text-scale-adjust)
+(gsk "C-x -" 'global-text-scale-adjust)
+
+;;
+
+;; (gsk "<f2>" 'split-window-below)
+;; (gsk "<f3>" 'split-window-right)
+(gsk "<f3>" 'kmacro-start-macro)
+(gsk "<f4>" 'kmacro-end-or-call-macro)
+
+;;
+
+
+;; I'll often copy text by whole lines, which means the first line has a chunk
+;; of indentation at the start. When pasting that text, if point is already
+;; indented, it's extremely unlikely that we want to include the copied
+;; whitespace when pasting, so just strip it.
+(defun leading-whitespace-stripper (text)
+  (if (eq (point) (pos-bol)) text
+    (string-trim-left text)))
+
+(add-to-list 'yank-transform-functions 'leading-whitespace-stripper)

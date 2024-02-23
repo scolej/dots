@@ -36,28 +36,104 @@
 ;;          (regex (if (string-empty-p input) guess input)))
 ;;     (git-grep regex)))
 
-(defun git-grep-dwim (prefix)
-  (interactive "P")
+
+(defun grep-dwim (prefix)
+  (interactive "p")
+  ;; (let* ((thing (thing-at-point 'symbol t))
+  ;;        (input (if (region-active-p)
+  ;;                   (buffer-substring-no-properties (point) (mark))
+  ;;                 (read-from-minibuffer
+  ;;                  (format "grep (%s): " thing)
+  ;;                  nil nil nil nil thing)))
+  ;;        (regex (if (string-empty-p input) thing input))
+  ;;        (dir (or (locate-dominating-file default-directory ".git") default-directory))
+  ;;        (cmd (string-join (list "rg" "-in" "--no-heading" (concat "'" regex "'")) " ")))
+  ;;   (rg2 cmd dir))
+  (grep-dir (or (locate-dominating-file default-directory ".git") default-directory))
+  )
+
+(defun grep-here (prefix)
+  (interactive "p")
+  ;; (let* ((thing (thing-at-point 'symbol t))
+  ;;        (input (if (region-active-p)
+  ;;                   (buffer-substring-no-properties (point) (mark))
+  ;;                 (read-from-minibuffer
+  ;;                  (format "grep (%s): " thing)
+  ;;                  nil nil nil nil thing)))
+  ;;        (regex (if (string-empty-p input) thing input))
+  ;;        (cmd (string-join (list "rg" "-in" "--no-heading" (concat "'" regex "'")) " ")))
+  ;;   (rg2 cmd default-directory))
+  (grep-dir default-directory)
+  )
+
+(defun grep-dir (dir)
   (let* ((thing (thing-at-point 'symbol t))
          (input (if (region-active-p)
                     (buffer-substring-no-properties (point) (mark))
                   (read-from-minibuffer
-                   (format "Git grep (%s): " thing)
+                   (format "grep (%s): " thing)
                    nil nil nil nil thing)))
          (regex (if (string-empty-p input) thing input))
-         (cmd (string-join (list "git" "grep" "-Iin" (concat "'" regex "'")) " ")))
-    (when regex (git-grep (if prefix
-                              (read-from-minibuffer
-                               (format "Grep command: ") cmd)
-                            cmd)))))
+         (cmd (string-join (list "rg" "-in" "--no-heading" "--max-columns" "300" "--sort" "path" (concat "'" regex "'")) " ")))
+    (rg2 cmd dir)))
 
-(defun git-grep (cmd)
+;; (defun grep-dwim (prefix)
+;;   (interactive "p")
+;;   (message "%s" prefix)
+;;   (let* ((thing (thing-at-point 'symbol t))
+;;          (input (if (region-active-p)
+;;                     (buffer-substring-no-properties (point) (mark))
+;;                   (read-from-minibuffer
+;;                    (format "grep (%s): " thing)
+;;                    nil nil nil nil thing)))
+;;          (regex (if (string-empty-p input) thing input))
+;;          (default-directory (if (< 1 prefix) (read-directory-name "dir: ")
+;;                               (or (locate-dominating-file default-directory ".git")
+;;                                   default-directory)))
+;;          (cmd (string-join (list "rg" "-in" "--no-heading" (concat "'" regex "'")) " ")))
+;;     (when regex (rg2 (if (eq prefix 16)
+;;                          (read-from-minibuffer
+;;                           (format "command: ") cmd)
+;;                        cmd)))))
+
+;; (defun grep-dwim (prefix)
+;;   (interactive "p")
+;;   (message "%s" prefix)
+;;   (let* ((thing (thing-at-point 'symbol t))
+;;          (input (if (region-active-p)
+;;                     (buffer-substring-no-properties (point) (mark))
+;;                   (read-from-minibuffer
+;;                    (format "grep (%s): " thing)
+;;                    nil nil nil nil thing)))
+;;          (regex (if (string-empty-p input) thing input))
+;;          (default-directory (if (< 1 prefix) (read-directory-name "dir: ")
+;;                               (or (locate-dominating-file default-directory ".git")
+;;                                   default-directory)))
+;;          (cmd (string-join (list "rg" "-in" "--no-heading" (concat "'" regex "'")) " ")))
+;;     (when regex (rg2 (if (eq prefix 16)
+;;                          (read-from-minibuffer
+;;                           (format "command: ") cmd)
+;;                        cmd)))))
+
+(defun rg2 (cmd dir)
   (interactive "M")
-  (let* ((default-directory (or (locate-dominating-file default-directory ".git") (error "not in a git repo")))
+  (let* ((default-directory dir)
          (bufname (concat "*grep* " default-directory " " cmd))
          (buf (get-buffer-create bufname)))
     (compilation-start cmd 'grep-mode (lambda (mode) bufname))))
 
 ;; (git-grep "concat")
 
-(global-set-key (kbd "s-g") 'git-grep-dwim)
+(global-set-key (kbd "s-g") 'grep-dwim)
+
+;;
+;;
+;;
+;;
+;; S-g - one base "dwim" command - it either uses the region or prompts for a string
+;;
+;; once you've got a search
+;; - d starts a new search but in a different dir
+;; - f changes the files ...
+;; - e edit the command string
+;; but you always get a new search in a new buffer

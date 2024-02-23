@@ -35,7 +35,7 @@
           ((eq dir 'up) (beginning-of-line)))
     (duplicate dir)))
 
-(defun duplicate-dwim (dir)
+(defun duplicate-dwim-1 (dir)
   (interactive)
   (message "%s" last-command)
   (save-excursion
@@ -48,8 +48,8 @@
     (t
      (duplicate-line dir)))))
 
-(defun duplicate-up () (interactive) (duplicate-dwim 'up))
-(defun duplicate-down () (interactive) (duplicate-dwim 'down))
+(defun duplicate-up () (interactive) (duplicate-dwim-1 'up))
+(defun duplicate-down () (interactive) (duplicate-dwim-1 'down))
 
 (global-set-key (kbd "<C-M-up>") 'duplicate-up)
 (global-set-key (kbd "<C-M-down>") 'duplicate-down)

@@ -98,7 +98,7 @@
   ;; "M-k" 'kill-sexp
   ;; "<M-SPC>" 'squish-space
   ;; "<M-up>" 'paredit-backward-up
-  )
+  "\\" nil)
 
 (defun squish-space ()
   (interactive)
@@ -149,3 +149,6 @@
   (interactive
    (list (read-from-minibuffer "Command: " nil nil nil 'compilation-guile-command-history)))
   (compilation-start cmd 'compilation-guile))
+
+;; (define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
+
