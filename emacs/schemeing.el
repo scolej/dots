@@ -11,6 +11,7 @@
 ;;
 ;; lispy?
 
+(require 'scheme)
 (require 'paredit)
 (add-hook 'scheme-mode-hook 'paredit-mode)
 (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
@@ -19,7 +20,7 @@
 ;; kind of broken
 ;; - shadows M-r
 ;; - often breaks on pathological output
-(add-hook 'inferior-scheme-mode-hook 'paredit-mode)
+;; (add-hook 'inferior-scheme-mode-hook 'paredit-mode)
 
 ;; font lock appears mostly to be a disaster in the REPL
 (defun disable-font-lock () (font-lock-mode -1))
@@ -121,13 +122,16 @@
    (test-assert . 1)
    (test-case . 1)
    (let-assq . 2)
-   (ctx . 1)))
+   (ctx . 1)
+   (while . 1)))
 
 (defun scheme-load-this-file ()
   (interactive)
   (save-buffer)
   (scheme-load-file
    (buffer-file-name)))
+
+;; (define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
 
 
 

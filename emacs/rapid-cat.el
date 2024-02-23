@@ -25,6 +25,12 @@
 (defun make-insertion (txt)
   (lambda () (interactive) (insert-and-continue txt)))
 
+(defun rapid-cat-quit ()
+  (interactive)
+  (rapid-cat-orange -1)
+  (deactivate-mark)
+  (message "finished rapid cat"))
+
 (defun delete-paragraph ()
   (interactive)
   (deactivate-mark)
@@ -50,7 +56,9 @@
   :keymap
   (keymap
    "<tab>" 'rapid-cat-next
-   "<escape>" (lambda () (interactive) (rapid-cat-orange -1) (deactivate-mark))
+   "<backtab>" 'jump-to-mark
+   "<escape>" 'rapid-cat-quit
+   "C-g" 'rapid-cat-quit
    "d" 'delete-paragraph
    "a" (keymap "o" (make-insertion "assets:offset")
                "r" (make-insertion "assets:orange"))
@@ -59,7 +67,8 @@
    "b" (make-insertion "expenses:baby")
    "c" (keymap "p" (make-insertion "expenses:car:petrol")
                "r" (make-insertion "expenses:car:rego")
-               "i" (make-insertion "expenses:car:insurance"))
+               "i" (make-insertion "expenses:car:insurance")
+               "t" (make-insertion "expenses:car:tolls"))
    "h" (keymap "h" (make-insertion "expenses:assorted house")
                "r" (make-insertion "expenses:assorted house:rates")
                "c" (make-insertion "expenses:assorted house:owners corp")
@@ -75,7 +84,8 @@
    "u" (keymap "w" (make-insertion "expenses:utilities:water")
                "e" (make-insertion "expenses:utilities:elec")
                "g" (make-insertion "expenses:utilities:gas")
-               "i" (make-insertion "expenses:utilities:internet")))
+               "i" (make-insertion "expenses:utilities:internet")
+               "t" (make-insertion "expenses:utilities:tip")))
   (when rapid-cat-orange
     (rapid-cat-next)))
 

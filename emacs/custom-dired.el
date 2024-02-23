@@ -59,7 +59,7 @@ in dired-launch-programs."
 (define-keys dired-mode-map
   "<DEL>" 'dired-jump
   "i" 'dired-find-here
-  "J" 'dired-launch
+  "j" 'dired-launch
   "<mouse-2>" 'dired-find-file)
 
 (defun dired-git-here ()

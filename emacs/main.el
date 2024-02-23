@@ -32,6 +32,8 @@
   "Unconditionally kill the current buffer."
   (interactive) (kill-buffer nil))
 
+(global-set-key (kbd "C-x k") 'really-kill-buffer)
+
 (defun kill-buffer-process ()
   "Unconditionally kill any process in the current buffer."
   (interactive)
@@ -129,15 +131,11 @@
 
 (require 'isearch)
 (define-keys isearch-mode-map
-             "<escape>" 'isearch-abort
-             "<f9>" 'isearch-repeat-forward
+             "<escape>" 'isearch-exit
              "<down>" 'isearch-repeat-forward
-             "<up>" 'isearch-repeat-backward)
-(gsk "C-/" 'isearch-forward)
-(gsk "<f9>" 'isearch-forward)
-;; (define-keys isearch-minibuffer-local-map
-;;              "<down>" nil
-;;              "<up>")
+             "<up>" 'isearch-repeat-backward
+             "<return>" 'isearch-repeat-forward
+             "<S-return>" 'isearch-repeat-backward)
 
 (gsk "<f19>" 'previous-buffer)
 
@@ -750,7 +748,7 @@ and replace the buffer contents with the output."
               "a" 'apropos)
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
-  "<escape>" 'dired-jump
+  "<escape>" 'keyboard-quit
   "`" 'buffer-menu-current-file
   "n" 'next-error
   "p" 'previous-error
@@ -1085,3 +1083,11 @@ and replace the buffer contents with the output."
     (string-trim-left text)))
 
 (add-to-list 'yank-transform-functions 'leading-whitespace-stripper)
+
+;;;
+
+;; (gsk "<escape>" 'dired-jump)
+
+(gsk "M-=" 'isearch-forward)
+;; (define-key paredit-mode-map "M-;" nil t)
+(gsk "M--" 'isearch-backward)
