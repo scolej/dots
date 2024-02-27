@@ -1,10 +1,6 @@
-;; todo - modeline dupes filename; just show buffer name
-
 ;;
 ;; Handier binding
 ;;
-
-;; (require 'cl)
 
 (defun define-keys (keymap &rest keys)
   "Make multiple bindings in a map."
@@ -39,24 +35,19 @@
   (interactive)
   (kill-process (get-buffer-process (current-buffer))))
 
-;; TODO insert kill-ring into minibuffer if it starts with http?
-(defun view-url (url)
-  "Retrieve a URL and show it in a buffer."
-  (interactive "M")
-  (switch-to-buffer
-   (url-retrieve-synchronously url)))
-
 (defun close-all-other-buffers ()
   (interactive)
   (mapc 'kill-buffer (delete (current-buffer) (buffer-list))))
 
 ;;
 
+(load "appearance.el")
+(theme-tweaks)
+
 (load "delete.el")
 (text-deletion-mode 1)
 
 (load "copy-where.el")
-;; (load "grep-setup.el")
 (load "idle-highlight.el")
 (load "dupe-and-drag.el")
 (load "notes.el")
@@ -75,47 +66,40 @@
 (load "custom-c.el")
 (load "custom-org.el")
 (load "custom-ruby.el")
-;; (load "custom-haskell.el")
 (load "custom-rust.el")
-;; (load "custom-flycheck.el")
 (load "custom-js.el")
 
 (load "custom-eglot.el")
-;; (load "custom-lsp.el")
-
-;; (load "trails.el")
 
 (setq-default show-trailing-whitespace t)
 (set-face-attribute 'trailing-whitespace nil
                     :background "#ffeeee")
-
 
 ;;
 ;; Global bindings
 ;;
 
 (gsk "<kp-enter>" 'execute-extended-command)
-;; (define-key minibuffer-mode-map (kbd "<kp-enter>") 'previous-line-or-history-element)
 
-(gsk "<XF86Eject>" 'execute-extended-command)
+(gsk "<XF86Eject>" 'swiper)
 (gsk "<S-return>" 'yank)
 (gsk "<S-backspace>" 'kill-region)
+
 (gsk "<help>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
-(gsk "<M-SPC>" 'cycle-spacing)
-(gsk "C-x l" 'align-regexp)
-(gsk "<f12>" 'save-all)
-(gsk "<f5>" 'revert-buffer)
 
+(gsk "<f5>" 'revert-buffer)
 (gsk "C-;" 'comment-line)
 
 (gsk "M-z" 'zap-up-to-char)
 (gsk "S-M-z" 'zap-to-char)
 
-;; (gsk "C-1" 'delete-other-windows)
-;; (gsk "C-2" 'split-window-below)
-;; (gsk "C-3" 'split-window-right)
-;; (gsk "C-0" 'delete-window)
+(gsk "M-1" 'delete-other-windows)
+(gsk "M-2" 'split-window-below)
+(gsk "M-3" 'split-window-right)
+(gsk "M-0" 'delete-window)
+
+;;
 
 (defun kill-region-or-word ()
   (interactive)
@@ -125,19 +109,19 @@
 
 (gsk "C-w" 'kill-region-or-word)
 
+;;
+
 (define-keys minibuffer-local-map
              "<escape>" 'top-level
              "<tab>" 'minibuffer-complete)
 
 (require 'isearch)
 (define-keys isearch-mode-map
-             "<escape>" 'isearch-exit
+             "<escape>" 'top-level
              "<down>" 'isearch-repeat-forward
-             "<up>" 'isearch-repeat-backward
-             "<return>" 'isearch-repeat-forward
-             "<S-return>" 'isearch-repeat-backward)
+             "<up>" 'isearch-repeat-backward)
 
-(gsk "<f19>" 'previous-buffer)
+;;
 
 (defun yank-or-kill ()
   (interactive)
@@ -147,12 +131,14 @@
 (gsk "<mouse-3>" 'yank-or-kill)
 (gsk "<S-mouse-3>" 'yank)
 
+;;
 
 (gsk "<C-mouse-1>" 'xref-find-definitions-at-mouse)
 (gsk "C-<down-mouse-1>" nil)
 
 (gsk "s-g" nil)
 
+;;
 
 (gsk "C-x C-t" 'tab-new)
 (gsk "s-t" 'tab-new)
@@ -167,6 +153,7 @@
 (gsk "C-S-<wheel-right>" 'tab-bar-move-tab)
 (gsk "C-S-<wheel-left>" 'tab-bar-move-tab-backward)
 
+;;
 
 (gsk "<C-tab>" 'other-window)
 
@@ -178,45 +165,14 @@
 ;; Buffer switching
 ;;
 
-;; (setq ibuffer-format-save ibuffer-formats)
-;; (setq ibuffer-formats (append ibuffer-formats '((mark " " filename-and-process))))
-
-(defun buffer-menu-current-file ()
-  "Opens the buffer menu, sorted by file, and moves point to the
-current buffer."
-  (interactive)
-  (let ((buf (current-buffer)))
-    (let ((tabulated-list-sort-key '("File" . nil)))
-      (buffer-menu))
-    (goto-char (point-min))
-    (while (and (not (equal (point) (point-max)))
-                (not (equal buf (tabulated-list-get-id))))
-      (forward-line))
-    (recenter)))
-
-(gsk "M-<f1>" 'ibuffer)
-
 (require 'pick)
 (gsk "<f1>" 'pick-select-buffer)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
-(defun pick-select-buffer-other-window ()
-  (interactive)
-  (let ((default-directory default-directory))
-    (other-window 1)
-    (pick-select-buffer nil)))
-
-;; (gsk "<f2>" 'buffer-menu-current-file)
-
-(add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
-
-;;
-;; Eldoc
 ;;
 
-(setq
- eldoc-echo-area-use-multiline-p nil)
+(setq eldoc-echo-area-use-multiline-p nil)
 
 ;;
 ;; Completion
@@ -226,28 +182,11 @@ current buffer."
  completion-styles '(partial-completion flex)
  tab-always-indent 'complete)
 
-
 (defun enable-dabbrev-capf () (add-to-list 'completion-at-point-functions 'cape-dabbrev))
 
 ;; (add-to-list 'completion-at-point-functions 'cape-dabbrev)
 
-
 ;;
-;; Indenting
-;;
-
-;; TODO it looks like indent-rigidly attempts to keep the region active;
-;; but it seems to fail...
-
-(defun indent-right (beg end)
-  (interactive "r")
-  (let ((deactivate-mark nil))
-    (indent-rigidly beg end 4)))
-
-(defun indent-left (beg end)
-  (interactive "r")
-  (let ((deactivate-mark nil))
-    (indent-rigidly beg end -4)))
 
 (setq c-basic-offset 4)
 
@@ -275,7 +214,7 @@ current buffer."
 ;;
 
 (setq-default
- fill-column 80
+ fill-column 90
  mode-line-format
  '((:eval (cond
            ((get-buffer-process (current-buffer))
@@ -304,20 +243,8 @@ current buffer."
    scroll-left))
 
 ;;
-
-;; (when (boundp 'terminal-prog)
-;;   (defun term-here ()
-;;     (interactive)
-;;     (start-process "term" nil terminal-prog)))
-
-;;
 ;; Horizontal scrolling
 ;;
-
-;; (defun small-scroll-right () (interactive) (scroll-right 5 nil))
-;; (defun small-scroll-left () (interactive) (scroll-left 5 nil))
-;; (gsk "<C-prior>" 'small-scroll-right)
-;; (gsk "<C-next>" 'small-scroll-left)
 
 (setq mouse-wheel-tilt-scroll t
       mouse-wheel-flip-direction t)
@@ -384,31 +311,6 @@ selection, otherwise call query-replace-regexp as normal."
 (gsk "C-o" 'new-line-below)
 
 ;;
-;; Browsing back & forth in directory order.
-;;
-
-;; TODO this should probably use dired so the order of files matches
-(defun find-next-file (&optional offset)
-  "Find a file in order relative to the current
-file based on OFFSET."
-  (interactive)
-  (let* ((full-name (buffer-file-name))
-         (f (file-name-nondirectory full-name))
-         (d (file-name-directory full-name))
-         (fs (directory-files d))
-         (i (seq-position fs f))
-         (next (seq-elt fs (+ i (or offset 1)))))
-    (if (equal next "..") (dired d)
-      (find-file next))))
-
-(defun find-prev-file ()
-  (interactive)
-  (find-next-file -1))
-
-(gsk "C-x <down>" 'find-next-file)
-(gsk "C-x <up>" 'find-prev-file)
-
-;;
 
 (defvar eol-bol-rep-last-dir nil
   "Last direction moved by bol-and-advance or eol-and-advance. 1
@@ -448,23 +350,6 @@ may be repeated without repeating the prefix arg."
 
 (gsk "C-e" 'eol-and-advance)
 (gsk "C-a" 'bol-and-advance)
-
-;;
-
-;; TODO a simple CSV mode
-(defun align-buffer-commas ()
-  (interactive "")
-  (align-regexp (point-min) (point-max)
-                "\\( *\\)," 1 1 t))
-
-;;
-
-;; (defun select-whole-line ()
-;;   (interactive)
-;;   (deactivate-mark)
-;;   (beginning-of-line)
-;;   (activate-mark)
-;;   (end-of-line))
 
 ;;
 
@@ -522,25 +407,6 @@ and replace the buffer contents with the output."
 
 ;;
 
-
-
-;;
-
-;; (require 'swiper)
-
-;; (defun swiper-selection ()
-;;   (interactive)
-;;   (if (region-active-p)
-;;       (let ((str (regexp-quote (buffer-substring-no-properties (point) (mark)))))
-;;         (deactivate-mark)
-;;         (swiper str))
-;;     (swiper)))
-
-;; (gsk "C-'" 'swiper-selection)
-;; (gsk "<kp-5>" 'swiper-selection)
-
-;;
-
 (require 'ansi-color)
 (defun display-ansi-colors ()
   (interactive)
@@ -556,8 +422,6 @@ and replace the buffer contents with the output."
 ;; (setq auto-mode-alist (remove '("\\.log\\'" . colour-log-view-mode) auto-mode-alist))
 
 ;;
-
-;; (gsk "<kp-decimal>" 'highlight-symbol-at-point)
 
 (setq hi-lock-face-defaults
       '("hi-yellow" "hi-pink" "hi-green"
@@ -599,7 +463,12 @@ and replace the buffer contents with the output."
 
 (require 'yasnippet)
 (require 'yasnippet-snippets)
-(gsk "<S-C-tab>" 'yas-expand)
+
+;; TAB is already pretty overloaded, let's use backtab instead
+(define-key yas-minor-mode-map (kbd "TAB") nil t)
+(define-key yas-minor-mode-map (kbd "<backtab>") 'yas-expand)
+
+(add-hook 'ruby-mode-hook 'yas-minor-mode)
 
 ;;
 
@@ -614,7 +483,6 @@ and replace the buffer contents with the output."
  tab-bar-tab-name-function 'tab-bar-tab-name-current
  tab-bar-tab-name-truncated-max 20
  tab-bar-show 1)
-
 
 ;;
 
@@ -638,8 +506,7 @@ and replace the buffer contents with the output."
 (setq
  display-buffer-alist
  ;; '((".*" . (display-buffer-in-working-win . ())))
- nil
- )
+ nil)
 
 (defun dedicate-window ()
   (interactive)
@@ -650,29 +517,6 @@ and replace the buffer contents with the output."
   (interactive)
   (set-window-dedicated-p (selected-window) nil)
   (message "this window is no longer dedicated"))
-
-;;
-
-;; (gsk "C-<kp-add>" 'flymake-goto-next-error)
-;; (gsk "C-<kp-subtract>" 'flymake-goto-prev-error)
-
-;; (gsk "C-M-n" 'flymake-goto-next-error)
-;; (gsk "C-M-p" 'flymake-goto-prev-error)
-
-;;
-
-(setq auto-save-visited-interval 2)
-(auto-save-visited-mode 1)
-
-;;
-
-(defun mark-sexp-forward ()
-  (interactive)
-  (unless (region-active-p)
-    (set-mark (point)))
-  (forward-sexp))
-
-;; (gsk "<tab>" 'mark-sexp-forward)
 
 ;;
 ;; Selected
@@ -812,10 +656,6 @@ and replace the buffer contents with the output."
  dired-mode-map
  "r" 'rg-dired)
 
-;;  "<left>" 'dired-jump
-;;  "<right>" 'dired-find-file
-
-
 ;;
 
 (setq completion-styles '(partial-completion flex))
@@ -832,18 +672,20 @@ and replace the buffer contents with the output."
 
 (require 'corfu)
 
-(setq corfu-preselect 'prompt)
+;; Don't preselect anything, this means you need at least one TAB hit, which is good!
+(setq corfu-preselect-first nil)
 
-(define-keys corfu-map
-             "<tab>" 'corfu-next
-             "<backtab>" 'corfu-previous
-             "<escape>" 'corfu-quit
-             "<return>" nil
-             "RET" nil
-             "M-n" 'corfu-next
-             "M-p" 'corfu-previous
-             "<up>" nil
-             "<down>" nil)
+(define-keys
+ corfu-map
+ "<tab>" 'corfu-next
+ "<backtab>" nil
+ "<escape>" 'corfu-quit
+ "<return>" nil
+ "RET" nil
+ "M-n" 'corfu-next
+ "M-p" 'corfu-previous
+ "<up>" nil
+ "<down>" nil)
 
 (define-key corfu-map [remap next-line] nil)
 (define-key corfu-map [remap previous-line] nil)
@@ -851,7 +693,7 @@ and replace the buffer contents with the output."
 (setq
  tab-always-indent 'complete
  corfu-auto t
- corfu-auto-delay 0.5
+ corfu-auto-delay 0.2
  corfu-count 5)
 
 (add-hook 'emacs-lisp-mode-hook 'corfu-mode)
@@ -859,28 +701,23 @@ and replace the buffer contents with the output."
 (add-hook 'text-mode-hook 'corfu-mode)
 (add-hook 'markdown-mode-hook 'corfu-mode)
 (add-hook 'js-mode-hook 'corfu-mode)
-
 (add-hook 'ruby-mode-hook 'corfu-mode)
+
 (add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
 
-
-(set-face-attribute 'corfu-default nil :family "Monospace" :height 0.95)
+(set-face-attribute 'corfu-default nil :family "Monospace" :height 0.8)
 
 ;;
 
 (setq auto-save-visited-interval 1)
 (auto-save-visited-mode 1)
 
+;;
+
 (defun server-edit-save-first () (interactive) (save-buffer) (call-interactively 'server-edit))
 (gsk "C-x #" 'server-edit-save-first)
 
 ;;
-
-;; (gsk "M-<right>" 'forward-sexp)
-;; (gsk "M-<left>" 'backward-sexp)
-;; (gsk "M-<up>" 'backward-up-list)
-;; (gsk "M-<down>" 'down-list)
-
 
 (set-face-attribute
  'mode-line nil
@@ -892,54 +729,6 @@ and replace the buffer contents with the output."
 
 ;;
 
-;; todo use overlays to make it visible
-;; todo use a global hash so you can rever the buffer and not lose marks
-
-;; (defvar-local manual-marks '())
-;; (defun manual-mark-toggle ()
-;;   (interactive)
-;;   (let ((p (point-marker)))
-;;     (if (seq-contains-p manual-marks p (lambda (a b) (eq (marker-position a) (marker-position b))))
-;;         (progn
-;;           (setq manual-marks (delete p manual-marks))
-;;           (message "marker removed"))
-;;       (progn
-;;         (add-to-list 'manual-marks p)
-;;         (sort manual-marks '<)
-;;         (message "marker added")))))
-;; (defun manual-mark-next ()
-;;   (interactive)
-;;   (let* ((p (point))
-;;          (target (car (seq-filter (lambda (x) (> (marker-position x) p)) manual-marks))))
-;;     (goto-char (marker-position target))))
-;; (defun manual-mark-prev ()
-;;   (interactive)
-;;   (let* ((p (point))
-;;          (target (car (seq-filter (lambda (x) (< (marker-position x) p)) (reverse manual-marks)))))
-;;     (goto-char (marker-position target))))
-
-;; (gsk "C-/" 'manual-mark-toggle)
-;; (gsk "C-." 'manual-mark-next)
-;; (gsk "C-," 'manual-mark-prev)
-
-;; (gsk "<kp-enter>" 'manual-mark-toggle)
-;; (gsk "<kp-add>" 'manual-mark-next)
-;; (gsk "<kp-subtract>" 'manual-mark-prev)
-
-;;
-;;
-;;
-
-;; todo turns out this is way too intrustive, i always accidentally type S-space
-
-;; (defun activate-mark-select-forward-word ()
-;;   (interactive)
-;;   (unless mark-active (set-mark (point)) (activate-mark))
-;;   (forward-word))
-
-;; (define-key dired-mode-map (kbd "<S-SPC>") nil)
-;; (gsk "<S-SPC>" 'activate-mark-select-forward-word)
-
 (defun select-this-line ()
   (interactive)
   (if (region-active-p) (forward-line 1)
@@ -947,6 +736,7 @@ and replace the buffer contents with the output."
     (set-mark (pos-bol))
     (forward-line 1)
     (activate-mark)))
+
 (gsk "<M-SPC>" 'select-this-line)
 
 ;;
@@ -976,7 +766,7 @@ and replace the buffer contents with the output."
 
 
 ;; TODO
-;; 
+;;
 ;;  define a new ibuffer col that's either the full filename or buffer name
 ;;
 
@@ -990,8 +780,7 @@ and replace the buffer contents with the output."
   (copy-file orig (file-name-concat default-directory new) 1)
   (insert new))
 
-;; (gsk "<mouse-6>" 'tab-bar-switch-to-next-tab)
-;; (gsk "<mouse-7>" 'tab-bar-switch-to-prev-tab)
+;;
 
 (use-package balanced-windows
   :config
@@ -999,6 +788,7 @@ and replace the buffer contents with the output."
 
 (let ((colour "#f200ff"))
   ;; todo why do i need both?
+  ;; this still is not reliable!!! wtf?
   (set-cursor-color colour)
   (set-face-attribute
    'cursor nil
@@ -1013,6 +803,7 @@ and replace the buffer contents with the output."
 ;;
 
 (defun rufo-format ()
+  (interactive)
   (save-buffer)
   (let* ((file (buffer-file-name))
          (default-directory (file-name-directory file))
@@ -1048,8 +839,10 @@ and replace the buffer contents with the output."
   (interactive)
   (cond
    ((string-prefix-p "/Users/shannoncole/stile/" buffer-file-name) (prettier-format))
-   ((and (eq major-mode 'ruby-mode)) (rufo-format))
+   ((eq major-mode 'ruby-mode) (rufo-format))
    (t (error "don't know how to format"))))
+
+(gsk "<f12>" 'format-buffer)
 
 ;;
 
@@ -1057,7 +850,9 @@ and replace the buffer contents with the output."
 
 ;;
 
+(require 'swiper)
 (gsk "M-o" 'swiper)
+(define-key swiper-map (kbd "<escape>") 'top-level)
 
 ;;
 
@@ -1065,14 +860,6 @@ and replace the buffer contents with the output."
 (gsk "C-x -" 'global-text-scale-adjust)
 
 ;;
-
-;; (gsk "<f2>" 'split-window-below)
-;; (gsk "<f3>" 'split-window-right)
-(gsk "<f3>" 'kmacro-start-macro)
-(gsk "<f4>" 'kmacro-end-or-call-macro)
-
-;;
-
 
 ;; I'll often copy text by whole lines, which means the first line has a chunk
 ;; of indentation at the start. When pasting that text, if point is already
@@ -1083,11 +870,3 @@ and replace the buffer contents with the output."
     (string-trim-left text)))
 
 (add-to-list 'yank-transform-functions 'leading-whitespace-stripper)
-
-;;;
-
-;; (gsk "<escape>" 'dired-jump)
-
-(gsk "M-=" 'isearch-forward)
-;; (define-key paredit-mode-map "M-;" nil t)
-(gsk "M--" 'isearch-backward)
