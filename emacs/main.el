@@ -41,9 +41,6 @@
 
 ;;
 
-;; (load "appearance.el")
-;; (theme-tweaks)
-
 (load "delete.el")
 (text-deletion-mode 1)
 
@@ -57,6 +54,7 @@
 (load "time-strings.el")
 (load "hopper.el")
 (load "mark.el")
+(load "grep2.el")
 
 (load "custom-compile.el")
 (load "custom-dired.el")
@@ -73,7 +71,7 @@
 
 (setq-default show-trailing-whitespace t)
 (set-face-attribute 'trailing-whitespace nil
-                    :background "#ffeeee")
+                    :background "#fff6f6") 
 
 ;;
 ;; Global bindings
@@ -185,9 +183,14 @@
  completion-styles '(partial-completion flex)
  tab-always-indent 'complete)
 
-(defun enable-dabbrev-capf () (add-to-list 'completion-at-point-functions 'cape-dabbrev))
+;; todo when emacs 29, can use a built-in
+(require 'cape)
 
-;; (add-to-list 'completion-at-point-functions 'cape-dabbrev)
+(defun enable-dabbrev-capf ()
+  (add-to-list 'completion-at-point-functions 'cape-dabbrev))
+
+(add-hook 'c-mode-hook 'enable-dabbrev-capf)
+(add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
 
 ;;
 
@@ -471,7 +474,9 @@ and replace the buffer contents with the output."
 (define-key yas-minor-mode-map (kbd "TAB") nil t)
 (define-key yas-minor-mode-map (kbd "<backtab>") 'yas-expand)
 
-(add-hook 'ruby-mode-hook 'yas-minor-mode)
+;; (add-hook 'ruby-mode-hook 'yas-minor-mode)
+
+(yas-global-mode)
 
 ;;
 
@@ -664,18 +669,6 @@ and replace the buffer contents with the output."
 
 ;;
 
-(setq completion-styles '(partial-completion flex))
-
-;; todo when emacs 29, can use a built-in
-(require 'cape)
-(defun enable-dabbref-capf ()
-  (add-to-list 'completion-at-point-functions 'cape-dabbrev))
-
-(add-hook 'c-mode-hook 'enable-dabbref-capf)
-(add-hook 'c-mode-hook 'corfu-mode)
-
-;;
-
 (require 'corfu)
 
 ;; Don't preselect anything, this means you need at least one TAB hit, which is good!
@@ -698,7 +691,6 @@ and replace the buffer contents with the output."
 (define-key corfu-map [remap previous-line] nil)
 
 (setq
- tab-always-indent 'complete
  corfu-auto t
  corfu-auto-delay 0.2
  corfu-count 3
@@ -710,7 +702,7 @@ and replace the buffer contents with the output."
 
 (add-to-list 'corfu-exclude-modes 'pick-mode)
 
-(add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
+(set-face-attribute 'corfu-default nil :family "Monospace")
 
 ;;
 
