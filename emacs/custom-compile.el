@@ -80,8 +80,8 @@ the current buffer, if it's a compilation mode!)"
 (gsk "<kp-add>" 'next-error)
 (gsk "<kp-subtract>" 'previous-error)
 
-(defun use-smaller-text () (text-scale-set -1))
-(add-hook 'compilation-mode-hook 'use-smaller-text)
+;; (defun use-smaller-text () (text-scale-set -1))
+;; (add-hook 'compilation-mode-hook 'use-smaller-text)
 
 (defun compile-date-trigger-in-git-root ()
   "Find the Git root and start a compilation buffer which just

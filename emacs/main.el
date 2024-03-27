@@ -41,8 +41,8 @@
 
 ;;
 
-(load "appearance.el")
-(theme-tweaks)
+;; (load "appearance.el")
+;; (theme-tweaks)
 
 (load "delete.el")
 (text-deletion-mode 1)
@@ -172,7 +172,7 @@
 
 ;;
 
-(setq eldoc-echo-area-use-multiline-p nil)
+(setq eldoc-echo-area-use-multiline-p t)
 
 ;;
 ;; Completion
@@ -479,10 +479,13 @@ and replace the buffer contents with the output."
 
 (setq
  tab-bar-close-button-show nil
- ;; tab-bar-tab-name-function 'tab-bar-name-first-window
- tab-bar-tab-name-function 'tab-bar-tab-name-current
- tab-bar-tab-name-truncated-max 20
- tab-bar-show 1)
+ tab-bar-tab-name-function 'tab-bar-name-first-window
+ ;; tab-bar-tab-name-function 'tab-bar-tab-name-current
+ ;; tab-bar-tab-name-truncated-max 15
+ tab-bar-show 1
+ tab-bar-auto-width nil
+ tab-bar-auto-width-min 10
+ tab-bar-auto-width-max 20)
 
 ;;
 
@@ -673,7 +676,8 @@ and replace the buffer contents with the output."
 (require 'corfu)
 
 ;; Don't preselect anything, this means you need at least one TAB hit, which is good!
-(setq corfu-preselect-first nil)
+(setq corfu-preselect-first nil
+      corfu-preselect 'prompt)
 
 (define-keys
  corfu-map
@@ -694,18 +698,10 @@ and replace the buffer contents with the output."
  tab-always-indent 'complete
  corfu-auto t
  corfu-auto-delay 0.2
- corfu-count 5)
+ corfu-count 3
+ corfu-bar-width 0)
 
-(add-hook 'emacs-lisp-mode-hook 'corfu-mode)
-(add-hook 'terraform-mode-hook 'corfu-mode)
-(add-hook 'text-mode-hook 'corfu-mode)
-(add-hook 'markdown-mode-hook 'corfu-mode)
-(add-hook 'js-mode-hook 'corfu-mode)
-(add-hook 'ruby-mode-hook 'corfu-mode)
-
-(add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
-
-(set-face-attribute 'corfu-default nil :family "Monospace" :height 0.8)
+(global-corfu-mode t)
 
 ;;
 
@@ -870,3 +866,12 @@ and replace the buffer contents with the output."
     (string-trim-left text)))
 
 (add-to-list 'yank-transform-functions 'leading-whitespace-stripper)
+
+;;
+
+(gsk "C-M-n" 'flymake-goto-next-error)
+(gsk "C-M-p" 'flymake-goto-prev-error)
+
+;;
+
+(setq eldoc-documentation-strategy 'eldoc-documentation-compose)

@@ -10,34 +10,28 @@
 
 (require 'subr-x)
 
-(defvar idle-highlight-timer nil)
 (defvar idle-highlight-string nil)
 
 (defun idle-highlight-clean ()
   "Remove any active highlight."
   (when idle-highlight-string
-    (unhighlight-regexp idle-highlight-string)))
+    (unhighlight-regexp idle-highlight-string)
+    (setq idle-highlight-string nil)))
 
-(defun idle-highlight-activate ()
-  (add-hook 'post-command-hook 'idle-highlight-set-timer))
+(add-hook 'post-command-hook 'idle-highlight-post-command)
 
-(defun idle-highlight-deactivate ()
-  (remove-hook 'post-command-hook 'idle-highlight-set-timer)
-  (idle-highlight-clean))
+(defun idle-highlight-post-command ()
+  (if (region-active-p)
+      (progn
+        (idle-highlight-clean)
+        (let ((str (buffer-substring-no-properties (point) (mark))))
+          (unless (string-blank-p str)
+            (setq idle-highlight-string (regexp-quote str))
+            (highlight-regexp idle-highlight-string 'isearch))))
+    (idle-highlight-clean)))
 
-(defun idle-highlight-set-timer ()
-  (when idle-highlight-timer (cancel-timer idle-highlight-timer))
-  (setq idle-highlight-timer
-        (run-at-time 0.2 nil 'idle-highlight-region)))
-
-(defun idle-highlight-region ()
-  (when (region-active-p)
-    (idle-highlight-clean)
-    (let ((str (buffer-substring-no-properties (point) (mark))))
-      (unless (string-blank-p str)
-        (setq idle-highlight-string (regexp-quote str))
-        (highlight-regexp idle-highlight-string 'hi-blue)))))
-
+;; todo store the kept strings separately and make them persistent when they're reselected
+;; this should be "toggle keep"
 (defun idle-highlight-keep ()
   "Deactivate region & keep the current highlight in a new colour."
   (interactive)
@@ -47,5 +41,3 @@
                       (hi-lock-read-face-name)))
   (setq idle-highlight-string nil))
 
-(add-hook 'activate-mark-hook 'idle-highlight-activate)
-(add-hook 'deactivate-mark-hook 'idle-highlight-deactivate)

@@ -3,6 +3,7 @@
 (setq
  eglot-confirm-server-initiated-edits nil
  eglot-send-changes-idle-time 2
+ eglot-connect-timeout nil
  ;; todo eglot-workspace-configuration '((:rust-analyzer . (:checkOnSave "clippy")))
  )
 
@@ -15,4 +16,5 @@
 (defun eglot-customizations ()
   (eglot-inlay-hints-mode -1))
 
-(add-hook 'eglot-managed-mode-hook 'eglot-customizations)
+;; (add-hook 'eglot-managed-mode-hook 'eglot-customizations)
+
