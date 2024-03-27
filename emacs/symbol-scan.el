@@ -2,6 +2,9 @@
 ;; Scanning back & forth for symbol at point.
 ;;
 
+;; todo might be handy to have a wrapper which moves to next thing:
+;; flymake error, symbol at point, highlighted regex, last isearch?
+
 (defun scan-for-symbol-at-point (direction)
   (let ((s (thing-at-point 'symbol t))
         (sense (if (eq direction 'forward) 1 -1)))

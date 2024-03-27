@@ -82,10 +82,13 @@
 (gsk "<kp-enter>" 'execute-extended-command)
 
 (gsk "<XF86Eject>" 'swiper)
+(gsk "<help>" 'swiper)
+(gsk "s-f" 'swiper)
+
 (gsk "<S-return>" 'yank)
 (gsk "<S-backspace>" 'kill-region)
 
-(gsk "<help>" 'other-window)
+;; (gsk "<help>" 'other-window)
 (gsk "<M-f4>" 'delete-frame)
 
 (gsk "<f5>" 'revert-buffer)
@@ -699,9 +702,15 @@ and replace the buffer contents with the output."
  corfu-auto t
  corfu-auto-delay 0.2
  corfu-count 3
- corfu-bar-width 0)
+ corfu-bar-width 0
+ corfu-auto-delay 0.15
+ corfu-count 3)
 
 (global-corfu-mode t)
+
+(add-to-list 'corfu-exclude-modes 'pick-mode)
+
+(add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
 
 ;;
 
@@ -814,6 +823,22 @@ and replace the buffer contents with the output."
             (bury-buffer out-buffer))
         (display-buffer out-buffer)))))
 
+(defun ormolu-format ()
+  (interactive)
+  (save-buffer)
+  (let* ((file (buffer-file-name))
+         (default-directory (file-name-directory file))
+         (out-buffer (get-buffer-create "*ormolu*")))
+    (with-current-buffer out-buffer (erase-buffer))
+    (let ((result
+           (call-process "ormolu" nil out-buffer nil "-i" file)))
+      (if (equal 0 result)
+          (progn
+            (revert-buffer nil t t)
+            (message "formatted!")
+            (bury-buffer out-buffer))
+        (display-buffer out-buffer)))))
+
 ;; (defun rubocop-format ()
 ;;   (save-buffer)
 ;;   (let* ((file (buffer-file-name))
@@ -836,6 +861,7 @@ and replace the buffer contents with the output."
   (cond
    ((string-prefix-p "/Users/shannoncole/stile/" buffer-file-name) (prettier-format))
    ((eq major-mode 'ruby-mode) (rufo-format))
+   ((eq major-mode 'haskell-mode) (ormolu-format))
    (t (error "don't know how to format"))))
 
 (gsk "<f12>" 'format-buffer)
@@ -874,4 +900,17 @@ and replace the buffer contents with the output."
 
 ;;
 
-(setq eldoc-documentation-strategy 'eldoc-documentation-compose)
+(defun copy-whole-buffer ()
+  (interactive)
+  (copy-region-as-kill (point-min) (point-max))
+  (message "Copied the whole visible buffer!"))
+(gsk "<f19>" 'copy-whole-buffer)
+(gsk "<f8>" 'copy-whole-buffer)
+
+;;
+
+(setq eldoc-documentation-function 'eldoc-documentation-compose)
+(global-eldoc-mode -1)
+(setq max-mini-window-height 0.5)
+
+
