@@ -7,6 +7,14 @@
 (defvar-local ng-dir nil)
 (defvar-local ng-ignore-case nil)
 
+;; todo
+;; use c to toggle case
+;; use i to edit a string to pass to --iglob
+;; see how rg mode does the multi-line file name thing and do that
+;; 
+;; a variant which uses project to search the current project
+;; this would be good for monorepo with lots of projects in it 
+
 (defvar new-grep-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "d") 'new-grep-repeat-with-dir)

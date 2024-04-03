@@ -1,5 +1,14 @@
 ;;; -*- lexical-binding: t -*-
 
+;; todo this is crazy slow and the timer behaviour is annoying; should do:
+;; on every input, clear the list, spawn an async subprocess and do the search/filtering out of band
+;; cancel them on new input, insert it incrementally as it completes
+;;
+;; or, to keep it in emacs, chunk the filter so it doesn't block the ui,
+;; will need to update the buffer incrementally,
+;; need to coordinate on finding options and filtering ... want to show 10 _correct/stable_ options as fast as possible
+;; while never blocking the ui
+
 ;; todo for files, only show full path, but abbreviate home dir etc
 
 ;; todo should be able to append a line number and go straight to that line

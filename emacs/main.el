@@ -166,7 +166,7 @@
 ;; Buffer switching
 ;;
 
-(require 'pick)
+(require 'pick2)
 (gsk "<f1>" 'pick-select-buffer)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
@@ -639,33 +639,33 @@ and replace the buffer contents with the output."
 
 ;;
 
-(require 'rg)
+;; (require 'rg)
 
-(setq rg-command-line-flags '("-M" "300" "--sort" "path"))
+;; (setq rg-command-line-flags '("-M" "300" "--sort" "path"))
 
-(rg-define-search rg-dired :dir current)
-(rg-define-search rg-project-all :dir project :files "*")
-;; (rg-define-search rg-all :files "*")
+;; (rg-define-search rg-dired :dir current)
+;; (rg-define-search rg-project-all :dir project :files "*")
+;; ;; (rg-define-search rg-all :files "*")
 
-;; (defun rg-name-function ()
-;;   ;; (format "*rg: %s*" (gethash :pattern rg-cur-search))
-;;   (format "*rg: %s*" pattern))
-;; (setq rg-buffer-name nil)
+;; ;; (defun rg-name-function ()
+;; ;;   ;; (format "*rg: %s*" (gethash :pattern rg-cur-search))
+;; ;;   (format "*rg: %s*" pattern))
+;; ;; (setq rg-buffer-name nil)
 
-(defun rg-dwim (prefix)
-  (interactive "P")
-  (if prefix (call-interactively 'rg)
-    (if (region-active-p)
-        (let ((q (buffer-substring-no-properties (point) (mark))))
-          (rg-project q "*"))
-      (call-interactively 'rg-project-all))))
+;; (defun rg-dwim (prefix)
+;;   (interactive "P")
+;;   (if prefix (call-interactively 'rg)
+;;     (if (region-active-p)
+;;         (let ((q (buffer-substring-no-properties (point) (mark))))
+;;           (rg-project q "*"))
+;;       (call-interactively 'rg-project-all))))
 
-(gsk "s-g" 'rg-dwim)
-(gsk "s-G" 'rg)
+;; (gsk "s-g" 'rg-dwim)
+;; (gsk "s-G" 'rg)
 
 (define-keys
  dired-mode-map
- "r" 'rg-dired)
+ "r" 'grep-here)
 
 ;;
 
@@ -782,6 +782,9 @@ and replace the buffer contents with the output."
 (use-package balanced-windows
   :config
   (balanced-windows-mode))
+
+;; todo would love it if this became disabled whenever i manualyl resized
+;; and then i could turn it back on with esc =
 
 (let ((colour "#f200ff"))
   ;; todo why do i need both?

@@ -14,7 +14,8 @@
 (put 'eglot-error 'flymake-overlay-control nil)
 
 (defun eglot-customizations ()
-  (eglot-inlay-hints-mode -1))
+  (eglot-inlay-hints-mode -1)
+  (eldoc-mode -1))
 
-;; (add-hook 'eglot-managed-mode-hook 'eglot-customizations)
+(add-hook 'eglot-managed-mode-hook 'eglot-customizations)
 

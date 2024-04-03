@@ -21,13 +21,13 @@
 (add-hook 'post-command-hook 'idle-highlight-post-command)
 
 (defun idle-highlight-post-command ()
-  (if (region-active-p)
+  (if (and (region-active-p) (not deactivate-mark))
       (progn
         (idle-highlight-clean)
         (let ((str (buffer-substring-no-properties (point) (mark))))
           (unless (string-blank-p str)
             (setq idle-highlight-string (regexp-quote str))
-            (highlight-regexp idle-highlight-string 'isearch))))
+            (highlight-regexp idle-highlight-string 'region))))
     (idle-highlight-clean)))
 
 ;; todo store the kept strings separately and make them persistent when they're reselected
