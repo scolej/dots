@@ -54,9 +54,13 @@
 ;; - M-j should work in haskell-mode
 
 (require 'haskell-mode)
-(require 'stupid-indent-mode)
-(define-keys haskell-mode-map
-             "<tab>" 'stupid-indent
-             "<backtab>" 'stupid-deindent
-             "<S-tab>" 'stupid-deindent
-             )
+
+;; (require 'stupid-indent-mode)
+;; (define-keys haskell-mode-map
+;;              "<tab>" 'stupid-indent
+;;              "<backtab>" 'stupid-deindent
+;;              "<S-tab>" 'stupid-deindent
+;;              )
+
+(define-keys haskell-indentation-mode-map
+             ";" nil)

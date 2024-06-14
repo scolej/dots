@@ -79,8 +79,6 @@
   "M-w" 'dwim-sexp-copy
   "M-c" 'clone-sexp
   "C-\\" 'insert-lambda
-  ;; "\\" nil
-  ;; "C-d" nil
 
   ;; shadow things which break sexps
   ;; "<C-backspace>" 'delete-backward-sexp
@@ -99,7 +97,7 @@
   ;; "M-k" 'kill-sexp
   ;; "<M-SPC>" 'squish-space
   ;; "<M-up>" 'paredit-backward-up
-  "\\" nil)
+  )
 
 (defun squish-space ()
   (interactive)
@@ -121,6 +119,7 @@
    (start-stack . 1)
    (test-assert . 1)
    (test-case . 1)
+   (test-equal . 1)
    (let-assq . 2)
    (ctx . 1)
    (while . 1)))
@@ -128,8 +127,7 @@
 (defun scheme-load-this-file ()
   (interactive)
   (save-buffer)
-  (scheme-load-file
-   (buffer-file-name)))
+  (scheme-load-file (buffer-file-name)))
 
 ;; (define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
 
@@ -156,3 +154,8 @@
 
 ;; (define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
 
+
+;; temp
+;; (define-keys paredit-mode-map
+;;              "C-j" nil
+;;              "C-l" nil)

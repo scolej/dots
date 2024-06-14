@@ -54,8 +54,14 @@
 (defun ruby-customizations ()
   ;; (add-hook 'after-save-hook 'prettier-format nil t)
   (setq-local inhibit-clean-trailing-whitespace-mode t
+              show-trailing-whitespace nil
               fill-column 100))
 
 (add-hook 'ruby-mode-hook 'ruby-customizations)
 
 
+(defun swiper-ruby-defs ()
+  (interactive)
+  (swiper "def "))
+
+(define-key ruby-mode-map (kbd "C-o") 'swiper-ruby-defs)

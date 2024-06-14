@@ -66,12 +66,13 @@
 (load "custom-ruby.el")
 (load "custom-rust.el")
 (load "custom-js.el")
+(load "custom-haskell.el")
 
 (load "custom-eglot.el")
 
 (setq-default show-trailing-whitespace t)
 (set-face-attribute 'trailing-whitespace nil
-                    :background "#fff6f6") 
+                    :background "#fff6f6")
 
 ;;
 ;; Global bindings
@@ -100,6 +101,13 @@
 (gsk "M-3" 'split-window-right)
 (gsk "M-0" 'delete-window)
 
+(gsk "<C-M-up>" 'backward-up-list)
+(gsk "<C-M-down>" 'smie-down-list)
+
+(gsk "<M-left>" 'backward-word)
+(gsk "<M-right>" 'forward-word)
+(gsk "<M-delete>" 'delete-forward-word)
+
 ;;
 
 (defun kill-region-or-word ()
@@ -118,7 +126,7 @@
 
 (require 'isearch)
 (define-keys isearch-mode-map
-             "<escape>" 'top-level
+             "<escape>" 'isearch-exit
              "<down>" 'isearch-repeat-forward
              "<up>" 'isearch-repeat-backward)
 
@@ -137,8 +145,6 @@
 (gsk "<C-mouse-1>" 'xref-find-definitions-at-mouse)
 (gsk "C-<down-mouse-1>" nil)
 
-(gsk "s-g" nil)
-
 ;;
 
 (gsk "C-x C-t" 'tab-new)
@@ -154,9 +160,15 @@
 (gsk "C-S-<wheel-right>" 'tab-bar-move-tab)
 (gsk "C-S-<wheel-left>" 'tab-bar-move-tab-backward)
 
+(gsk "<f15>" 'tab-bar-switch-to-next-tab)
+(gsk "<f14>" 'tab-bar-switch-to-prev-tab)
+
+
 ;;
 
 (gsk "<C-tab>" 'other-window)
+(gsk "<C-S-tab>" nil)
+(gsk "<f13>" 'other-window)
 
 ;; todo - maybe better: compile-at-git-root
 ;; which also maintains a per-root buffer and selects the right one.
@@ -168,6 +180,7 @@
 
 (require 'pick2)
 (gsk "<f1>" 'pick-select-buffer)
+(gsk "<f2>" 'pick-git)
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
@@ -181,7 +194,7 @@
 
 (setq
  completion-styles '(partial-completion flex)
- tab-always-indent 'complete)
+ tab-always-indent t)
 
 ;; todo when emacs 29, can use a built-in
 (require 'cape)
@@ -191,6 +204,7 @@
 
 (add-hook 'c-mode-hook 'enable-dabbrev-capf)
 (add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
+(add-hook 'haskell-mode-hook 'enable-dabbrev-capf)
 
 ;;
 
@@ -385,7 +399,26 @@ and replace the buffer contents with the output."
 
 (defun pp-json (beg end)
   (interactive "r")
+  (unless (region-active-p) (mark-sexp))
   (shell-command-on-region beg end "jq" nil t))
+
+(defun pp-json-other-window ()
+  (interactive)
+  (let ((p1 (point))
+        (p2 (save-excursion (forward-sexp) (point)))
+        (buf (get-buffer-create "*yq*"))
+        (inhibit-message t)) ;; don't show the output in the echo area, regardless of how small it is
+    (shell-command-on-region p1 p2 "yq -P -p json" buf)
+    (pop-to-buffer buf)))
+
+(defun pp-json-eol-other-window ()
+  (interactive)
+  (let ((p1 (save-excursion (beginning-of-line) (re-search-forward "{") (1- (point))))
+        (p2 (pos-eol))
+        (buf (get-buffer-create "*yq*"))
+        (inhibit-message t)) ;; don't show the output in the echo area, regardless of how small it is
+    (shell-command-on-region p1 p2 "yq -P -p json" buf)
+    (pop-to-buffer buf)))
 
 (defun pp-escaped-json (beg end)
   (interactive "r")
@@ -471,10 +504,8 @@ and replace the buffer contents with the output."
 (require 'yasnippet-snippets)
 
 ;; TAB is already pretty overloaded, let's use backtab instead
-(define-key yas-minor-mode-map (kbd "TAB") nil t)
-(define-key yas-minor-mode-map (kbd "<backtab>") 'yas-expand)
-
-;; (add-hook 'ruby-mode-hook 'yas-minor-mode)
+(define-key yas-minor-mode-map (kbd "<tab>") nil t)
+(define-key yas-minor-mode-map (kbd "<C-S-tab>") 'yas-expand)
 
 (yas-global-mode)
 
@@ -563,7 +594,10 @@ and replace the buffer contents with the output."
   "e" 'eval-region
   "<escape>" 'keyboard-quit
   "!" 'sh-region
-  "m" 'copy-crumb)
+  "m" 'copy-crumb
+  "<C-down>" 'forward-search-region
+  "<C-up>" 'backward-search-region
+  )
 
 (selected-global-mode)
 
@@ -571,10 +605,13 @@ and replace the buffer contents with the output."
 ;; Mega leader map
 ;;
 
+;; todo - when i'm reverse-searching in the minibuffer i want to see the full search string that i've typed!
+
 (gsk "C-<escape>" 'dired-jump)
+;; (gsk "<escape>" 'top-level)
 
 (gsk
- "<escape>"
+ "<f9>"
  (keymap
   "DEL" 'dired-jump
   "k" 'really-kill-buffer
@@ -604,7 +641,7 @@ and replace the buffer contents with the output."
   "<left>" 'previous-buffer
   "<right>" 'next-buffer
   "<escape>" 'keyboard-quit
-  "`" 'buffer-menu-current-file
+  "`" (lambda () (interactive) (insert "`"))
   "n" 'next-error
   "p" 'previous-error
   "o" 'occur
@@ -682,10 +719,14 @@ and replace the buffer contents with the output."
  "<escape>" 'corfu-quit
  "<return>" nil
  "RET" nil
- "M-n" 'corfu-next
- "M-p" 'corfu-previous
+ ;; "M-n" 'corfu-next
+ ;; "M-p" 'corfu-previous
+ "M-n" nil
+ "M-p" nil
  "<up>" nil
- "<down>" nil)
+ "<down>" nil
+ "C-a" nil
+ "C-e" nil)
 
 (define-key corfu-map [remap next-line] nil)
 (define-key corfu-map [remap previous-line] nil)
@@ -700,7 +741,7 @@ and replace the buffer contents with the output."
 
 (global-corfu-mode t)
 
-(add-to-list 'corfu-exclude-modes 'pick-mode)
+(setq global-corfu-modes '((not pick-mode) t))
 
 (set-face-attribute 'corfu-default nil :family "Monospace")
 
@@ -796,9 +837,9 @@ and replace the buffer contents with the output."
 
 ;;
 
-(require 'point-undo)
-(gsk "<M-left>" 'point-undo)
-(gsk "<M-right>" 'point-redo)
+;; (require 'point-undo)
+;; (gsk "<M-left>" 'point-undo)
+;; (gsk "<M-right>" 'point-redo)
 
 ;;
 
@@ -854,7 +895,11 @@ and replace the buffer contents with the output."
 (defun format-buffer ()
   (interactive)
   (cond
-   ((string-prefix-p "/Users/shannoncole/stile/" buffer-file-name) (prettier-format))
+   ((seq-find (lambda (p) (string-prefix-p p buffer-file-name))
+              '("/Users/shannoncole/stile/dev-environment"
+                "/Users/shannoncole/stile/dev-ref"
+                "/Users/shannoncole/stile/master"))
+    (prettier-format))
    ((eq major-mode 'ruby-mode) (rufo-format))
    ((eq major-mode 'haskell-mode) (ormolu-format))
    (t (error "don't know how to format"))))
@@ -869,6 +914,7 @@ and replace the buffer contents with the output."
 
 (require 'swiper)
 (gsk "M-o" 'swiper)
+;; (gsk "`" 'swiper)
 (define-key swiper-map (kbd "<escape>") 'top-level)
 
 ;;
@@ -882,6 +928,8 @@ and replace the buffer contents with the output."
 ;; of indentation at the start. When pasting that text, if point is already
 ;; indented, it's extremely unlikely that we want to include the copied
 ;; whitespace when pasting, so just strip it.
+;;
+;; TODO: also strip the common prefix from multi lines
 (defun leading-whitespace-stripper (text)
   (if (eq (point) (pos-bol)) text
     (string-trim-left text)))
@@ -890,8 +938,8 @@ and replace the buffer contents with the output."
 
 ;;
 
-(gsk "C-M-n" 'flymake-goto-next-error)
-(gsk "C-M-p" 'flymake-goto-prev-error)
+;; (gsk "M-n" 'next-error)
+;; (gsk "M-p" 'previous-error)
 
 ;;
 
@@ -905,7 +953,72 @@ and replace the buffer contents with the output."
 ;;
 
 (setq eldoc-documentation-function 'eldoc-documentation-compose)
-(global-eldoc-mode -1)
+(global-eldoc-mode 1)
 (setq max-mini-window-height 0.5)
 
+;;
 
+(load "experiments/stacktrace-mode.el")
+
+;;
+
+(defun beginning-of-line-toggle ()
+  (interactive)
+  (if (eq (- (point) (pos-bol)) (current-indentation))
+      (beginning-of-line)
+    (back-to-indentation)))
+
+(gsk "<home>" 'beginning-of-line-toggle)
+
+;;
+
+;; (defun at-word-boundary ()
+;;   (or (and (= (char-syntax (char-after)) ?w)
+;;            (not (= (char-syntax (char-before)) ?w)))
+;;       (and (= (char-syntax (char-before)) ?w)
+;;            (not (= (char-syntax (char-after)) ?w)))))
+
+;; (defun forward-word-boundary ()
+;;   (interactive)
+;;   (while (progn (forward-char) (not (at-word-boundary)))))
+
+;; (defun backward-word-boundary ()
+;;   (interactive)
+;;   (while (progn (backward-char) (not (at-word-boundary)))))
+
+;; (global-set-key [C-right] 'forward-word-boundary)
+;; (global-set-key [C-left]  'backward-word-boundary)
+
+(global-set-key [C-right] 'forward-word)
+(global-set-key [C-left]  'backward-word)
+
+;;
+
+(require 'markdown-mode)
+(set-face-attribute
+ 'markdown-header-face-1 nil
+ :height 1.5)
+(set-face-attribute
+ 'markdown-header-face-2 nil
+ :height 1.3)
+(set-face-attribute
+ 'markdown-header-face-3 nil
+ :height 1.2)
+
+;;
+;;
+;;
+
+(defun recompile-dwim ()
+  (interactive)
+  ;; Find the first window which is derived from compilation-mode
+  (let ((win (get-window-with-predicate
+              (lambda (win)
+                (and (window-live-p win)
+                     (with-current-buffer (window-buffer win)
+                       (derived-mode-p 'compilation-mode)))))))
+    (if win (with-selected-window win
+              (recompile))
+      (error "no compilation here"))))
+
+(gsk "<f11>" 'recompile-dwim)

@@ -100,6 +100,7 @@ the trigger file."
   (let ((default-directory
          (or (locate-dominating-file default-directory "trigger")
              (error "Couldn't find dominating trigger file, can you make it?"))))
-    (shell-command "date > trigger")))
+    (shell-command "date > trigger")
+    (message "Tickled trigger in %s" default-directory)))
 
 (gsk "<f10>" 'tickle-dominating-trigger)

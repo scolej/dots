@@ -22,7 +22,7 @@ alias gb='git branch --sort=authordate'
 alias gba='git branch -a'
 alias gbr='git branch -r'
 
-alias gco='git checkout'
+# alias gco='git checkout'
 
 alias gcamend='git commit --amend --no-edit --date=now'
 alias gcom='git commit'
@@ -54,7 +54,7 @@ alias grik='git rebase --interactive --autosquash --keep-base'
 
 alias groot='cd "$(git rev-parse --show-toplevel)" ; echo "I am Groot"'
 
-alias gru='git remote update'
+alias gru='git remote update -p'
 
 alias gs='git status'
 alias gsh='git show HEAD'
@@ -182,4 +182,13 @@ gmergesame() {
 grebasesame() {
     remote=${1-origin}
     git rebase --autostash "$remote/$(git rev-parse --abbrev-ref HEAD)"
+}
+
+gco() {
+    if test $# -eq 0; then
+        # `cut` chops off the checkout indicators at the start
+        git checkout $(git branch --sort=authordate | fzf --tac --no-sort | cut -w -f2)
+    else
+        git checkout "$@"
+    fi
 }

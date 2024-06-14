@@ -51,7 +51,7 @@ and return the first non-nil result."
                      (find-file-other-window full-path)
                      (goto-line linum))))))))
 
-(defun yank-stackstrack ()
+(defun yank-stacktrace ()
   (interactive)
   (save-excursion
     (when (region-active-p) (delete-region (point) (mark)))
@@ -62,3 +62,5 @@ and return the first non-nil result."
 ;;
 ;; start with file name, link if its unique in repo
 ;; add parent dirs until unique
+
+(provide 'stacktrace-mode)

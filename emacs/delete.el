@@ -46,7 +46,8 @@
   :keymap
   (let ((km (make-sparse-keymap)))
     (define-key km (kbd "<M-backspace>") 'delete-backward-word)
-    (define-key km (kbd "<C-backspace>") 'delete-backward-sexp)
+    (define-key km (kbd "<C-backspace>") 'delete-backward-word)
     (define-key km (kbd "M-d") 'delete-forward-word)
+    (define-key km (kbd "<C-delete>") 'delete-forward-word)
     (define-key km (kbd "<C-S-backspace>") 'delete-whole-line)
     km))

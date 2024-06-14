@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+;; todo should do a find file variant which finds everything below pwd
+
 ;; todo this is crazy slow and the timer behaviour is annoying; should do:
 ;; on every input, clear the list, spawn an async subprocess and do the search/filtering out of band
 ;; cancel them on new input, insert it incrementally as it completes

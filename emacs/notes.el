@@ -3,18 +3,13 @@
    note-root
    (format-time-string "%Y%m%d.%H%M%S")
    (if (string-empty-p title) "" (concat "." title))
-   "." ext))
+   (if ext (concat "." ext) "")))
 
 (defun take-notes (title)
-    ;; (interactive
-    ;;  (list
-    ;;   (read-from-minibuffer
-    ;;    "In file: "
-    ;;    (let ((time-string (format-time-string "%Y%m%d.%H%M%S"))
-    ;;          (len (string-)))
-    ;;      '("**" . 2)))) )
-    (interactive "M")
-    (find-file (name-note-file-now title "txt")))
+  (interactive "M")
+  (let ((inferred-ext (when (string-match "\\.\\([[:alpha:]]+\\)" title)
+                        (match-string 1 title))))
+    (find-file (name-note-file-now title (if inferred-ext nil "txt")))))
 
 (defun jump-to-notes-dir ()
     (interactive)

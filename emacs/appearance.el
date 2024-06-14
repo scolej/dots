@@ -12,7 +12,7 @@
   (set-face-attribute
    'fringe nil
    :inherit 'default
-   :background 'unspecified
+   :background "#eeeeee"
    :foreground "#aaaaaa")
   (set-face-attribute
    'vertical-border nil

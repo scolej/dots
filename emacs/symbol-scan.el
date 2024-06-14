@@ -28,10 +28,15 @@
   (scan-for-symbol-at-point 'backward))
 
 (gsk "M-n" 'forward-symbol-at-point)
+(gsk "M-p" 'backward-symbol-at-point)
+
+;; (gsk "<C-down>" 'forward-symbol-at-point)
+;; (gsk "<C-up>" 'backward-symbol-at-point)
+
 (gsk "<M-wheel-down>" 'forward-symbol-at-point)
 (gsk "<M-wheel-up>" 'backward-symbol-at-point)
 
-(gsk "M-p" 'backward-symbol-at-point)
+
 ;; (gsk "<mouse-4>" 'backward-symbol-at-point)
 
 

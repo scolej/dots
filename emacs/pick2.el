@@ -60,6 +60,7 @@ selected."
     (switch-to-buffer buf)))
 
 (defun pick-write-buffer (options)
+  (setq pick-current-number 1)
   (pick-write-candidates (seq-take options pick-max-candidates-to-display)))
 
 (defun pick-write-candidates (options)
@@ -115,7 +116,7 @@ range."
     (when pick-timer (cancel-timer pick-timer))
     (pick-erase-candidates)
     (pick-reset)
-    (setq pick-timer (run-at-time 0.2 nil 'pick-do-chunk))))
+    (setq pick-timer (run-at-time 0.1 nil 'pick-do-chunk))))
 
 (defun pick-filter (str options)
   (let* ((words (split-string str))
@@ -180,6 +181,7 @@ point is at the start of the line before the button."
         (lambda () (interactive) (pick-select-nth i))))
 
 (defvar pick-mode-map (make-sparse-keymap))
+(define-key pick-mode-map (kbd "<escape>") 'quit-window)
 (define-key pick-mode-map (kbd "C-g") 'quit-window)
 (define-key pick-mode-map (kbd "<return>") 'pick-select-dwim)
 (define-derived-mode pick-mode fundamental-mode " pick")
