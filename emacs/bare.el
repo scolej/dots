@@ -69,7 +69,6 @@
  linum-format "%4d"
  mouse-autoselect-window 0
  revert-without-query '(".*")
- mouse-wheel-progressive-speed nil
  vc-handled-backends '(git)
  case-fold-search t
  mouse-yank-at-point nil
@@ -86,7 +85,9 @@
  scroll-margin 0
  scroll-step 0
 
- mouse-wheel-scroll-amount '(2)
+ mouse-wheel-scroll-amount '(1)
+ mouse-wheel-progressive-speed nil
+
  use-dialog-box nil
  async-shell-command-buffer 'new-buffer
 

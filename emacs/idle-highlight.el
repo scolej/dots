@@ -13,26 +13,31 @@
 (require 'rect)
 
 (defvar idle-highlight-string nil)
+;; (defvar idle-highlight-cleanup-timer nil)
 
 (defun idle-highlight-clean ()
   "Remove any active highlight."
-  (when idle-highlight-string
+  (when (and idle-highlight-string (not (region-active-p)))
     (unhighlight-regexp idle-highlight-string)
     (setq idle-highlight-string nil)))
 
 (add-hook 'post-command-hook 'idle-highlight-post-command)
 
 (defun idle-highlight-post-command ()
-  (if (and (use-region-p)
+  (unhighlight-regexp idle-highlight-string)
+  ;; (when idle-highlight-cleanup-timer (cancel-timer idle-highlight-cleanup-timer))
+  ;; (setq idle-highlight-cleanup-timer (run-at-time 0.5 nil 'idle-highlight-clean))
+  (if (and (region-active-p)
            (not deactivate-mark)
            (not rectangle-mark-mode))
       (progn
-        (idle-highlight-clean)
+        ;; (unhighlight-regexp idle-highlight-string)
         (let ((str (buffer-substring-no-properties (point) (mark))))
           (unless (string-blank-p str)
             (setq idle-highlight-string (regexp-quote str))
             (highlight-regexp idle-highlight-string 'hi-aquamarine))))
-    (idle-highlight-clean)))
+  ;; (idle-highlight-clean)
+  ))
 
 ;; (defun idle-highlight-post-command ()
 ;;   (let ((str (or (and (region-active-p) (not deactivate-mark) (not rectangle-mark-mode)

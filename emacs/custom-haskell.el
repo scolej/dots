@@ -55,12 +55,5 @@
 
 (require 'haskell-mode)
 
-;; (require 'stupid-indent-mode)
-;; (define-keys haskell-mode-map
-;;              "<tab>" 'stupid-indent
-;;              "<backtab>" 'stupid-deindent
-;;              "<S-tab>" 'stupid-deindent
-;;              )
-
-(define-keys haskell-indentation-mode-map
-             ";" nil)
+;; For some reason this overrides my binding in selected-keymap, so get rid of it.
+(define-key haskell-indentation-mode-map ";" nil)

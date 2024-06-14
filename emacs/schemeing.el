@@ -72,34 +72,50 @@
   (delete-forward-sexp)
   (delete-blank-line))
 
+(defun paredit-wrap-round-backwards ()
+  (interactive)
+  (save-excursion
+    (backward-sexp)
+    (paredit-wrap-round)))
+
 (define-keys paredit-mode-map
-  "[" 'paredit-open-round
-  "]" 'paredit-close-round
-  "(" 'paredit-open-square
-  ")" 'paredit-close-square
-  "{" 'paredit-wrap-round
-  "M-w" 'dwim-sexp-copy
-  "M-c" 'clone-sexp
-  "C-\\" 'insert-lambda
+             "[" 'paredit-open-round
+             "]" 'paredit-close-round
+             "(" 'paredit-open-square
+             ")" 'paredit-close-square
+             "{" 'paredit-wrap-round
+             "}" 'paredit-wrap-round-backwards
+             "M-w" 'dwim-sexp-copy
+             "M-c" 'clone-sexp
+             "C-\\" 'insert-lambda
+             ;; "C-d" nil
 
-  ;; shadow things which break sexps
-  ;; "<C-backspace>" 'delete-backward-sexp
-  ;; "<C-S-backspace>" 'delete-sexp-around-point
-  ;; "<C-backspace>" nil
-  ;; "<C-S-backspace>" nil
+             ;; shadow things which break sexps
+             "<C-backspace>" 'delete-backward-sexp
+             "<C-S-backspace>" 'delete-sexp-around-point
+             ;; "<C-backspace>" nil
+             ;; "<C-S-backspace>" nil
 
-  ;; my line moving breaks sexps
-  ;; "<M-up>" nil
-  ;; "<M-down>" nil
+             ;; my line moving breaks sexps
+             ;; "<M-up>" nil
+             ;; "<M-down>" nil
 
-  "M-]" 'paredit-forward
-  "M-[" 'paredit-backward
-  ;; "M-[" 'paredit-backward-up
+             "M-]" 'paredit-forward
+             "M-[" 'paredit-backward
+             ;; "M-[" 'paredit-backward-up
 
-  ;; "M-k" 'kill-sexp
-  ;; "<M-SPC>" 'squish-space
-  ;; "<M-up>" 'paredit-backward-up
-  )
+             ;; "M-k" 'kill-sexp
+             ;; "<M-SPC>" 'squish-space
+             ;; "<M-up>" 'paredit-backward-up
+             ;; "\\" nil
+
+             ;; "<C-left>" nil
+             ;; "<C-right>" nil
+             ;; "<C-M-left>" nil
+             ;; "<C-M-right>" nil
+  
+             "<C-M-up>" 'paredit-backward-up
+             "<C-M-down>" 'paredit-forward-down)
 
 (defun squish-space ()
   (interactive)
@@ -158,7 +174,7 @@
 ;; (define-key scheme-mode-map (kbd "<f11>") 'scheme-load-this-file)
 
 
-;; temp
-;; (define-keys paredit-mode-map
-;;              "C-j" nil
-;;              "C-l" nil)
+;;;
+
+(defun disable-text-deletion-mode () (text-deletion-mode -1))
+(add-hook 'paredit-mode-hook 'disable-text-deletion-mode)

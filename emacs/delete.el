@@ -50,4 +50,5 @@
     (define-key km (kbd "M-d") 'delete-forward-word)
     (define-key km (kbd "<C-delete>") 'delete-forward-word)
     (define-key km (kbd "<C-S-backspace>") 'delete-whole-line)
-    km))
+   km))
+

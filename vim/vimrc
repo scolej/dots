@@ -1,14 +1,14 @@
 syntax on
 filetype on
 map Y y$
-nmap <silent> <Down> :bn<CR>
-nmap <silent> <Left> :bp<CR>
-nmap <silent> <Right> :wincmd l<CR>
-nmap <silent> <Up> :bp k<CR>
-nmap <silent> <C-Up> :prev<CR>
-nmap <silent> <C-Down> :next<CR>
-nmap <silent> <KPlus> :cn<CR>
-nmap <silent> <KMinus> :cp<CR>
+" nmap <silent> <Down> :bn<CR>
+" nmap <silent> <Left> :bp<CR>
+" nmap <silent> <Right> :wincmd l<CR>
+" nmap <silent> <Up> :bp k<CR>
+" nmap <silent> <C-Up> :prev<CR>
+" nmap <silent> <C-Down> :next<CR>
+" nmap <silent> <KPlus> :cn<CR>
+" nmap <silent> <KMinus> :cp<CR>
 nore , ;
 nore ; :
 nore <leader>h :set hls!<CR>
@@ -40,6 +40,7 @@ set incsearch
 set fo-=o
 set hidden
 set path+=**
+set laststatus=2
 " set relativenumber
 
 " If a swap file exists, just open in read-only mode automatically.

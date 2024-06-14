@@ -70,7 +70,7 @@
 
 (load "custom-eglot.el")
 
-(setq-default show-trailing-whitespace t)
+(setq-default show-trailing-whitespace nil)
 (set-face-attribute 'trailing-whitespace nil
                     :background "#fff6f6")
 
@@ -200,11 +200,12 @@
 (require 'cape)
 
 (defun enable-dabbrev-capf ()
-  (add-to-list 'completion-at-point-functions 'cape-dabbrev))
+  (add-hook 'completion-at-point-functions 'cape-dabbrev 0 t))
 
 (add-hook 'c-mode-hook 'enable-dabbrev-capf)
 (add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
 (add-hook 'haskell-mode-hook 'enable-dabbrev-capf)
+;; (remove-hook 'emacs-lisp-mode-hook 'enable-dabbrev-capf)
 
 ;;
 
@@ -833,12 +834,6 @@ and replace the buffer contents with the output."
   (set-face-attribute
    'cursor nil
    :background colour))
-
-;;
-
-;; (require 'point-undo)
-;; (gsk "<M-left>" 'point-undo)
-;; (gsk "<M-right>" 'point-redo)
 
 ;;
 

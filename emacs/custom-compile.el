@@ -32,6 +32,9 @@
   (let ((default-directory dir))
     (compile cmd)))
 
+;; (defun dwim-compile-action ()
+;;   (cond ()))
+
 (defun compilation-buffer-p (b)
   "Is the given buffer in a mode derived from compilation mode?"
   (with-current-buffer b
