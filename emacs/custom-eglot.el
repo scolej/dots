@@ -10,6 +10,7 @@
  )
 
 (define-key eglot-mode-map (kbd "C-c a") 'eglot-code-actions)
+(define-key eglot-mode-map (kbd "C-/") 'eglot-code-actions)
 (define-key eglot-mode-map (kbd "C-.") 'flymake-goto-next-error)
 (define-key eglot-mode-map (kbd "C-,") 'flymake-goto-prev-error)
 

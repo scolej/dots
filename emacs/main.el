@@ -739,8 +739,7 @@ and replace the buffer contents with the output."
  corfu-auto-delay 0.15
  corfu-count 3)
 
-(global-corfu-mode t)
-
+;; (global-corfu-mode t)
 (setq global-corfu-modes '((not pick-mode) t))
 
 (set-face-attribute 'corfu-default nil :family "Monospace")
@@ -1022,3 +1021,19 @@ and replace the buffer contents with the output."
       (error "no compilation here"))))
 
 (gsk "<f11>" 'recompile-dwim)
+
+;;
+
+(defun copy-ampy-block ()
+  (interactive)
+  (save-excursion
+    (let ((start) (end))
+      (re-search-backward "&&&")
+      (forward-line)
+      (setf start (point))
+      (re-search-forward "&&&")
+      (beginning-of-line)
+      (setf end (point))
+      (copy-region-as-kill start end))))
+
+(gsk "<f8>" 'copy-ampy-block)

@@ -13,7 +13,7 @@
    'fringe nil
    :inherit 'default
    :background "#eeeeee"
-   :foreground "#aaaaaa")
+   :foreground 'unspecified)
   (set-face-attribute
    'vertical-border nil
    :inherit 'mode-line :inverse-video t)
@@ -56,3 +56,11 @@
 (set-face-attribute
  'tab-bar-tab-inactive nil
  :box 'unspecified)
+
+
+
+(set-face-attribute
+   'fringe nil
+   :inherit 'default
+   :background 'unspecified
+   :foreground "#aaaaaa")
