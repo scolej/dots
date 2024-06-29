@@ -16,7 +16,7 @@
  cursor-type t
  cursor-in-non-selected-windows 'hollow)
 
-(fringe-mode nil)
+(fringe-mode 0)
 
 (scroll-bar-mode -1)
 (tool-bar-mode -1)

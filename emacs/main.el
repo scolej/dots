@@ -741,7 +741,7 @@ and replace the buffer contents with the output."
  corfu-count 3)
 
 ;; (global-corfu-mode t)
-(setq global-corfu-modes '((not pick-mode) t))
+;; (setq global-corfu-modes '((not pick-mode) t))
 
 (set-face-attribute 'corfu-default nil :family "Monospace")
 
@@ -1005,15 +1005,21 @@ and replace the buffer contents with the output."
 
 (defun recompile-dwim ()
   (interactive)
-  ;; Find the first window which is derived from compilation-mode
-  (let ((win (get-window-with-predicate
-              (lambda (win)
-                (and (window-live-p win)
-                     (with-current-buffer (window-buffer win)
-                       (derived-mode-p 'compilation-mode)))))))
-    (if win (with-selected-window win
-              (recompile))
-      (error "no compilation here"))))
+  (let* ((window-filter
+          ;; Filter to find the first window which is derived from compilation-mode
+          (lambda (win)
+             (and (window-live-p win)
+                  (with-current-buffer (window-buffer win)
+                    (and (derived-mode-p 'compilation-mode)
+                         ;; sometimes we have a compilation-mode buffer that wasn't
+                         ;; actually the result of running a compilation (eg: I just
+                         ;; enabled it to get file link buttons). We don't want to find
+                         ;; this sort of buffer because it will trigger a new
+                         ;; compilation.
+                         compilation-arguments)))))
+         (win (get-window-with-predicate window-filter)))
+    (unless win (error "no compilation here"))
+    (with-selected-window win (recompile))))
 
 (gsk "<f11>" 'recompile-dwim)
 
@@ -1032,3 +1038,8 @@ and replace the buffer contents with the output."
       (copy-region-as-kill start end))))
 
 (gsk "<f8>" 'copy-ampy-block)
+
+;;
+
+(window-divider-mode 1)
+(setq window-divider-default-right-width 4)

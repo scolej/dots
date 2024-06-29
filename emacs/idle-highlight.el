@@ -35,7 +35,7 @@
         (let ((str (buffer-substring-no-properties (point) (mark))))
           (unless (string-blank-p str)
             (setq idle-highlight-string (regexp-quote str))
-            (highlight-regexp idle-highlight-string 'hi-aquamarine))))
+            (highlight-regexp idle-highlight-string 'isearch))))
   ;; (idle-highlight-clean)
   ))
 
