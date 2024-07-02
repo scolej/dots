@@ -205,6 +205,7 @@
 (add-hook 'c-mode-hook 'enable-dabbrev-capf)
 (add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
 (add-hook 'haskell-mode-hook 'enable-dabbrev-capf)
+(add-hook 'scheme-mode-hook 'enable-dabbrev-capf)
 ;; (remove-hook 'emacs-lisp-mode-hook 'enable-dabbrev-capf)
 
 ;;
@@ -740,8 +741,8 @@ and replace the buffer contents with the output."
  corfu-auto-delay 0.15
  corfu-count 3)
 
-;; (global-corfu-mode t)
-;; (setq global-corfu-modes '((not pick-mode) t))
+(global-corfu-mode t)
+(setq global-corfu-modes '((not pick-mode) t))
 
 (set-face-attribute 'corfu-default nil :family "Monospace")
 
