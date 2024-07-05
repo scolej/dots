@@ -891,9 +891,7 @@ and replace the buffer contents with the output."
   (interactive)
   (cond
    ((seq-find (lambda (p) (string-prefix-p p buffer-file-name))
-              '("/Users/shannoncole/stile/dev-environment"
-                "/Users/shannoncole/stile/dev-ref"
-                "/Users/shannoncole/stile/master"))
+              '("/Users/shannoncole/stile/"))
     (prettier-format))
    ((eq major-mode 'ruby-mode) (rufo-format))
    ((eq major-mode 'haskell-mode) (ormolu-format))
@@ -1044,3 +1042,42 @@ and replace the buffer contents with the output."
 
 (window-divider-mode 1)
 (setq window-divider-default-right-width 4)
+
+;;
+
+(defun org-next-at-first-line ()
+  (interactive)
+  (org-next-visible-heading 1)
+  (recenter 0))
+
+(defun org-prev-at-first-line ()
+  (interactive)
+  (org-next-visible-heading -1)
+  (recenter 0))
+
+(define-key org-mode-map (kbd "<kp-add>") 'org-next-at-first-line)
+(define-key org-mode-map (kbd "<kp-subtract>") 'org-prev-at-first-line)
+(define-key org-mode-map (kbd "<mouse-3>") 'nil)
+
+
+;;
+
+;; (car (car hi-lock-interactive-lighters))
+;; (assoc "\\_<find-tag-default-as-symbol-regexp\\_>" hi-lock-interactive-lighters)
+
+(defun toggle-highlight-symbol-at-point ()
+  (interactive)
+  (let ((regexp (find-tag-default-as-symbol-regexp)))
+    (when regexp
+      (if (assoc regexp hi-lock-interactive-lighters)
+          (unhighlight-regexp regexp)
+        (highlight-regexp regexp)))))
+
+(defun toggle-highlight-symbol-at-mouse (event)
+  (interactive "e")
+  (save-excursion
+    (mouse-set-point event)
+    (toggle-highlight-symbol-at-point)))
+
+(gsk "<kp-decimal>" 'toggle-highlight-symbol-at-point)
+(gsk "C-<mouse-3>" 'toggle-highlight-symbol-at-mouse)
