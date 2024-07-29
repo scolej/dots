@@ -236,7 +236,7 @@
 ;;
 
 (setq-default
- fill-column 90
+ fill-column 75
  mode-line-format
  '((:eval (cond
            ((get-buffer-process (current-buffer))
@@ -597,8 +597,8 @@ and replace the buffer contents with the output."
   "<escape>" 'keyboard-quit
   "!" 'sh-region
   "m" 'copy-crumb
-  "<C-down>" 'forward-search-region
-  "<C-up>" 'backward-search-region
+  ;; "<C-down>" 'forward-search-region
+  ;; "<C-up>" 'backward-search-region
   )
 
 (selected-global-mode)
@@ -760,10 +760,12 @@ and replace the buffer contents with the output."
 
 (set-face-attribute
  'mode-line nil
- :inherit 'variable-pitch)
+ :inherit 'variable-pitch
+ :height 0.9)
 
 (set-face-attribute
  'mode-line-inactive nil
+ :inherit 'mode-line
  :weight 'unspecified)
 
 ;;
@@ -1037,11 +1039,6 @@ and replace the buffer contents with the output."
       (copy-region-as-kill start end))))
 
 (gsk "<f8>" 'copy-ampy-block)
-
-;;
-
-(window-divider-mode 1)
-(setq window-divider-default-right-width 4)
 
 ;;
 
