@@ -185,16 +185,18 @@
 (pick-define-function-keys)
 
 ;;
-
-(setq eldoc-echo-area-use-multiline-p t)
-
-;;
 ;; Completion
 ;;
 
 (setq
  completion-styles '(partial-completion flex)
  tab-always-indent t)
+
+(setq dabbrev-check-all-buffers t
+      dabbrev-friend-buffer-function 'dabbrev--same-major-mode-p)
+;; (setq dabbrev-backward-only nil)
+(setq dabbrev-select-buffers-function 'dabbrev--select-buffers)
+(setq cape-dabbrev-check-other-buffers nil)
 
 ;; todo when emacs 29, can use a built-in
 (require 'cape)
@@ -395,7 +397,9 @@ and replace the buffer contents with the output."
 
 ;;
 
-(setq scroll-preserve-screen-position nil)
+(setq scroll-preserve-screen-position nil
+      scroll-conservatively 1
+      scroll-margin 0)
 
 ;;
 
@@ -738,7 +742,6 @@ and replace the buffer contents with the output."
  corfu-auto-delay 0.2
  corfu-count 3
  corfu-bar-width 0
- corfu-auto-delay 0.15
  corfu-count 3)
 
 (global-corfu-mode t)
@@ -761,12 +764,15 @@ and replace the buffer contents with the output."
 (set-face-attribute
  'mode-line nil
  :inherit 'variable-pitch
- :height 0.9)
+ :height 0.95)
 
 (set-face-attribute
  'mode-line-inactive nil
- :inherit 'mode-line
- :weight 'unspecified)
+ :inherit 'mode-line)
+
+(set-face-attribute
+ 'fringe nil
+ :background 'unspecified)
 
 ;;
 
@@ -823,9 +829,9 @@ and replace the buffer contents with the output."
 
 ;;
 
-(use-package balanced-windows
-  :config
-  (balanced-windows-mode))
+;; (use-package balanced-windows
+;;   :config
+;;   (balanced-windows-mode))
 
 ;; todo would love it if this became disabled whenever i manualyl resized
 ;; and then i could turn it back on with esc =
@@ -947,9 +953,10 @@ and replace the buffer contents with the output."
 
 ;;
 
-(setq eldoc-documentation-function 'eldoc-documentation-compose)
-(global-eldoc-mode 1)
-(setq max-mini-window-height 0.5)
+;; (setq eldoc-echo-area-use-multiline-p t)
+;; (setq eldoc-documentation-function 'eldoc-documentation-compose)
+;; (global-eldoc-mode 1)
+;; (setq max-mini-window-height 0.5)
 
 ;;
 

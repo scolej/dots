@@ -57,8 +57,6 @@
  'tab-bar-tab-inactive nil
  :box 'unspecified)
 
-
-
 (set-face-attribute
    'fringe nil
    :inherit 'default

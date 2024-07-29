@@ -1,5 +1,6 @@
 (require 'org)
 (require 'org-table)
+(require 'org-tempo)
 
 (setq org-startup-folded nil
       org-adapt-indentation nil)

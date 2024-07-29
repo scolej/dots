@@ -126,7 +126,9 @@
 (mapc
  (lambda (p)
    (put (car p) 'scheme-indent-function (cdr p)))
- '((apply . 1)
+ '((with-mutex . 1)
+   (guard . 1)
+   (apply . 1)
    (match . 1)
    (match-let . 1)
    (set-fields . 1)
@@ -140,7 +142,8 @@
    (test-equal . 1)
    (let-assq . 2)
    (ctx . 1)
-   (while . 1)))
+   (while . 1)
+   (failure-context . 1)))
 
 (defun scheme-load-this-file ()
   (interactive)

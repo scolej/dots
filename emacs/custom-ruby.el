@@ -18,7 +18,7 @@
                  nil nil nil nil thing))
          (query (if (string-empty-p input) thing input))
          (default-directory "~"))
-    (let ((buf (get-buffer-create "*ri*")))
+    (let ((buf (get-buffer-create (concat "*ri* " query))))
       (with-current-buffer buf
         (read-only-mode -1)
         (erase-buffer)
