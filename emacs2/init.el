@@ -1,4 +1,5 @@
 (tool-bar-mode -1)
+(scroll-bar-mode -1)
 
 ;; remember minibuffer history between restarts
 (savehist-mode 1)
@@ -28,7 +29,6 @@
   (if (eq (- (point) (pos-bol)) (current-indentation))
       (beginning-of-line)
     (back-to-indentation)))
-
 (global-set-key (kbd "<home>") 'beginning-of-line-toggle)
 (global-set-key (kbd "<end>") 'end-of-line)
 
@@ -56,4 +56,46 @@
 (require 'paredit)
 (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
 (add-hook 'clojure-mode-hook 'paredit-mode)
+(add-hook 'cider-repl-mode 'paredit-mode)
 (define-key paredit-mode-map (kbd "C-<backspace>") 'backward-kill-sexp) ;; this one seems to be missing and results in broken syntax
+
+(global-set-key (kbd "<escape>") 'keyboard-quit)
+
+(setq-default
+ indent-tabs-mode nil
+ tab-width 4)
+
+(setq save-interprogram-paste-before-kill t)
+
+(global-tab-line-mode 1)
+(global-set-key (kbd "<tab-line> <wheel-up>") 'tab-line-switch-to-prev-tab)
+(global-set-key (kbd "<tab-line> <wheel-down>") 'tab-line-switch-to-next-tab)
+(global-set-key (kbd "s-<left>") 'tab-line-switch-to-prev-tab)
+(global-set-key (kbd "s-<right>") 'tab-line-switch-to-next-tab)
+
+(global-set-key (kbd "C-<tab>") 'other-window)
+
+(global-set-key (kbd "s-<up>") 'beginning-of-buffer)
+(global-set-key (kbd "s-<down>") 'end-of-buffer)
+(global-set-key (kbd "s-w") 'bury-buffer)
+(global-set-key (kbd "s-/") 'comment-dwim)
+
+(setq-default truncate-lines t)
+
+(setq-default
+ mode-line-format
+ '((:eval (cond
+           ((get-buffer-process (current-buffer))
+            '(:propertize ">>>" face (:background "orange")))
+           ((and (buffer-file-name) (buffer-modified-p))
+            '(:propertize "+" face (:background "yellow")))))
+   (:eval (or (buffer-file-name) (buffer-name)))
+   ":%l:%c"))
+
+;; ergonomic copy cut paste
+(global-set-key (kbd "<S-return>") 'yank)
+(global-set-key (kbd "<S-backspace>") 'kill-region)
+(defun maybe-copy-region ()
+  (interactive)
+  (if (region-active-p)
+      (yank))     )
