@@ -21,6 +21,8 @@
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(delete-selection-mode 1)
+(global-auto-revert-mode 1)
 
 ;; remember minibuffer history between restarts
 (savehist-mode 1)
