@@ -45,7 +45,6 @@
 (text-deletion-mode 1)
 
 (load "copy-where.el")
-(load "idle-highlight.el")
 (load "dupe-and-drag.el")
 (load "notes.el")
 (load "schemeing.el")
@@ -69,6 +68,13 @@
 (load "custom-haskell.el")
 
 (load "custom-eglot.el")
+
+;;
+
+(load "idle-highlight-2.el")
+(ihi-mode)
+
+;;
 
 (setq-default show-trailing-whitespace nil)
 (set-face-attribute 'trailing-whitespace nil
@@ -140,6 +146,8 @@
 (gsk "<mouse-3>" 'yank-or-kill)
 (gsk "<S-mouse-3>" 'yank)
 
+(setq mouse-yank-at-point t)
+
 ;;
 
 (gsk "<C-mouse-1>" 'xref-find-definitions-at-mouse)
@@ -184,6 +192,10 @@
 (pick-define-numpad-keys)
 (pick-define-function-keys)
 
+;; (require 'fzf)
+;; (gsk "<f1>" 'fzf-switch-buffer)
+;; (gsk "<f2>" 'fzf-git)
+
 ;;
 ;; Completion
 ;;
@@ -192,23 +204,80 @@
  completion-styles '(partial-completion flex)
  tab-always-indent t)
 
-(setq dabbrev-check-all-buffers t
-      dabbrev-friend-buffer-function 'dabbrev--same-major-mode-p)
-;; (setq dabbrev-backward-only nil)
-(setq dabbrev-select-buffers-function 'dabbrev--select-buffers)
-(setq cape-dabbrev-check-other-buffers nil)
+;; (setq dabbrev-check-all-buffers t
+;;       dabbrev-friend-buffer-function 'dabbrev--same-major-mode-p)
+;; ;; (setq dabbrev-backward-only nil)
+;; (setq dabbrev-select-buffers-function 'dabbrev--select-buffers)
+;; (setq cape-dabbrev-check-other-buffers nil)
+
+;; (setq dabbrev-limit 1000
+;;       dabbrev-check-all-buffers nil)
 
 ;; todo when emacs 29, can use a built-in
-(require 'cape)
+;; (require 'cape)
 
-(defun enable-dabbrev-capf ()
-  (add-hook 'completion-at-point-functions 'cape-dabbrev 0 t))
+;; (require 'dabbrev)
+;; (defun dabbrev--search (abbrev reverse ignore-case)
+;;   (save-match-data
+;;     (let ((pattern1 (concat (regexp-quote abbrev)
+;; 			                "\\(" dabbrev--abbrev-char-regexp "\\)"))
+;; 	      (pattern2 (concat (regexp-quote abbrev)
+;; 			                "\\(\\(" dabbrev--abbrev-char-regexp "\\)+\\)"))
+;; 	      found-string result)
+;;       ;; Limited search.
+;;       (save-restriction
+;; 	    (and dabbrev-limit
+;; 	         (narrow-to-region
+;;                ;; TODO TODO TODO
+;;               (point)
+;;               (+ (point) (if reverse (- dabbrev-limit) dabbrev-limit))))
+;; 	    ;;--------------------------------
+;; 	    ;; Look for a distinct expansion, using dabbrev--last-table.
+;;         dabbrev--search	;;--------------------------------
+;; 	    (while (and (not found-string)
+;; 		            (if reverse
+;; 			            (re-search-backward pattern1 nil t)
+;; 		              (re-search-forward pattern1 nil t)))
+;; 	      (goto-char (match-beginning 0))
+;; 	      ;; In case we matched in the middle of a word,
+;; 	      ;; back up to start of word and verify we still match.
+;; 	      (dabbrev--goto-start-of-abbrev)
 
-(add-hook 'c-mode-hook 'enable-dabbrev-capf)
-(add-hook 'ruby-mode-hook 'enable-dabbrev-capf)
-(add-hook 'haskell-mode-hook 'enable-dabbrev-capf)
-(add-hook 'scheme-mode-hook 'enable-dabbrev-capf)
-;; (remove-hook 'emacs-lisp-mode-hook 'enable-dabbrev-capf)
+;; 	      (if (not (looking-at pattern1))
+;; 	          nil
+;; 	        ;; We have a truly valid match.  Find the end.
+;; 	        (re-search-forward pattern2)
+;; 	        (setq found-string (match-string-no-properties 0))
+;; 	        (setq result found-string)
+;; 	        (and ignore-case (setq found-string (downcase found-string)))
+;; 	        ;; Ignore this match if it's already in the table.
+;; 	        (if (dabbrev-filter-elements
+;; 		         table-string dabbrev--last-table
+;; 		         (string= found-string table-string))
+;; 		        (setq found-string nil)))
+;; 	      ;; Prepare to continue searching.
+;; 	      (goto-char (if reverse (match-beginning 0) (match-end 0))))
+;; 	    ;; If we found something, use it.
+;; 	    (when found-string
+;; 	      ;; Put it into `dabbrev--last-table'
+;; 	      ;; and return it (either downcased, or as is).
+;; 	      (setq dabbrev--last-table
+;; 		        (cons found-string dabbrev--last-table))
+;; 	      result)))))
+
+(defun enable-dabbrev-capf () (add-hook 'completion-at-point-functions 'dabbrev-capf 0 t))
+
+;; (remove-hook 'c-mode-hook 'enable-dabbrev-capf)
+;; (remove-hook 'ruby-mode-hook 'enable-dabbrev-capf)
+;; (remove-hook 'haskell-mode-hook 'enable-dabbrev-capf)
+;; (remove-hook 'scheme-mode-hook 'enable-dabbrev-capf)
+;; (add-hook 'emacs-lisp-mode-hook 'enable-dabbrev-capf)
+
+;; superkalifragilistic
+
+;; superk
+
+;; bug in dabbrev--search
 
 ;;
 
@@ -272,6 +341,9 @@
 
 (setq mouse-wheel-tilt-scroll t
       mouse-wheel-flip-direction t)
+
+(gsk "S-<next>" 'scroll-left)
+(gsk "S-<prior>" 'scroll-right)
 
 ;;
 ;; Query replace using region
@@ -616,69 +688,72 @@ and replace the buffer contents with the output."
 (gsk "C-<escape>" 'dired-jump)
 ;; (gsk "<escape>" 'top-level)
 
-(gsk
- "<f9>"
- (keymap
-  "DEL" 'dired-jump
-  "k" 'really-kill-buffer
-  "e" 'eval-buffer
-  "c" 'make-frame
-  "q" 'quit-window
-  "0" 'delete-window
-  "1" 'delete-other-windows
-  "2" 'split-window-below
-  "3" 'split-window-right
-  "=" 'balance-windows
-  "f" 'find-file
-  "F" 'file-hopper
-  "g" 'rg
-  "G" 'rg-project-all
-  "b" 'switch-to-buffer
-  "s" (keymap "g" 'google
-              "s" 'stackoverflow
-              "t" 'teclis
-              "r" 'rust-core)
-  "h" (keymap "f" 'describe-function
-              "v" 'describe-variable
-              "k" 'describe-key
-              "m" 'describe-mode
-              "i" 'info
-              "a" 'apropos)
-  "<left>" 'previous-buffer
-  "<right>" 'next-buffer
-  "<escape>" 'keyboard-quit
-  "`" (lambda () (interactive) (insert "`"))
-  "n" 'next-error
-  "p" 'previous-error
-  "o" 'occur
-  "y" (keymap "c" 'copy-crumb
-              "g" 'copy-git-buffer-path
-              "b" 'copy-buffer-path
-              "n" 'copy-buffer-path-and-line)
-  "t" (keymap "l" 'visual-line-mode
-              "n" 'linum-mode
-              "f" 'auto-fill-mode
-              "r" 'refill-mode
-              "c" 'flycheck-mode)
-  "v" 'view-mode
-  "j" (keymap "b" 'bk-bfp-branch
-              "n" 'take-notes
-              "N" 'jump-to-notes-dir
-              "g" 'github-current-branch
-              "j" 'browse-url-at-point
-              "D" (lambda () (interactive) (find-file "~/Downloads"))
-              "d" 'jump-to-dev-env
-              ;; "a" aws-jumper-keymap
-              )
-  "C" 'compile-in-dir
-  "w" (keymap "d" 'dedicate-window
-              "w" 'mark-this-as-working-win)
-  "r" 'query-replace-resume
-  "d" (keymap "p" 'profiler-start)
-  "x" 'delete-trailing-whitespace
-  "<f1>" 'pick-select-buffer-other-window
-  "!" 'sh-region
-  ))
+(let ((leader-map
+       (keymap
+        "DEL" 'dired-jump
+        "k" 'really-kill-buffer
+        "e" 'eval-buffer
+        "c" 'make-frame
+        "q" 'quit-window
+        "0" 'delete-window
+        "1" 'delete-other-windows
+        "2" 'split-window-below
+        "3" 'split-window-right
+        "=" 'balance-windows
+        "f" 'find-file
+        "F" 'file-hopper
+        "g" 'rg
+        "G" 'rg-project-all
+        "b" 'switch-to-buffer
+        "s" (keymap "g" 'google
+                    "s" 'stackoverflow
+                    "t" 'teclis
+                    "r" 'rust-core)
+        "h" (keymap "f" 'describe-function
+                    "v" 'describe-variable
+                    "k" 'describe-key
+                    "m" 'describe-mode
+                    "i" 'info
+                    "a" 'apropos)
+        "<left>" 'previous-buffer
+        "<right>" 'next-buffer
+        "<escape>" 'keyboard-quit
+        "`" (lambda () (interactive) (insert "`"))
+        "n" 'next-error
+        "p" 'previous-error
+        "o" 'occur
+        "y" (keymap "c" 'copy-crumb
+                    "g" 'copy-git-buffer-path
+                    "b" 'copy-buffer-path
+                    "n" 'copy-buffer-path-and-line)
+        "t" (keymap "l" 'visual-line-mode
+                    "n" 'linum-mode
+                    "f" 'auto-fill-mode
+                    "r" 'refill-mode
+                    "c" 'flycheck-mode
+                    "t" 'toggle-truncate-lines)
+        "v" 'view-mode
+        "j" (keymap "b" 'bk-bfp-branch
+                    "n" 'take-notes
+                    "N" 'jump-to-notes-dir
+                    "g" 'github-current-branch
+                    "j" 'browse-url-at-point
+                    "D" (lambda () (interactive) (find-file "~/Downloads"))
+                    "d" 'jump-to-dev-env
+                    ;; "a" aws-jumper-keymap
+                    )
+        "C" 'compile-in-dir
+        "w" (keymap "d" 'dedicate-window
+                    "w" 'mark-this-as-working-win)
+        "r" 'query-replace-resume
+        "d" (keymap "p" 'profiler-start)
+        "x" 'delete-trailing-whitespace
+        "<f1>" 'pick-select-buffer-other-window
+        "!" 'sh-region
+        "<kp-7>" 'gptel-send
+        )))
+  (gsk "<f9>" leader-map)
+  (gsk "<kp-0>" leader-map))
 
 ;;
 
@@ -741,8 +816,7 @@ and replace the buffer contents with the output."
  corfu-auto t
  corfu-auto-delay 0.2
  corfu-count 3
- corfu-bar-width 0
- corfu-count 3)
+ corfu-bar-width 0)
 
 (global-corfu-mode t)
 (setq global-corfu-modes '((not pick-mode) t))
@@ -784,7 +858,8 @@ and replace the buffer contents with the output."
     (forward-line 1)
     (activate-mark)))
 
-(gsk "<M-SPC>" 'select-this-line)
+(gsk "<M-SPC>" 'set-mark-command)
+;; (gsk "<M-SPC>" 'select-this-line)
 
 ;;
 
@@ -1045,6 +1120,18 @@ and replace the buffer contents with the output."
       (setf end (point))
       (copy-region-as-kill start end))))
 
+(defun copy-ampy-block ()
+  (interactive)
+  (save-excursion
+    (let ((start) (end))
+      (re-search-backward "&&&")
+      (forward-line)
+      (setf start (point))
+      (re-search-forward "&&&")
+      (beginning-of-line)
+      (setf end (point))
+      (copy-region-as-kill start end))))
+
 (gsk "<f8>" 'copy-ampy-block)
 
 ;;
@@ -1068,6 +1155,8 @@ and replace the buffer contents with the output."
 
 ;; (car (car hi-lock-interactive-lighters))
 ;; (assoc "\\_<find-tag-default-as-symbol-regexp\\_>" hi-lock-interactive-lighters)
+
+(require 'hi-lock)
 
 (defun toggle-highlight-symbol-at-point ()
   (interactive)

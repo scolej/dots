@@ -28,7 +28,7 @@
   (let* ((default-directory dir)
          (bufname (concat "rg " dir " " regex (if ignore-case " ignore-case" "") (if file-glob (concat " files: " file-glob) "")))
          (buf (get-buffer-create bufname)))
-    (let ((cmd (string-join (list "rg" "-n" "--no-heading"
+    (let ((cmd (string-join (list "rg" "-n" "--no-heading" "--hidden"
                                   "--max-columns" "300" "--sort" "path"
                                   (if file-glob (concat "-g '" file-glob "'") "")
                                   (if ignore-case "-i" "")

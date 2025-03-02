@@ -16,7 +16,7 @@
  cursor-type t
  cursor-in-non-selected-windows 'hollow)
 
-(fringe-mode '(5 . 0))
+(fringe-mode '(8 . 8))
 
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -32,9 +32,10 @@
 
 (transient-mark-mode 1)
 (delete-selection-mode 1)
-(global-auto-revert-mode -1)
+(global-auto-revert-mode 1)
 (show-paren-mode 1)
 (global-so-long-mode 1)
+(repeat-mode 1)
 
 (setq
  load-prefer-newer t
@@ -92,7 +93,9 @@
  async-shell-command-buffer 'new-buffer
 
  split-width-threshold 200
- split-height-threshold nil)
+ split-height-threshold nil
+
+ font-lock-maximum-decoration '((c-mode . 2) (t . 1)))
 
 (setq-default
  indent-tabs-mode nil

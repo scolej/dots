@@ -1,5 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
+;; todo creating the initial list of candidates should be async so that you
+;; can start typing your query without delay ...
+
 ;; todo for files, only show full path, but abbreviate home dir etc
 
 ;; todo should be able to append a line number and go straight to that line

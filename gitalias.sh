@@ -15,7 +15,6 @@ g() {
 alias ga='git add'
 alias gap='git add -p'
 alias gau='git add -u'
-alias gaus='git add -u && git status'
 alias gaud='git add -u && git diff'
 
 alias gb='git branch --sort=authordate'
@@ -76,6 +75,11 @@ gads() {
 gauds() {
     git add -u "$@"
     git diff --staged
+}
+
+gaus() {
+    git add -u "$@"
+    git status
 }
 
 gas() {

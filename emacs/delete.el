@@ -34,12 +34,6 @@
   (interactive)
   (delete-region (point) (save-excursion (backward-sexp) (point))))
 
-;; (global-set-key (kbd "<C-M-backspace>") 'delete-backward-sexp)
-;; (global-set-key (kbd "<C-S-backspace>") 'delete-whole-line)
-;; (global-set-key (kbd "<C-backspace>") 'delete-backward-line)
-;; (global-set-key (kbd "C-M-k") 'delete-forward-sexp)
-;; (global-set-key (kbd "C-k") 'delete-forward-line)
-
 (define-minor-mode text-deletion-mode
   "Simple re-bindings to avoid saving to kill-ring for common deletions."
   :global t
