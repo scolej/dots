@@ -17,7 +17,7 @@ alias gap='git add -p'
 alias gau='git add -u'
 alias gaud='git add -u && git diff'
 
-alias gb='git branch --sort=authordate'
+alias gb='PAGER=cat git branch --sort=authordate'
 alias gba='git branch -a'
 alias gbr='git branch -r'
 

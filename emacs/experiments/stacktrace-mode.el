@@ -12,6 +12,7 @@
 
 (define-derived-mode stacktrace-mode
   fundamental-mode "stacktrace mode"
+  (add-hook 'after-revert-hook 'stacktrace-add-buttons nil t)
   (stacktrace-add-buttons))
 
 (defun maybe-string-remove-prefix (prefix string)

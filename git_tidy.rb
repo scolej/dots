@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 puts 'fetching all remotes'
 `git remote update -p`
 

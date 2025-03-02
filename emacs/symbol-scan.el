@@ -46,7 +46,8 @@
 (defun forward-search-region (min max)
   (interactive "r")
   (let ((str (buffer-substring-no-properties min max)))
-    (unless (search-forward-regexp (regexp-quote str)) (error "region not found"))
+    (unless (search-forward-regexp (regexp-quote str))
+      (error "region not found"))
     (push-mark (match-beginning 0))
     (activate-mark)))
 
@@ -55,7 +56,8 @@
   (let ((str (buffer-substring-no-properties min max)))
     (unless (save-excursion
               (goto-char min)
-              (search-backward-regexp (regexp-quote str))) (error "region not found"))
+              (search-backward-regexp (regexp-quote str)))
+      (error "region not found"))
     (goto-char (match-end 0))
     (push-mark (match-beginning 0))
     (activate-mark)))

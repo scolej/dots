@@ -12,20 +12,20 @@
     (find-file (name-note-file-now title (if inferred-ext nil "txt")))))
 
 (defun jump-to-notes-dir ()
-    (interactive)
-    (find-file note-root)
-    (end-of-buffer))
-
-(defun take-notes-org (title)
-    (interactive "M")
-    (find-file (name-note-file-now title "org")))
+  (interactive)
+  (find-file note-root)
+  (end-of-buffer))
 
 (defun find-active-note ()
     (interactive)
-    (find-file (file-name-concat note-root "active.txt")))
+    find-file
+    (file-name-concat note-root "active.txt"))
 
 (defun notes-import-file (file name)
   (interactive "f\nM")
   (copy-file file (name-note-file-now name (file-name-extension file))))
+
+(defalias 'nn 'take-notes)
+(defalias 'jn 'jump-to-notes-dir)
 
 (provide 'notes)
